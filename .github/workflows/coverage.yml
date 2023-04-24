@@ -2,6 +2,7 @@ name: Codecov
 on: [push, pull_request]
 jobs:
   codecov:
+  run:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
