@@ -25,7 +25,6 @@
         <artifactId>dd-parent</artifactId>
         <version>0.19.0</version>
     </parent>
-
     <artifactId>dd-vault-ingest-flow</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
@@ -48,6 +47,44 @@
             <groupId>io.dropwizard</groupId>
             <artifactId>dropwizard-core</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+            <version>1.1.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.jena/apache-jena-libs -->
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>apache-jena-libs</artifactId>
+            <version>4.7.0</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
+            <artifactId>bagit</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -55,6 +92,24 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxb2-maven-plugin</artifactId>
+                <version>2.5.0</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>xjc</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sources>
+                        <source>src/main/resources/datacite-xsd</source>
+                    </sources>
+                    <packageName>nl.knaw.dans.vaultingest.domain</packageName>
+                </configuration>
             </plugin>
         </plugins>
     </build>
