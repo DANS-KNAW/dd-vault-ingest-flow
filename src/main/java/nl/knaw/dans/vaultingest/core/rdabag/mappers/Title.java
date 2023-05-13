@@ -13,8 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest;
+package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-public class DummyTest {
-    // Stub for the moment
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.vocabulary.DCTerms;
+import org.apache.jena.vocabulary.SchemaDO;
+
+import java.util.List;
+
+public class Title {
+
+    // CIT001
+    public static List<Statement> toTitle(Resource resource, String title) {
+        var model = resource.getModel();
+        var literal = model.createLiteral(title);
+
+        return List.of(
+            model.createStatement(resource, DCTerms.title, literal),
+            model.createStatement(resource, SchemaDO.name, literal)
+        );
+    }
 }

@@ -13,30 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
+import org.apache.commons.configuration2.Configuration;
 
-public interface DepositBag {
+public class CommonDepositProperties {
+    private final Configuration configuration;
 
-    Collection<DepositFile> getPayloadFiles();
+    public CommonDepositProperties(Configuration configuration) {
+        this.configuration = configuration;
+    }
 
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
+    public boolean hasProperty(String name) {
+        return configuration.containsKey(name);
+    }
 
-    Collection<Path> getMetadataFiles() throws IOException;
-
-    InputStream inputStreamForMetadataFile(Path path);
-
-    InputStream getBagInfoFile();
-
-    InputStream getBagItFile();
-
-    List<String> getMetadataValue(String key);
-
-
-    // TODO manifests
+    public <T> T getProperty(Class<T> cls, String name) {
+        return configuration.get(cls, name);
+    }
 }

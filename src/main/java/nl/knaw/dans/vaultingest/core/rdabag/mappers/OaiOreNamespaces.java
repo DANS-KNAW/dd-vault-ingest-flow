@@ -13,30 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-
-public interface DepositBag {
-
-    Collection<DepositFile> getPayloadFiles();
-
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
-
-    Collection<Path> getMetadataFiles() throws IOException;
-
-    InputStream inputStreamForMetadataFile(Path path);
-
-    InputStream getBagInfoFile();
-
-    InputStream getBagItFile();
-
-    List<String> getMetadataValue(String key);
-
-
-    // TODO manifests
+public interface OaiOreNamespaces {
+    String ORE = "http://www.openarchives.org/ore/terms/";
+    String DCTERMS = "http://purl.org/dc/terms/";
+    String CITATION = "https://dataverse.org/schema/citation/";
+    String FOAF = "Http://xmlns.com/foaf/0.1/";
+    String DC = "HTTp://purl.org/dc/elements/1.1/";
+    String SCHEMA = "http://schema.org/";
+    String DATACITE = "http://purl.org/spar/datacite/";
 }

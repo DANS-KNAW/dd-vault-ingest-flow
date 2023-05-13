@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.converter;
+package nl.knaw.dans.vaultingest.core.domain;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.PidMappings;
+public interface DatasetRelation {
 
-class PidMappingConverter {
+    String getDisplayName();
 
-    PidMappings convert(Deposit deposit) {
+    String getAffiliation();
 
-        var mappings = new PidMappings();
-        // does not include the "title of the deposit" as a mapping
-        mappings.addMapping(deposit.getId(), "data/");
+    String getIdentifierScheme();
 
-        var bag = deposit.getBag();
-
-        for (var file : bag.getPayloadFiles()) {
-            mappings.addMapping("file:///" + file.getId(), file.getPath().toString());
-        }
-
-        return mappings;
-    }
+    String getIdentifier();
 }

@@ -203,37 +203,6 @@ public class DepositOaiOreMapper {
         return new OreResourceMap(model, namespaces);
     }
 
-    private void addAuthor(HashMap<String, Object> describes, Deposit deposit) {
-        deposit.getAuthors().stream().findFirst().ifPresent(author -> {
-            var authorMap = new HashMap<String, Object>();
-
-            if (author.getOrcid() != null) {
-                authorMap.put("authorIdentifierScheme", "ORCID");
-                authorMap.put("authorIdentifier", author.getOrcid());
-            } else if (author.getIsni() != null) {
-                authorMap.put("authorIdentifierScheme", "ISNI");
-                authorMap.put("authorIdentifier", author.getIsni());
-            } else if (author.getDai() != null) {
-                authorMap.put("authorIdentifierScheme", "DAI");
-                authorMap.put("authorIdentifier", author.getDai());
-            }
-
-            authorMap.put("authorName", formatName(author));
-            authorMap.put("authorAffiliation", author.getAffiliation());
-
-            describes.put("author", authorMap);
-        });
-    }
-
-    String formatName(DatasetAuthor author) {
-        return String.join(" ", List.of(
-                        Optional.ofNullable(author.getInitials()).orElse(""),
-                        Optional.ofNullable(author.getInsertions()).orElse(""),
-                        Optional.ofNullable(author.getSurname()).orElse("")
-                ))
-                .trim().replaceAll("\\s+", " ");
-    }
-
     void frame() {
         // a "frame" is a specific graph layout that is applied to output data
         // It can be used to filter the output data.

@@ -15,8 +15,12 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.converter.DepositRdaBagConverter;
-import nl.knaw.dans.vaultingest.core.domain.*;
+import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
+import nl.knaw.dans.vaultingest.core.domain.DepositBag;
+import nl.knaw.dans.vaultingest.core.domain.DepositFile;
+import nl.knaw.dans.vaultingest.core.domain.Description;
+import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -41,15 +45,16 @@ class DepositToBagProcessTest {
         assert s != null;
         var bagDir = Path.of(s.getPath());
         Files.walk(bagDir)
-                .filter(Files::isRegularFile)
-                .forEach(System.out::println);
+            .filter(Files::isRegularFile)
+            .forEach(System.out::println);
 
         var bag = new DepositBag() {
+
             private final List<DepositFile> files = List.of(
-                    new DepositFile(UUID.randomUUID().toString(), Path.of("data/file/1.txt")),
-                    new DepositFile(UUID.randomUUID().toString(), Path.of("data/file/2.txt")),
-                    new DepositFile(UUID.randomUUID().toString(), Path.of("data/subdir/a/b/c/file.txt")),
-                    new DepositFile(UUID.randomUUID().toString(), Path.of("data/subdir 2/document.xlsx"))
+                new DepositFile(UUID.randomUUID().toString(), Path.of("data/file/1.txt")),
+                new DepositFile(UUID.randomUUID().toString(), Path.of("data/file/2.txt")),
+                new DepositFile(UUID.randomUUID().toString(), Path.of("data/subdir/a/b/c/file.txt")),
+                new DepositFile(UUID.randomUUID().toString(), Path.of("data/subdir 2/document.xlsx"))
             );
 
             @Override
@@ -66,9 +71,9 @@ class DepositToBagProcessTest {
             @Override
             public Collection<Path> getMetadataFiles() {
                 return List.of(
-                        Path.of("metadata/dataset.xml"),
-                        Path.of("metadata/files.xml"),
-                        Path.of("metadata/agreements.xml")
+                    Path.of("metadata/dataset.xml"),
+                    Path.of("metadata/files.xml"),
+                    Path.of("metadata/agreements.xml")
                 );
             }
 
@@ -81,9 +86,9 @@ class DepositToBagProcessTest {
             @Override
             public InputStream getBagInfoFile() {
                 var str = "Payload-Oxum: 0.2\n" +
-                        "Bagging-Date: 2018-05-25\n" +
-                        "Bag-Size: 2.5 KB\n" +
-                        "Created: 2018-11-16T00:00:00.000+02:00\n";
+                    "Bagging-Date: 2018-05-25\n" +
+                    "Bag-Size: 2.5 KB\n" +
+                    "Created: 2018-11-16T00:00:00.000+02:00\n";
 
                 return new ByteArrayInputStream(str.getBytes());
             }
@@ -91,36 +96,38 @@ class DepositToBagProcessTest {
             @Override
             public InputStream getBagItFile() {
                 var str = "BagIt-Version: 0.97\n" +
-                        "Tag-File-Character-Encoding: UTF-8\n";
+                    "Tag-File-Character-Encoding: UTF-8\n";
 
                 return new ByteArrayInputStream(str.getBytes());
             }
 
             @Override
-            public PidMappings getPidMappings() {
-                return new PidMappings();
+            public List<String> getMetadataValue(String key) {
+                return List.of();
             }
+
         };
 
         System.out.println("BAGDIR: " + bagDir);
         var deposit = TestDeposit.builder()
-                .id("doi:10.17026/dans-12345")
-                .title("The beautiful title")
-//                .bagDir(bagDir)
-                .bag(bag)
-                .descriptions(List.of("Description 1", "Description 2"))
-                .authors(List.of(
-                        DatasetAuthor.builder()
-                                .initials("EJ")
-                                .name("Eric")
-                                .affiliation("Affiliation 1")
-                                .dai("123456")
-                                .build()
-                ))
-                .subject("Something about science")
-                .rightsHolder("John Rights")
-                .build();
-
+            .id("doi:10.17026/dans-12345")
+            .title("The beautiful title")
+            .bag(bag)
+            .descriptions(List.of(
+                Description.builder().value("Description 1").build(),
+                Description.builder().value("Description 2").build()
+            ))
+            .authors(List.of(
+                DatasetAuthor.builder()
+                    .initials("EJ")
+                    .name("Eric")
+                    .affiliation("Affiliation 1")
+                    .dai("123456")
+                    .build()
+            ))
+            .subject("Something about science")
+            .rightsHolder("John Rights")
+            .build();
 
         depositToBagProcess.process(deposit);
     }

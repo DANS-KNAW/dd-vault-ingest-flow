@@ -13,30 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.xml;
 
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
 
-public interface DepositBag {
+public interface XmlReader extends XmlNamespaces {
 
-    Collection<DepositFile> getPayloadFiles();
+    Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
 
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
+    Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException;
 
-    Collection<Path> getMetadataFiles() throws IOException;
-
-    InputStream inputStreamForMetadataFile(Path path);
-
-    InputStream getBagInfoFile();
-
-    InputStream getBagItFile();
-
-    List<String> getMetadataValue(String key);
-
-
-    // TODO manifests
 }

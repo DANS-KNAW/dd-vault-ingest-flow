@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.converter;
+package nl.knaw.dans.vaultingest.core.rdabag;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.domain.Description;
 import nl.knaw.dans.vaultingest.domain.Affiliation;
 import nl.knaw.dans.vaultingest.domain.DescriptionType;
 import nl.knaw.dans.vaultingest.domain.Resource;
@@ -60,21 +61,21 @@ class DataciteConverter {
 
         if (deposit.getAuthors() != null) {
             var authors = deposit.getAuthors()
-                    .stream()
-                    .map(a -> {
-                        var creator = new Resource.Creators.Creator();
-                        var name = new Resource.Creators.Creator.CreatorName();
-                        name.setValue(a.getDisplayName());
-                        creator.setCreatorName(name);
+                .stream()
+                .map(a -> {
+                    var creator = new Resource.Creators.Creator();
+                    var name = new Resource.Creators.Creator.CreatorName();
+                    name.setValue(a.getDisplayName());
+                    creator.setCreatorName(name);
 
-                        var affiliation = new Affiliation();
-                        affiliation.setValue(a.getAffiliation());
+                    var affiliation = new Affiliation();
+                    affiliation.setValue(a.getAffiliation());
 
-                        creator.getAffiliation().add(affiliation);
+                    creator.getAffiliation().add(affiliation);
 
-                        return creator;
-                    })
-                    .collect(Collectors.toList());
+                    return creator;
+                })
+                .collect(Collectors.toList());
 
             creators.getCreator().addAll(authors);
         }
@@ -103,7 +104,8 @@ class DataciteConverter {
 
         if (deposit.getDescriptions() != null && deposit.getDescriptions().size() > 0) {
             var description = new Resource.Descriptions.Description();
-            var depositDescription = String.join("; ", deposit.getDescriptions());
+
+            var depositDescription = deposit.getDescriptions().stream().map(Description::getValue).collect(Collectors.joining("; "));
 
             description.setDescriptionType(DescriptionType.ABSTRACT);
             description.getContent().add(depositDescription);

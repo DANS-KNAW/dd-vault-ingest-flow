@@ -15,28 +15,16 @@
  */
 package nl.knaw.dans.vaultingest.core.domain;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.Data;
+import lombok.Setter;
 
-public interface DepositBag {
-
-    Collection<DepositFile> getPayloadFiles();
-
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
-
-    Collection<Path> getMetadataFiles() throws IOException;
-
-    InputStream inputStreamForMetadataFile(Path path);
-
-    InputStream getBagInfoFile();
-
-    InputStream getBagItFile();
-
-    List<String> getMetadataValue(String key);
-
-
-    // TODO manifests
+@Data
+@Builder
+@Setter(AccessLevel.NONE)
+public class DatasetContact {
+    private String name;
+    private String affiliation;
+    private String email;
 }

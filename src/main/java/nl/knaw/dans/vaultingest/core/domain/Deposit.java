@@ -22,13 +22,19 @@ public interface Deposit {
 
     String getTitle();
 
-    Collection<String> getDescriptions();
+    Collection<String> getAlternativeTitles();
 
-    Collection<DatasetAuthor> getAuthors();
+    Collection<OtherId> getOtherIds();
+
+    Collection<Description> getDescriptions();
+
+    Collection<DatasetRelation> getAuthors();
 
     String getSubject();
 
     String getRightsHolder();
 
     DepositBag getBag();
+
+    PidMappings getPidMappings();
 }

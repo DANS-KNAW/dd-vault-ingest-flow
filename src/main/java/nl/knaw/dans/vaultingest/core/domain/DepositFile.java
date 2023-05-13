@@ -16,12 +16,14 @@
 package nl.knaw.dans.vaultingest.core.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 import java.nio.file.Path;
 
 @Data
 @AllArgsConstructor
+@Builder
 public class DepositFile {
     private String id;
     private Path path;

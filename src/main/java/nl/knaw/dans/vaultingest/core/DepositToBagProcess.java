@@ -15,10 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.converter.DepositRdaBagConverter;
+import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-
-import java.nio.file.Path;
 
 public class DepositToBagProcess {
 

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.rdabag;
 
 import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Description;
+import nl.knaw.dans.vaultingest.core.domain.OtherId;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-class DepositOaiOreMapperTest {
+class OaiOreConverterTest {
 
     @Test
-    void mapDepositToOaiOre() throws Exception {
+    void convert() throws Exception {
         var deposit = TestDeposit.builder()
             .id("doi:10.17026/dans-12345")
             .title("The beautiful title")
@@ -39,22 +40,24 @@ class DepositOaiOreMapperTest {
                     .name("Eric")
                     .affiliation("Affiliation 1")
                     .dai("123456")
+                    .build(),
+                DatasetAuthor.builder()
+                    .name("Somebody")
                     .build()
             ))
             .subject("Something about science")
             .rightsHolder("John Rights")
+            .alternativeTitles(List.of("alt title 1", "alt title 2"))
+            .otherIds(List.of(
+                OtherId.builder().value("without agency").build(),
+                OtherId.builder().value("agency 1").agency("Agency name").build()
+            ))
             .build();
 
-        System.out.println("DEPOSIT: " + deposit);
-        var converter = new DepositOaiOreMapper();
-        var output = converter.mapDepositToOaiOre(deposit);
+        var converter = new OaiOreConverter();
+        var output = converter.convert(deposit);
 
         System.out.println("RDF: " + output.toRDF());
         System.out.println("JSON: " + output.toJsonLD());
-
-        //        var output2 = rdabag.mapDepositToOaiOre(deposit);
-        //
-        //        System.out.println("RDF: " + output2.toRDF());
-        //        System.out.println("JSON: " + output2.toJsonLD());
     }
 }

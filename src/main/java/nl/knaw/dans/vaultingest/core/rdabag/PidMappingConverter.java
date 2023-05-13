@@ -13,30 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.rdabag;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.domain.PidMappings;
 
-public interface DepositBag {
+class PidMappingConverter {
 
-    Collection<DepositFile> getPayloadFiles();
+    PidMappings convert(Deposit deposit) {
 
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
+        var mappings = new PidMappings();
+        // does not include the "title of the deposit" as a mapping
+        mappings.addMapping(deposit.getId(), "data/");
 
-    Collection<Path> getMetadataFiles() throws IOException;
+        var bag = deposit.getBag();
 
-    InputStream inputStreamForMetadataFile(Path path);
+        for (var file : bag.getPayloadFiles()) {
+            mappings.addMapping("file:///" + file.getId(), file.getPath().toString());
+        }
 
-    InputStream getBagInfoFile();
-
-    InputStream getBagItFile();
-
-    List<String> getMetadataValue(String key);
-
-
-    // TODO manifests
+        return mappings;
+    }
 }

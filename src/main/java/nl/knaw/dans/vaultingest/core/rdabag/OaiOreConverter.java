@@ -13,8 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.converter;
+package nl.knaw.dans.vaultingest.core.rdabag;
 
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.AlternativeTitle;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Author;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.OtherIds;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Title;
 import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
@@ -57,37 +61,10 @@ public class OaiOreConverter {
         var resourceMap = createResourceMap(model);
         var resource = createAggregation(model);
 
-        model.add(model.createStatement(resourceMap,
-                model.createProperty(dcterms, "modified"),
-                model.createLiteral("2008-10-01T18:30:02Z")));
-
-        addCreators(model, resource, deposit);
-
-        var hasPart1 = model.createStatement(resource,
-                model.createProperty(schema, "hasPart"),
-                model.createLiteral("urn:uuid:123")
-        );
-
-        var hasPart2 = model.createStatement(resource,
-                model.createProperty(schema, "hasPart"),
-                model.createLiteral("urn:uuid:124")
-        );
-
-        model.add(hasPart1);
-        model.add(hasPart2);
-
-        model.add(model.createStatement(
-                resource,
-                model.createProperty(dcterms, "title"),
-                model.createLiteral("This is the title")
-        ));
-
-        var otherId = model.createResource();
-        otherId.addProperty(model.createProperty(citation, "otherIdAgency"), "Test prefix");
-        otherId.addProperty(model.createProperty(citation, "otherIdValue"), "1234");
-
-        model.add(resource, model.createProperty(citation, "otherId"), otherId);
-
+        model.add(Title.toTitle(resource, deposit.getTitle()));
+        model.add(AlternativeTitle.toAlternativeTitle(resource, deposit.getAlternativeTitles()));
+        model.add(OtherIds.toOtherIds(resource, deposit.getOtherIds()));
+        model.add(Author.toAuthors(resource, deposit.getAuthors()));
 
         model.add(model.createStatement(resourceMap, model.createProperty(ore, "describes"), resource));
 
@@ -95,10 +72,9 @@ public class OaiOreConverter {
     }
 
     Resource createResourceMap(Model model) {
-
         var resourceMap = model.createResource("urn:uuid:95ac8641-407c-4f1b-8d83-a7e659ca409a");
         var resourceMapType = model.createStatement(resourceMap, RDF.type,
-                model.createResource("http://www.openarchives.org/ore/terms/ResourceMap"));
+            model.createResource("http://www.openarchives.org/ore/terms/ResourceMap"));
 
         model.add(resourceMapType);
         return resourceMap;
@@ -108,11 +84,11 @@ public class OaiOreConverter {
         var resource = model.createResource("urn:uuid:" + id);
 
         var type = model.createStatement(resource, RDF.type,
-                model.createResource("http://www.openarchives.org/ore/terms/AggregatedResource"));
+            model.createResource("http://www.openarchives.org/ore/terms/AggregatedResource"));
 
         var name = model.createStatement(resource,
-                model.createProperty("http://schema.org/name"),
-                model.createLiteral("This is the name for id " + id)
+            model.createProperty("http://schema.org/name"),
+            model.createLiteral("This is the name for id " + id)
         );
 
         model.add(type);
@@ -124,7 +100,7 @@ public class OaiOreConverter {
     Resource createAggregation(Model model) {
         var resource = model.createResource("urn:nbn:nl:ui-13-jc-8o2t");
         var type1 = model.createStatement(resource, RDF.type,
-                model.createResource("http://www.openarchives.org/ore/terms/Aggregation"));
+            model.createResource("http://www.openarchives.org/ore/terms/Aggregation"));
 
         model.add(type1);
 
@@ -142,52 +118,53 @@ public class OaiOreConverter {
 
         return resource;
     }
-
-    // this should go into one of those special static classes
-    void addCreators(Model model, Resource resource, Deposit deposit) {
-        for (var author : deposit.getAuthors()) {
-            var authorResource = model.createResource();
-
-            model.add(model.createStatement(authorResource,
-                    model.createProperty(citation, "authorName"),
-                    model.createLiteral(formatName(author))));
-
-            model.add(model.createStatement(authorResource,
-                    model.createProperty(citation, "authorAffiliation"),
-                    model.createLiteral(author.getAffiliation())));
-
-
-            var authorMap = new HashMap<String, String>();
-
-            if (author.getOrcid() != null) {
-                authorMap.put("authorIdentifierScheme", "ORCID");
-                authorMap.put("authorIdentifier", author.getOrcid());
-            } else if (author.getIsni() != null) {
-                authorMap.put("authorIdentifierScheme", "ISNI");
-                authorMap.put("authorIdentifier", author.getIsni());
-            } else if (author.getDai() != null) {
-                authorMap.put("authorIdentifierScheme", "DAI");
-                authorMap.put("authorIdentifier", author.getDai());
-            }
-
-            model.add(model.createStatement(authorResource,
-                    model.createProperty(datacite, "AgentIdentifier"),
-                    model.createLiteral(authorMap.get("authorIdentifier"))));
-
-            model.add(model.createStatement(authorResource,
-                    model.createProperty(datacite, "AgentIdentifierScheme"),
-                    model.createLiteral(authorMap.get("authorIdentifierScheme"))));
-
-            model.add(resource, model.createProperty(dcterms, "author"), authorResource);
-        }
-    }
+//
+//    // this should go into one of those special static classes
+//    void addCreators(Model model, Resource resource, Deposit deposit) {
+//        for (var author : deposit.getAuthors()) {
+//            var authorResource = model.createResource();
+//
+//            model.add(model.createStatement(authorResource,
+//                model.createProperty(citation, "authorName"),
+//                model.createLiteral(formatName(author))));
+//
+//            model.add(model.createStatement(authorResource,
+//                model.createProperty(citation, "authorAffiliation"),
+//                model.createLiteral(author.getAffiliation())));
+//
+//            var authorMap = new HashMap<String, String>();
+//
+//            if (author.getOrcid() != null) {
+//                authorMap.put("authorIdentifierScheme", "ORCID");
+//                authorMap.put("authorIdentifier", author.getOrcid());
+//            }
+//            else if (author.getIsni() != null) {
+//                authorMap.put("authorIdentifierScheme", "ISNI");
+//                authorMap.put("authorIdentifier", author.getIsni());
+//            }
+//            else if (author.getDai() != null) {
+//                authorMap.put("authorIdentifierScheme", "DAI");
+//                authorMap.put("authorIdentifier", author.getDai());
+//            }
+//
+//            model.add(model.createStatement(authorResource,
+//                model.createProperty(datacite, "AgentIdentifier"),
+//                model.createLiteral(authorMap.get("authorIdentifier"))));
+//
+//            model.add(model.createStatement(authorResource,
+//                model.createProperty(datacite, "AgentIdentifierScheme"),
+//                model.createLiteral(authorMap.get("authorIdentifierScheme"))));
+//
+//            model.add(resource, model.createProperty(dcterms, "author"), authorResource);
+//        }
+//    }
 
     String formatName(DatasetAuthor author) {
         return String.join(" ", List.of(
-                        Optional.ofNullable(author.getInitials()).orElse(""),
-                        Optional.ofNullable(author.getInsertions()).orElse(""),
-                        Optional.ofNullable(author.getSurname()).orElse("")
-                ))
-                .trim().replaceAll("\\s+", " ");
+                Optional.ofNullable(author.getInitials()).orElse(""),
+                Optional.ofNullable(author.getInsertions()).orElse(""),
+                Optional.ofNullable(author.getSurname()).orElse("")
+            ))
+            .trim().replaceAll("\\s+", " ");
     }
 }

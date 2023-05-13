@@ -18,6 +18,7 @@ package nl.knaw.dans.vaultingest.core;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.DepositBag;
 import nl.knaw.dans.vaultingest.core.domain.RdaBag;
+import nl.knaw.dans.vaultingest.core.rdabag.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.serializer.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.serializer.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.serializer.PidMappingSerializer;
@@ -33,7 +34,7 @@ public class RdaBagWriter {
     private final DataciteSerializer dataciteSerializer = new DataciteSerializer();
     private final PidMappingSerializer pidMappingSerializer = new PidMappingSerializer();
 
-    private final OaiOreSerializer oaiOreSerializer = new OaiOreSerializer();
+    private final OaiOreConverter oaiOreConverter = new OaiOreConverter();
 
     public void write(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
         var bag = rdaBag.getBag();

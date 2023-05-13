@@ -15,12 +15,19 @@
  */
 package nl.knaw.dans.vaultingest.core.domain;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Data
 @Builder
-public class DatasetAuthor {
+@Setter(AccessLevel.NONE)
+public class DatasetAuthor implements DatasetRelation {
     private String name;
     private String titles;
     private String initials;
@@ -30,11 +37,51 @@ public class DatasetAuthor {
     private String isni;
     private String orcid;
     private String lcna;
+    private String viaf;
     private String role;
     private String organization;
     private String affiliation;
 
     public String getDisplayName() {
-        return this.getInitials() + " " + this.getSurname();
+        // initials + insertions + surname
+        return Stream.of(
+                this.getInitials(),
+                this.getInsertions(),
+                this.getSurname()
+            ).filter(StringUtils::isNotBlank)
+            .collect(Collectors.joining(" "));
+    }
+
+    public String getIdentifierScheme() {
+        if (this.getDai() != null) {
+            return "DAI";
+        }
+        else if (this.getIsni() != null) {
+            return "ISNI";
+        }
+        else if (this.getOrcid() != null) {
+            return "ORCID";
+        }
+        else if (this.getLcna() != null) {
+            return "LCNA";
+        }
+        else {
+            return null;
+        }
+    }
+
+    public String getIdentifier() {
+        switch (this.getIdentifierScheme()) {
+            case "DAI":
+                return this.getDai();
+            case "ISNI":
+                return this.getIsni();
+            case "ORCID":
+                return this.getOrcid();
+            case "LCNA":
+                return this.getLcna();
+            default:
+                return null;
+        }
     }
 }

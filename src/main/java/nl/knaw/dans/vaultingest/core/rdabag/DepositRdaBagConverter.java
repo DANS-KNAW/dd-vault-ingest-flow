@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.converter;
+package nl.knaw.dans.vaultingest.core.rdabag;
 
 import nl.knaw.dans.vaultingest.core.DepositOaiOreMapper;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
@@ -30,9 +30,10 @@ public class DepositRdaBagConverter {
         var bag = new RdaBag();
         bag.setId(deposit.getId());
         bag.setResource(dataciteConverter.convert(deposit));
-        bag.setPidMappings(pidMappingConverter.convert(deposit));
+//        bag.setPidMappings(pidMappingConverter.convert(deposit));
+        bag.setPidMappings(deposit.getPidMappings());
         bag.setBag(deposit.getBag());
-        bag.setOreResourceMap(depositOaiOreMapper.mapDepositToOaiOre(deposit));
+        bag.setOreResourceMap(oaiOreConverter.convert(deposit));
         return bag;
     }
 }

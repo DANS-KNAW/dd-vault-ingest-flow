@@ -18,7 +18,6 @@ package nl.knaw.dans.vaultingest.core.domain;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -26,30 +25,12 @@ import java.util.List;
 public class TestDeposit implements Deposit {
     private String id;
     private String title;
-    private List<String> descriptions;
-    private List<DatasetAuthor> authors;
+    private List<Description> descriptions;
+    private List<DatasetRelation> authors;
     private String rightsHolder;
     private String subject;
     private DepositBag bag;
-
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public String getTitle() {
-        return title;
-    }
-
-    @Override
-    public Collection<String> getDescriptions() {
-        return descriptions;
-    }
-
-    @Override
-    public Collection<DatasetAuthor> getAuthors() {
-        return authors;
-    }
-
+    private List<String> alternativeTitles;
+    private List<OtherId> otherIds;
+    private PidMappings pidMappings;
 }

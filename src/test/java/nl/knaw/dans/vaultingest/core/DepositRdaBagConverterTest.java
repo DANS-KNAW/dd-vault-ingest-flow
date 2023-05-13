@@ -17,20 +17,18 @@ package nl.knaw.dans.vaultingest.core;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.knaw.dans.vaultingest.core.converter.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
-import nl.knaw.dans.vaultingest.core.domain.DepositFile;
+import nl.knaw.dans.vaultingest.core.domain.Description;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.domain.Resource;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import java.io.StringWriter;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -39,21 +37,24 @@ class DepositRdaBagConverterTest {
     @Test
     void convert() throws Exception {
         var deposit = TestDeposit.builder()
-                .id("doi:10.17026/dans-12345")
-                .title("The beautiful title")
-                .descriptions(List.of("Description 1", "Description 2"))
-                .authors(List.of(
-                        DatasetAuthor.builder()
-                                .initials("EJ")
-                                .name("Eric")
-                                .affiliation("Affiliation 1")
-                                .dai("123456")
-                                .build()
-                ))
+            .id("doi:10.17026/dans-12345")
+            .title("The beautiful title")
+            .descriptions(List.of(
+                Description.builder().value("Description 1").build(),
+                Description.builder().value("Description 2").build()
+            ))
+            .authors(List.of(
+                DatasetAuthor.builder()
+                    .initials("EJ")
+                    .name("Eric")
+                    .affiliation("Affiliation 1")
+                    .dai("123456")
+                    .build()
+            ))
 
-                .subject("Something about science")
-                .rightsHolder("John Rights")
-                .build();
+            .subject("Something about science")
+            .rightsHolder("John Rights")
+            .build();
 
         System.out.println("DEPOSIT: " + deposit);
         var converter = new DepositRdaBagConverter();
@@ -62,8 +63,8 @@ class DepositRdaBagConverterTest {
 
         assertEquals(deposit.getId(), bag.getId());
 
-//        printResource(bag.getResource());
-//        printOre(bag.getOreResourceMap());
+        //        printResource(bag.getResource());
+        //        printOre(bag.getOreResourceMap());
 
     }
 
@@ -79,6 +80,6 @@ class DepositRdaBagConverterTest {
 
     void printOre(OreResourceMap map) throws JsonProcessingException {
         var result = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(map);
-//        System.out.println("ORE: " + result);
+        //        System.out.println("ORE: " + result);
     }
 }
