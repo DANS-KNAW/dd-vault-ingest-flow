@@ -13,18 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.deposit;
 
 import lombok.Builder;
-import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
-import nl.knaw.dans.vaultingest.core.domain.DatasetCreator;
-import nl.knaw.dans.vaultingest.core.domain.DatasetOrganization;
-import nl.knaw.dans.vaultingest.core.domain.DatasetRelation;
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.DepositBag;
-import nl.knaw.dans.vaultingest.core.domain.Description;
-import nl.knaw.dans.vaultingest.core.domain.OtherId;
-import nl.knaw.dans.vaultingest.core.domain.PidMappings;
+import nl.knaw.dans.vaultingest.core.domain.*;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
@@ -101,7 +93,6 @@ public class CommonDeposit implements Deposit {
     @Override
     public Collection<Description> getDescriptions() {
         // CIT009, profile / description
-
         var profileDescriptions = XPathEvaluator.strings(ddm,
             "/ddm:DDM/ddm:profile/dc:description",
             "/ddm:DDM/ddm:profile/dcterms:description"
@@ -220,4 +211,10 @@ public class CommonDeposit implements Deposit {
 
         return mappings;
     }
+
+    @Override
+    public Collection<DepositFile> getPayloadFiles() {
+        return getBag().getPayloadFiles();
+    }
+
 }

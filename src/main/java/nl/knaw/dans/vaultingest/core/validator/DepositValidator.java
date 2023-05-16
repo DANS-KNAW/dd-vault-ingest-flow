@@ -13,23 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.validator;
 
-import java.io.InputStream;
-import java.nio.file.Path;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 
-public class StdoutBagOutputWriter implements BagOutputWriter {
-
-    @Override
-    public void writeBagItem(InputStream inputStream, Path path) {
-        System.out.println("--- START(" + path + ") ---");
-
-        try {
-            inputStream.transferTo(System.out);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.out.println("\n--- END(" + path + ") ---");
-    }
+public interface DepositValidator {
+    void validate(Deposit deposit);
 }

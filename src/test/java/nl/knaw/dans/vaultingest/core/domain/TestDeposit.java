@@ -33,4 +33,5 @@ public class TestDeposit implements Deposit {
     private List<String> alternativeTitles;
     private List<OtherId> otherIds;
     private PidMappings pidMappings;
+    private List<DepositFile> payloadFiles;
 }

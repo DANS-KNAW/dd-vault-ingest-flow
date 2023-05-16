@@ -13,10 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.deposit;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import org.apache.commons.configuration2.Configuration;
 
-public interface DepositValidator {
-    void validate(Deposit deposit);
+public class CommonDepositProperties {
+    private final Configuration configuration;
+
+    public CommonDepositProperties(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
+    public boolean hasProperty(String name) {
+        return configuration.containsKey(name);
+    }
+
+    public <T> T getProperty(Class<T> cls, String name) {
+        return configuration.get(cls, name);
+    }
 }

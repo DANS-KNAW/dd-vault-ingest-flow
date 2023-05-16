@@ -15,12 +15,12 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
-import nl.knaw.dans.vaultingest.core.domain.DepositBag;
-import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.Description;
-import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.deposit.DiskDepositLoader;
+import nl.knaw.dans.vaultingest.core.domain.*;
 import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
+import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
+import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
+import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -39,7 +39,7 @@ class DepositToBagProcessTest {
         var depositRdaBagConverter = new DepositRdaBagConverter();
         var rdaBagWriter = new RdaBagWriter();
         var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
-        }, rdaBagWriter);
+        }, rdaBagWriter, new StdoutBagOutputWriter());
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a/valid-bag");
         assert s != null;
@@ -108,7 +108,6 @@ class DepositToBagProcessTest {
 
         };
 
-        System.out.println("BAGDIR: " + bagDir);
         var deposit = TestDeposit.builder()
             .id("doi:10.17026/dans-12345")
             .title("The beautiful title")
@@ -128,6 +127,41 @@ class DepositToBagProcessTest {
             .subject("Something about science")
             .rightsHolder("John Rights")
             .build();
+
+        depositToBagProcess.process(deposit);
+    }
+
+    @Test
+    void process_with_originalFilePathMappings() throws IOException {
+        var depositRdaBagConverter = new DepositRdaBagConverter();
+        var rdaBagWriter = new RdaBagWriter();
+        var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
+        }, rdaBagWriter, new StdoutBagOutputWriter());
+
+        var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
+        assert s != null;
+
+        var bagDir = Path.of(s.getPath());
+
+        var deposit = new DiskDepositLoader().loadDeposit(bagDir);
+
+        depositToBagProcess.process(deposit);
+    }
+
+    @Test
+    void process_with_originalFilePathMappings_to_zip() throws IOException {
+        var depositRdaBagConverter = new DepositRdaBagConverter();
+        var rdaBagWriter = new RdaBagWriter();
+        var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
+        var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
+        }, rdaBagWriter, output);
+
+        var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
+        assert s != null;
+
+        var bagDir = Path.of(s.getPath());
+
+        var deposit = new DiskDepositLoader().loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);
     }

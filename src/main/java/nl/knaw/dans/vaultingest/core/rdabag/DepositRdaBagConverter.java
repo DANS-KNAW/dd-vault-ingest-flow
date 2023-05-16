@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag;
 
-import nl.knaw.dans.vaultingest.core.DepositOaiOreMapper;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.RdaBag;
 
@@ -23,15 +22,13 @@ public class DepositRdaBagConverter {
 
     private final DataciteConverter dataciteConverter = new DataciteConverter();
     private final OaiOreConverter oaiOreConverter = new OaiOreConverter();
-    private final DepositOaiOreMapper depositOaiOreMapper = new DepositOaiOreMapper();
     private final PidMappingConverter pidMappingConverter = new PidMappingConverter();
 
     public RdaBag convert(Deposit deposit) {
         var bag = new RdaBag();
         bag.setId(deposit.getId());
         bag.setResource(dataciteConverter.convert(deposit));
-//        bag.setPidMappings(pidMappingConverter.convert(deposit));
-        bag.setPidMappings(deposit.getPidMappings());
+        bag.setPidMappings(pidMappingConverter.convert(deposit));
         bag.setBag(deposit.getBag());
         bag.setOreResourceMap(oaiOreConverter.convert(deposit));
         return bag;

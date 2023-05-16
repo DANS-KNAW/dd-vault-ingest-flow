@@ -37,4 +37,6 @@ public interface Deposit {
     DepositBag getBag();
 
     PidMappings getPidMappings();
+
+    Collection<DepositFile> getPayloadFiles();
 }

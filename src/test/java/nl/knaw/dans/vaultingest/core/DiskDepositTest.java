@@ -15,7 +15,10 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
+import nl.knaw.dans.vaultingest.core.deposit.DiskDepositLoader;
 import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
+import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
+import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,7 +31,7 @@ class DiskDepositTest {
         var depositRdaBagConverter = new DepositRdaBagConverter();
         var rdaBagWriter = new RdaBagWriter();
         var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
-        }, rdaBagWriter);
+        }, rdaBagWriter, new StdoutBagOutputWriter());
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a");
         assert s != null;

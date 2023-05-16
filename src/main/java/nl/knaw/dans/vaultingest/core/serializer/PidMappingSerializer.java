@@ -18,17 +18,16 @@ package nl.knaw.dans.vaultingest.core.serializer;
 import nl.knaw.dans.vaultingest.core.domain.PidMappings;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 public class PidMappingSerializer {
 
-    public void serialize(PidMappings mappings, OutputStream outputStream) throws IOException {
+    public String serialize(PidMappings mappings) throws IOException {
         var str = new StringBuilder();
 
         for (var mapping : mappings.getPidMappings()) {
             str.append(String.format("%s %s\n", mapping.getId(), mapping.getPath()));
         }
 
-        outputStream.write(str.toString().getBytes());
+        return str.toString();
     }
 }

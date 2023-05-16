@@ -21,14 +21,10 @@ import nl.knaw.dans.vaultingest.core.domain.PidMappings;
 class PidMappingConverter {
 
     PidMappings convert(Deposit deposit) {
-
         var mappings = new PidMappings();
         // does not include the "title of the deposit" as a mapping
         mappings.addMapping(deposit.getId(), "data/");
-
-        var bag = deposit.getBag();
-
-        for (var file : bag.getPayloadFiles()) {
+        for (var file : deposit.getPayloadFiles()) {
             mappings.addMapping("file:///" + file.getId(), file.getPath().toString());
         }
 

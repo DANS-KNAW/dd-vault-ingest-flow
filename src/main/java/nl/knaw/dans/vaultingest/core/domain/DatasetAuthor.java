@@ -71,7 +71,13 @@ public class DatasetAuthor implements DatasetRelation {
     }
 
     public String getIdentifier() {
-        switch (this.getIdentifierScheme()) {
+        var scheme = this.getIdentifierScheme();
+
+        if (scheme == null) {
+            return null;
+        }
+
+        switch (scheme) {
             case "DAI":
                 return this.getDai();
             case "ISNI":

@@ -13,19 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.rdabag;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Description;
+import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
+import nl.knaw.dans.vaultingest.domain.Resource;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
 import java.util.List;
 
-class DepositOaiOreMapperTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+class DepositRdaBagConverterTest {
 
     @Test
-    void mapDepositToOaiOre() throws Exception {
+    void convert() throws Exception {
         var deposit = TestDeposit.builder()
             .id("doi:10.17026/dans-12345")
             .title("The beautiful title")
@@ -41,20 +51,35 @@ class DepositOaiOreMapperTest {
                     .dai("123456")
                     .build()
             ))
+
             .subject("Something about science")
             .rightsHolder("John Rights")
             .build();
 
         System.out.println("DEPOSIT: " + deposit);
-        var converter = new DepositOaiOreMapper();
-        var output = converter.mapDepositToOaiOre(deposit);
+        var converter = new DepositRdaBagConverter();
+        var bag = converter.convert(deposit);
+        System.out.println("BAG: " + bag);
 
-        System.out.println("RDF: " + output.toRDF());
-        System.out.println("JSON: " + output.toJsonLD());
+        assertEquals(deposit.getId(), bag.getId());
 
-        //        var output2 = rdabag.mapDepositToOaiOre(deposit);
-        //
-        //        System.out.println("RDF: " + output2.toRDF());
-        //        System.out.println("JSON: " + output2.toJsonLD());
+        //        printResource(bag.getResource());
+        //        printOre(bag.getOreResourceMap());
+
+    }
+
+    void printResource(Resource resource) throws Exception {
+        var context = JAXBContext.newInstance(Resource.class);
+        var marshaller = context.createMarshaller();
+        var strWriter = new StringWriter();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        marshaller.marshal(resource, strWriter);
+
+        System.out.println("RESOURCE: " + strWriter);
+    }
+
+    void printOre(OreResourceMap map) throws JsonProcessingException {
+        var result = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(map);
+        //        System.out.println("ORE: " + result);
     }
 }

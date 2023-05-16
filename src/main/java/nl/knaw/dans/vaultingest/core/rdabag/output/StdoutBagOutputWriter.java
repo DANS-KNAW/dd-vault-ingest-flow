@@ -13,28 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.serializer;
+package nl.knaw.dans.vaultingest.core.rdabag.output;
 
-import nl.knaw.dans.vaultingest.domain.Resource;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 import java.io.IOException;
-import java.io.StringWriter;
+import java.io.InputStream;
+import java.nio.file.Path;
 
-public class DataciteSerializer {
-    public String serialize(Resource resource) {
+public class StdoutBagOutputWriter implements BagOutputWriter {
+
+    @Override
+    public void writeBagItem(InputStream inputStream, Path path) {
+        System.out.println("--- START(" + path + ") ---");
+
         try {
-            var context = JAXBContext.newInstance(Resource.class);
-            var marshaller = context.createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-            var writer = new StringWriter();
-            marshaller.marshal(resource, writer);
-            return writer.toString();
+            // only output first 512 bytes
+            byte[] bytes = new byte[512];
+            inputStream.read(bytes);
+            System.out.write(bytes);
+            System.out.println("...");
+            // inputStream.transferTo(System.out);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e.getMessage(), e);
         }
+
+        System.out.println("\n--- END(" + path + ") ---");
+    }
+
+    @Override
+    public void close() throws IOException {
+        // noop
     }
 }

@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.rdabag.output;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
 public interface BagOutputWriter {
-    void writeBagItem(InputStream inputStream, Path path);
+    void writeBagItem(InputStream inputStream, Path path) throws IOException;
+
+    void close() throws IOException;
 }

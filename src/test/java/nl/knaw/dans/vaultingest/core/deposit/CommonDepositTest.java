@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core;
+package nl.knaw.dans.vaultingest.core.deposit;
 
+import nl.knaw.dans.vaultingest.core.deposit.CommonDeposit;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositProperties;
 import nl.knaw.dans.vaultingest.core.domain.DepositBag;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
