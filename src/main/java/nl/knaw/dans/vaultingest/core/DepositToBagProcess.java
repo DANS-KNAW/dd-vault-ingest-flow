@@ -15,10 +15,10 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
-import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
+import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
 import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 
 public class DepositToBagProcess {
@@ -38,22 +38,22 @@ public class DepositToBagProcess {
 
     void process(Deposit deposit) {
         // validate deposit?
-        // validate bag inside deposit?
         depositValidator.validate(deposit);
+
+        // TODO register deposit with vault catalog
 
         // convert the deposit to a rda bag
         var rdaBag = depositRdaBagConverter.convert(deposit);
 
+
         // send rda bag to vault
         try {
-            rdaBagWriter.write(rdaBag, bagOutputWriter); //Path.of("/tmp/testoutput/"));
+            rdaBagWriter.write(rdaBag, bagOutputWriter);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // move deposit to outbox
-        // copilot says:
-        // depositMover.move(deposit, Path.of("/tmp/testoutput/"));
-
+        // TODO update deposit with vault catalog
+        // TODO move deposit to somewhere
     }
 }

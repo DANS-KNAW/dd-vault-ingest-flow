@@ -21,6 +21,7 @@ import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Description;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.domain.Resource;
 import org.junit.jupiter.api.Test;
@@ -48,7 +49,7 @@ class DepositRdaBagConverterTest {
                     .initials("EJ")
                     .name("Eric")
                     .affiliation("Affiliation 1")
-                    .dai("123456")
+                    .dai(new DAI("123456"))
                     .build()
             ))
 

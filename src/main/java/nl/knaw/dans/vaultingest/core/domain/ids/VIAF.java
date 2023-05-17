@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.ids;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+public class VIAF extends BaseId {
 
-import java.nio.file.Path;
-import java.util.Map;
+    public VIAF(String id) {
+        super(id);
+    }
 
-@Getter
-@Builder
-@ToString
-@EqualsAndHashCode
-public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+    @Override
+    public String getScheme() {
+        return "VIAF";
+    }
+
+    @Override
+    public String getValue() {
+        return reduceUriToId(super.getValue());
+    }
+
 }

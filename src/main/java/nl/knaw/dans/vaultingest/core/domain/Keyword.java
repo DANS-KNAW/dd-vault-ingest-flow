@@ -20,14 +20,12 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.nio.file.Path;
-import java.util.Map;
-
 @Getter
 @Builder
 @ToString
 @EqualsAndHashCode
-public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+public class Keyword {
+    private final String text;
+    private final String vocabulary;
+    private final String vocabularyUri;
 }

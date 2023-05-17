@@ -16,16 +16,12 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import lombok.Builder;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.*;
 import nl.knaw.dans.vaultingest.core.domain.*;
-import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Builder
 public class CommonDeposit implements Deposit {
@@ -43,94 +39,22 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public String getTitle() {
-        return XPathEvaluator.strings(ddm, "/ddm:DDM/ddm:profile/dc:title")
-            .findFirst()
-            .orElse(null);
+        return Title.getTitle(ddm);
     }
 
     @Override
     public Collection<String> getAlternativeTitles() {
-        return XPathEvaluator.strings(ddm,
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:title",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:alternative")
-            .collect(Collectors.toList());
+        return Title.getAlternativeTitles(ddm);
     }
 
     @Override
     public Collection<OtherId> getOtherIds() {
-        var results = new ArrayList<OtherId>();
-
-        // CIT003, data from bag
-        depositBag.getMetadataValue("Has-Organizational-Identifier")
-            .stream()
-            .filter(value -> {
-                var parts = value.split(":", 2);
-                return parts.length == 2 && StringUtils.isNotBlank(parts[0]) && StringUtils.isNotBlank(parts[1]);
-            })
-            .map(value -> {
-                var parts = value.split(":", 2);
-                return OtherId.builder()
-                    .agency(parts[0])
-                    .value(parts[1])
-                    .build();
-            })
-            .findFirst()
-            .ifPresent(results::add);
-
-        // CIT004, data from ddm
-        XPathEvaluator.strings(ddm,
-                "/ddm:DDM/ddm:dcmiMetadata/ddm:identifier[not(@xsi:type)]",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:identifier[not(@xsi:type)]")
-            .map(identifier -> OtherId.builder()
-                .value(identifier)
-                .build()
-            )
-            .forEach(results::add);
-
-        return results;
+        return OtherIds.getOtherIds(ddm, depositBag.getMetadataValue("Has-Organizational-Identifier"));
     }
 
     @Override
     public Collection<Description> getDescriptions() {
-        // CIT009, profile / description
-        var profileDescriptions = XPathEvaluator.strings(ddm,
-            "/ddm:DDM/ddm:profile/dc:description",
-            "/ddm:DDM/ddm:profile/dcterms:description"
-        ).map(value -> Description.builder()
-            .value(value.trim())
-            .build()
-        );
-
-        // CIT011, dcmiMetadata / [tags]
-        var dcmiDescriptions = XPathEvaluator.nodes(ddm,
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:date",
-                "/ddm:DDM/ddm:dcmiMetadata/dc:date",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:dateAccepted",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:dateCopyrighted",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:dateSubmitted",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:modified",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:issued",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:valid",
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:coverage")
-            .map(node -> Description.builder()
-                .type(node.getLocalName())
-                .value(node.getTextContent().trim())
-                .build()
-            );
-
-        // CIT012, dcmiMetadata / description
-        var dcmiDescription = XPathEvaluator.strings(ddm,
-                "/ddm:DDM/ddm:dcmiMetadata/dcterms:description")
-            .map(value -> Description.builder()
-                .value(value.trim())
-                .build()
-            );
-
-        var streams = Stream.concat(profileDescriptions,
-            Stream.concat(dcmiDescriptions, dcmiDescription)
-        );
-
-        return streams.collect(Collectors.toList());
+        return Descriptions.getDescriptions(ddm);
     }
 
     @Override
@@ -138,56 +62,20 @@ public class CommonDeposit implements Deposit {
         var results = new ArrayList<DatasetRelation>();
 
         // CIT005
-        XPathEvaluator.strings(ddm, "/ddm:DDM/ddm:profile/dc:creator")
-            .map(String::trim)
-            .map(author -> DatasetCreator.builder()
-                .name(author)
-                .build()
-            )
-            .forEach(results::add);
+        results.addAll(Creator.getCreators(ddm));
 
         // CIT006
-        XPathEvaluator.nodes(ddm,
-                "/ddm:DDM/ddm:profile/dcx-dai:creatorDetails/dcx-dai:author")
-            .map(this::parseAuthor)
-            .forEach(results::add);
+        results.addAll(Author.getAuthors(ddm));
 
         // CIT007
-        // TODO format identifiers
-        XPathEvaluator.nodes(ddm,
-                "/ddm:DDM/ddm:profile/dcx-dai:creatorDetails/dcx-dai:organization")
-            .map(node -> DatasetOrganization.builder()
-                .name(getFirstValue(node, "dcx-dai:name"))
-                .isni(getFirstValue(node, "dcx-dai:ISNI"))
-                .viaf(getFirstValue(node, "dcx-dai:VIAF"))
-                .build())
-            .forEach(results::add);
+        results.addAll(Organizations.getOrganizations(ddm));
 
         return results;
     }
 
-    private String getFirstValue(Node node, String expression) {
-        return XPathEvaluator.strings(node, expression).map(String::trim).findFirst().orElse(null);
-    }
-
-    private DatasetAuthor parseAuthor(Node node) {
-        return DatasetAuthor.builder()
-            .titles(getFirstValue(node, "dcx-dai:titles"))
-            .initials(getFirstValue(node, "dcx-dai:initials"))
-            .insertions(getFirstValue(node, "dcx-dai:insertions"))
-            .surname(getFirstValue(node, "dcx-dai:surname"))
-            // todo format identifiers
-            .dai(getFirstValue(node, "dcx-dai:DAI"))
-            .isni(getFirstValue(node, "dcx-dai:ISNI"))
-            .orcid(getFirstValue(node, "dcx-dai:ORCID"))
-            .role(getFirstValue(node, "dcx-dai:role"))
-            .organization(getFirstValue(node, "dcx-dai:organization/dcx-dai:name"))
-            .build();
-    }
-
     @Override
-    public String getSubject() {
-        return null;
+    public Collection<String> getSubjects() {
+        return Subjects.getSubjects(ddm);
     }
 
     @Override
@@ -196,25 +84,73 @@ public class CommonDeposit implements Deposit {
     }
 
     @Override
+    public Collection<Keyword> getKeywords() {
+        return Keywords.getKeywords(ddm);
+    }
+
+    @Override
+    public Collection<Publication> getPublications() {
+        return Publications.getPublications(ddm);
+    }
+
+    @Override
+    public Collection<String> getLanguages() {
+        return Languages.getLanguages(ddm);
+    }
+
+    @Override
+    public String getProductionDate() {
+        return ProductionDate.getProductionDate(ddm);
+    }
+
+    @Override
+    public Collection<Contributor> getContributors() {
+        return Contributors.getContributors(ddm);
+    }
+
+    @Override
+    public Collection<GrantNumber> getGrantNumbers() {
+        return GrantNumbers.getGrantNumbers(ddm);
+    }
+
+    @Override
+    public Collection<Distributor> getDistributors() {
+        return Distributors.getDistributors(ddm);
+    }
+
+    @Override
+    public String getDistributionDate() {
+        return DistributionDate.getDistributionDate(ddm);
+    }
+
+    @Override
+    public Collection<CollectionDate> getCollectionDates() {
+        return CollectionDates.getCollectionDates(ddm);
+    }
+
+    @Override
+    public Collection<SeriesElement> getSeries() {
+        return Series.getSeries(ddm);
+    }
+
+    @Override
+    public Collection<String> getSources() {
+        return Sources.getSources(ddm);
+    }
+
+    @Override
     public DepositBag getBag() {
         return depositBag;
     }
 
     @Override
-    public PidMappings getPidMappings() {
-        var mappings = new PidMappings();
-        mappings.addMapping(this.id, "data");
-
-        for (var file : depositBag.getPayloadFiles()) {
-            mappings.addMapping(file.getId(), file.getPath().toString());
-        }
-
-        return mappings;
+    public Collection<DepositFile> getPayloadFiles() {
+        return getBag().getPayloadFiles();
     }
 
     @Override
-    public Collection<DepositFile> getPayloadFiles() {
-        return getBag().getPayloadFiles();
+    public DatasetContact getContact() {
+        return null;
     }
 
 }

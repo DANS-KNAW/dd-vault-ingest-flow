@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.deposit.mapping;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
+import org.w3c.dom.Document;
 
-import java.nio.file.Path;
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
-@Getter
-@Builder
-@ToString
-@EqualsAndHashCode
-public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+public class Sources {
+    public static List<String> getSources(Document document) {
+        return XPathEvaluator.strings(document,
+                "/ddm:DDM/ddm:dcmiMetadata/dcterms:source")
+            .map(String::trim)
+            .collect(Collectors.toList());
+    }
 }

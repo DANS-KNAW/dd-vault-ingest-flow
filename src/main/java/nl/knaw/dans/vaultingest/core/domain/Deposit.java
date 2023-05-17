@@ -30,13 +30,36 @@ public interface Deposit {
 
     Collection<DatasetRelation> getAuthors();
 
-    String getSubject();
+    Collection<String> getSubjects();
 
     String getRightsHolder();
 
+    Collection<Keyword> getKeywords();
+
+    Collection<Publication> getPublications();
+
+    Collection<String> getLanguages();
+
+    String getProductionDate();
+
+    Collection<Contributor> getContributors();
+
+    Collection<GrantNumber> getGrantNumbers();
+
+    Collection<Distributor> getDistributors();
+
+    String getDistributionDate();
+
+    Collection<CollectionDate> getCollectionDates();
+
+    Collection<SeriesElement> getSeries();
+
+    Collection<String> getSources();
+
+    // TODO think about merging the interface into this one
     DepositBag getBag();
 
-    PidMappings getPidMappings();
-
     Collection<DepositFile> getPayloadFiles();
+
+    DatasetContact getContact();
 }

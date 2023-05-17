@@ -20,14 +20,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
-import java.nio.file.Path;
-import java.util.Map;
-
 @Getter
 @Builder
-@ToString
 @EqualsAndHashCode
-public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+@ToString
+public class Distributor {
+    private final String name;
+    private final String affiliation;
+    private final String abbreviation;
+    private final String url;
+    private final String logoUrl;
 }

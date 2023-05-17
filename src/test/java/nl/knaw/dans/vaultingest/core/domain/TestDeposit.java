@@ -32,6 +32,21 @@ public class TestDeposit implements Deposit {
     private DepositBag bag;
     private List<String> alternativeTitles;
     private List<OtherId> otherIds;
-    private PidMappings pidMappings;
     private List<DepositFile> payloadFiles;
+
+    private List<String> subjects;
+    private List<Keyword> keywords;
+    private List<Publication> publications;
+    private List<String> languages;
+    private String productionDate;
+
+    private List<Contributor> contributors;
+    private List<GrantNumber> grantNumbers;
+    private List<Distributor> distributors;
+    private String distributionDate;
+    private List<CollectionDate> collectionDates;
+    private List<SeriesElement> series;
+    private DatasetContact contact;
+    private List<String> sources;
+
 }

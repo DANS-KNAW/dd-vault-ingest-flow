@@ -19,8 +19,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Setter;
+import nl.knaw.dans.vaultingest.core.domain.ids.*;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,11 +35,9 @@ public class DatasetAuthor implements DatasetRelation {
     private String initials;
     private String insertions;
     private String surname;
-    private String dai;
-    private String isni;
-    private String orcid;
-    private String lcna;
-    private String viaf;
+    private DAI dai;
+    private ISNI isni;
+    private ORCID orcid;
     private String role;
     private String organization;
     private String affiliation;
@@ -52,42 +52,41 @@ public class DatasetAuthor implements DatasetRelation {
             .collect(Collectors.joining(" "));
     }
 
+
     public String getIdentifierScheme() {
-        if (this.getDai() != null) {
-            return "DAI";
-        }
-        else if (this.getIsni() != null) {
-            return "ISNI";
-        }
-        else if (this.getOrcid() != null) {
-            return "ORCID";
-        }
-        else if (this.getLcna() != null) {
-            return "LCNA";
-        }
-        else {
+        var identifier = this.getIdentifierObject();
+
+        if (identifier == null) {
             return null;
         }
+
+        return identifier.getScheme();
     }
 
     public String getIdentifier() {
-        var scheme = this.getIdentifierScheme();
+        var identifier = this.getIdentifierObject();
 
-        if (scheme == null) {
+        if (identifier == null) {
             return null;
         }
 
-        switch (scheme) {
-            case "DAI":
-                return this.getDai();
-            case "ISNI":
-                return this.getIsni();
-            case "ORCID":
-                return this.getOrcid();
-            case "LCNA":
-                return this.getLcna();
-            default:
-                return null;
+        return identifier.getValue();
+    }
+
+    private BaseId getIdentifierObject() {
+        var schemes = new BaseId[] {
+            this.orcid,
+            this.isni,
+            this.dai,
+        };
+
+        // return first match
+        for (var scheme : schemes) {
+            if (scheme != null) {
+                return scheme;
+            }
         }
+
+        return null;
     }
 }

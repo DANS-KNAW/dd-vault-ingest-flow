@@ -15,8 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import nl.knaw.dans.vaultingest.core.deposit.CommonDeposit;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositProperties;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositBag;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
@@ -24,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,32 +32,13 @@ class CommonDepositTest {
 
     @Test
     void getTitle() throws Exception {
-        var props = Mockito.mock(CommonDepositProperties.class);
-        var bag = Mockito.mock(DepositBag.class);
-
-        var ddm = new XmlReaderImpl().readXmlFile(
-            Path.of(getClass().getResource("/xml/example-ddm.xml").getPath())
-        );
-
-        var deposit = new CommonDeposit(
-            "id", ddm, null, props, bag
-        );
-
+        var deposit = this.loadDeposit();
         assertEquals("A bag containing examples for each mapping rule", deposit.getTitle());
     }
 
     @Test
     void getDescription() throws Exception {
-        var props = Mockito.mock(CommonDepositProperties.class);
-        var bag = Mockito.mock(DepositBag.class);
-
-        var ddm = new XmlReaderImpl().readXmlFile(
-            Path.of(getClass().getResource("/xml/example-ddm.xml").getPath())
-        );
-
-        var deposit = new CommonDeposit(
-            "id", ddm, null, props, bag
-        );
+        var deposit = this.loadDeposit();
 
         assertThat(deposit.getDescriptions())
             .extracting("value")
@@ -79,19 +60,7 @@ class CommonDepositTest {
 
     @Test
     void getOtherIds() throws Exception {
-        var props = Mockito.mock(CommonDepositProperties.class);
-        var bag = Mockito.mock(DepositBag.class);
-
-        Mockito.when(bag.getMetadataValue(Mockito.any()))
-            .thenReturn(List.of("DANS:12345"));
-
-        var ddm = new XmlReaderImpl().readXmlFile(
-            Path.of(getClass().getResource("/xml/example-ddm.xml").getPath())
-        );
-
-        var deposit = new CommonDeposit(
-            "id", ddm, null, props, bag
-        );
+        var deposit = this.loadDeposit();
 
         assertThat(deposit.getOtherIds())
             .extracting("fullName")
@@ -105,18 +74,9 @@ class CommonDepositTest {
 
     @Test
     void getAuthors() throws Exception {
-        var props = Mockito.mock(CommonDepositProperties.class);
-        var bag = Mockito.mock(DepositBag.class);
-
-        var ddm = new XmlReaderImpl().readXmlFile(
-            Path.of(getClass().getResource("/xml/example-ddm.xml").getPath())
-        );
-
-        var deposit = new CommonDeposit(
-            "id", ddm, null, props, bag
-        );
-
-        assertThat(deposit.getAuthors())
+        var deposit = this.loadDeposit();
+        var authors = deposit.getAuthors();
+        assertThat(authors)
             .extracting("displayName")
             .containsOnly(
                 "Unformatted Creator",
@@ -124,20 +84,207 @@ class CommonDepositTest {
                 "Creator Organization"
             );
 
-        assertThat(deposit.getAuthors())
+        assertThat(authors)
             .extracting("identifierScheme")
             .containsOnly(
                 null,
-                "ISNI",
+                "ORCID",
                 "VIAF"
             );
 
-        assertThat(deposit.getAuthors())
+        assertThat(authors)
             .extracting("identifier")
             .containsOnly(
                 null,
-                "6666 7777 8888 9999",
+                "0000-1111-2222-3333",
                 "123456789"
             );
+    }
+
+    @Test
+    void getSubjects() throws Exception {
+        var deposit = this.loadDeposit();
+        var subjects = deposit.getSubjects();
+
+        assertThat(subjects)
+            .containsOnly("Chemistry", "Computer and Information Science");
+    }
+
+    @Test
+    void getKeywords() throws Exception {
+        var deposit = this.loadDeposit();
+        var keywords = deposit.getKeywords();
+
+        assertThat(keywords)
+            .extracting("text")
+            .containsOnly(
+                "keyword1",
+                "keyword2",
+                "non-military uniform button",
+                "Broader Match: buttons (fasteners)",
+                "Old School Latin");
+
+        assertThat(keywords)
+            .extracting("vocabulary")
+            .containsOnly(
+                null,
+                "PAN thesaurus ideaaltypes",
+                "Art and Architecture Thesaurus"
+            );
+
+        assertThat(keywords)
+            .extracting("vocabularyUri")
+            .containsOnly(
+                null,
+                "https://data.cultureelerfgoed.nl/term/id/pan/PAN",
+                "http://vocab.getty.edu/aat/"
+            );
+    }
+
+
+    @Test
+    void getPublications() throws Exception {
+        var deposit = this.loadDeposit();
+        var publications = deposit.getPublications();
+
+        assertThat(publications)
+            .extracting("idType")
+            .containsOnly(
+                "ISSN"
+            );
+        assertThat(publications)
+            .extracting("idNumber")
+            .containsOnly(
+                "0317-8471"
+            );
+    }
+
+    @Test
+    void getLanguage() throws Exception {
+        var deposit = this.loadDeposit();
+        var languages = deposit.getLanguages();
+
+        assertThat(languages)
+            .containsOnly("fy", "kal", "baq");
+    }
+
+
+    @Test
+    void getProductionDate() throws Exception {
+        var deposit = this.loadDeposit();
+        var date = deposit.getProductionDate();
+
+        assertEquals("2015-09-09", date);
+    }
+
+    @Test
+    void getContributors() throws Exception {
+        var deposit = this.loadDeposit();
+        var contributors = deposit.getContributors();
+
+        assertThat(contributors)
+            .extracting("name")
+            .containsOnly(
+                "CON van Tributor (Contributing Org)",
+                "Contributing Org"
+            );
+
+        assertThat(contributors)
+            .extracting("type")
+            .containsOnly(
+                "ProjectMember", "Sponsor"
+            );
+    }
+
+    @Test
+    void getGrantNumbers() throws Exception {
+        var deposit = this.loadDeposit();
+        var grantNumbers = deposit.getGrantNumbers();
+
+        assertThat(grantNumbers)
+            .extracting("value")
+            .containsOnly("54321");
+
+        assertThat(grantNumbers)
+            .extracting("agency")
+            .containsOnly("NWO");
+    }
+
+
+    @Test
+    void getDistributors() throws Exception {
+        var deposit = this.loadDeposit();
+        var distributors = deposit.getDistributors();
+
+        assertThat(distributors)
+            .extracting("name")
+            .containsOnly(
+                "D. I. Stributor"
+            );
+    }
+
+    @Test
+    void getDistributionDate() throws Exception {
+        var deposit = this.loadDeposit();
+        var distributionDate = deposit.getDistributionDate();
+
+        assertEquals("2014-09-09", distributionDate);
+    }
+
+    @Test
+    void getCollectionDates() throws Exception {
+        var deposit = this.loadDeposit();
+        var dates = deposit.getCollectionDates();
+
+        assertThat(dates)
+            .extracting("start")
+            .containsOnly(
+                "2015-06-01"
+            );
+
+        assertThat(dates)
+            .extracting("end")
+            .containsOnly(
+                "2016-12-31"
+            );
+    }
+
+    @Test
+    void getSeries() throws Exception {
+        var deposit = this.loadDeposit();
+        var dates = deposit.getSeries();
+
+        assertThat(dates)
+            .extracting("information")
+            .containsOnly(
+                "Information about a series: first", "Information about a series: second"
+            );
+    }
+
+    @Test
+    void getSources() throws Exception {
+        var deposit = this.loadDeposit();
+        var sources = deposit.getSources();
+
+        assertThat(sources)
+            .containsOnly(
+                "Sous an ayisyen", "Source 2", "Source 3"
+            );
+    }
+
+    Deposit loadDeposit() throws Exception {
+        var props = Mockito.mock(CommonDepositProperties.class);
+        var bag = Mockito.mock(DepositBag.class);
+
+        Mockito.when(bag.getMetadataValue(Mockito.eq("Has-Organizational-Identifier")))
+            .thenReturn(List.of("DANS:12345"));
+
+        var ddm = new XmlReaderImpl().readXmlFile(
+            Path.of(Objects.requireNonNull(getClass().getResource("/xml/example-ddm.xml")).getPath())
+        );
+
+        return new CommonDeposit(
+            "id", ddm, null, props, bag
+        );
     }
 }

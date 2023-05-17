@@ -19,6 +19,11 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Setter;
+import nl.knaw.dans.vaultingest.core.domain.ids.BaseId;
+import nl.knaw.dans.vaultingest.core.domain.ids.ISNI;
+import nl.knaw.dans.vaultingest.core.domain.ids.VIAF;
+
+import java.util.List;
 
 @Data
 @Builder
@@ -26,8 +31,8 @@ import lombok.Setter;
 public class DatasetOrganization implements DatasetRelation {
 
     private String name;
-    private String isni;
-    private String viaf;
+    private ISNI isni;
+    private VIAF viaf;
 
     @Override
     public String getDisplayName() {
@@ -40,27 +45,40 @@ public class DatasetOrganization implements DatasetRelation {
         return null;
     }
 
+
     public String getIdentifierScheme() {
-        if (this.getIsni() != null) {
-            return "ISNI";
-        }
-        else if (this.getViaf() != null) {
-            return "VIAF";
+        var identifier = this.getIdentifierObject();
+
+        if (identifier == null) {
+            return null;
         }
 
-        return null;
+        return identifier.getScheme();
     }
 
     public String getIdentifier() {
-        var scheme = this.getIdentifierScheme();
+        var identifier = this.getIdentifierObject();
 
-        switch (scheme) {
-            case "ISNI":
-                return this.getIsni();
-            case "VIAF":
-                return this.getViaf();
-            default:
-                return null;
+        if (identifier == null) {
+            return null;
         }
+
+        return identifier.getValue();
+    }
+
+    private BaseId getIdentifierObject() {
+        var schemes = new BaseId[] {
+            this.isni,
+            this.viaf
+        };
+
+        // return first match
+        for (var scheme : schemes) {
+            if (scheme != null) {
+                return scheme;
+            }
+        }
+
+        return null;
     }
 }

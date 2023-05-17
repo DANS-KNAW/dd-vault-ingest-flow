@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.ids;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.ToString;
 
-import java.nio.file.Path;
-import java.util.Map;
+public class ORCID extends BaseId {
 
-@Getter
-@Builder
-@ToString
-@EqualsAndHashCode
-public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+    public ORCID(String id) {
+        super(id);
+    }
+
+    @Override
+    public String getScheme() {
+        return "ORCID";
+    }
+
+    @Override
+    public String getValue() {
+        return reduceUriToOrcidId(super.getValue());
+    }
 }

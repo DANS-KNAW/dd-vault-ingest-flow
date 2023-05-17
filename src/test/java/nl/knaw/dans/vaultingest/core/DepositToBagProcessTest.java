@@ -17,6 +17,7 @@ package nl.knaw.dans.vaultingest.core;
 
 import nl.knaw.dans.vaultingest.core.deposit.DiskDepositLoader;
 import nl.knaw.dans.vaultingest.core.domain.*;
+import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
@@ -121,7 +122,7 @@ class DepositToBagProcessTest {
                     .initials("EJ")
                     .name("Eric")
                     .affiliation("Affiliation 1")
-                    .dai("123456")
+                    .dai(new DAI("123456"))
                     .build()
             ))
             .subject("Something about science")

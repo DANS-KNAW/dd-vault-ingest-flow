@@ -19,6 +19,7 @@ import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Description;
 import nl.knaw.dans.vaultingest.core.domain.OtherId;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -39,7 +40,7 @@ class OaiOreConverterTest {
                     .initials("EJ")
                     .name("Eric")
                     .affiliation("Affiliation 1")
-                    .dai("123456")
+                    .dai(new DAI("123456"))
                     .build(),
                 DatasetAuthor.builder()
                     .name("Somebody")

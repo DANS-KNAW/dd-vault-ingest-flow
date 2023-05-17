@@ -13,21 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.ids;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+public class DAI extends BaseId {
 
-import java.nio.file.Path;
-import java.util.Map;
+    public DAI(String value) {
+        super(value);
+    }
 
-@Getter
-@Builder
-@ToString
-@EqualsAndHashCode
-public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+    @Override
+    public String getScheme() {
+        return "DAI";
+    }
 }
