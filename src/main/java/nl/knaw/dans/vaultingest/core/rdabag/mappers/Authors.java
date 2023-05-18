@@ -17,14 +17,15 @@ package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetRelation;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.Datacite;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class Author {
+public class Authors {
 
     public static List<Statement> toAuthors(Resource resource, Collection<DatasetRelation> authors) {
         if (authors == null) {
@@ -32,31 +33,31 @@ public class Author {
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return authors.stream()
-            .map(author -> {
+        for (var author : authors) {
+            var authorElement = model.createResource();
+            authorElement.addProperty(DVCitation.authorName, author.getDisplayName());
 
-                var authorElement = model.createResource();
-                authorElement.addProperty(DVCitation.authorName, author.getDisplayName());
+            if (author.getAffiliation() != null) {
+                authorElement.addProperty(DVCitation.authorAffiliation, author.getAffiliation());
+            }
 
-                if (author.getAffiliation() != null) {
-                    authorElement.addProperty(DVCitation.authorAffiliation, author.getAffiliation());
-                }
+            if (author.getIdentifierScheme() != null) {
+                authorElement.addProperty(Datacite.agentIdentifierScheme, author.getIdentifierScheme());
+            }
 
-                if (author.getIdentifierScheme() != null) {
-                    authorElement.addProperty(DVCitation.authorIdentifierScheme, author.getIdentifierScheme());
-                }
+            if (author.getIdentifier() != null) {
+                authorElement.addProperty(Datacite.agentIdentifier, author.getIdentifier());
+            }
 
-                if (author.getIdentifier() != null) {
-                    authorElement.addProperty(DVCitation.authorIdentifier, author.getIdentifier());
-                }
+            result.add(model.createStatement(
+                resource,
+                DVCitation.author,
+                authorElement
+            ));
+        }
 
-                return model.createStatement(
-                    resource,
-                    DVCitation.author,
-                    authorElement
-                );
-            })
-            .collect(Collectors.toList());
+        return result;
     }
 }

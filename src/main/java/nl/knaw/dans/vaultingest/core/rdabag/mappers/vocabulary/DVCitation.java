@@ -27,8 +27,25 @@ public class DVCitation {
     public static final Property author = m.createProperty(NS, "author");
     public static final Property authorName = m.createProperty(NS, "authorName");
     public static final Property authorAffiliation = m.createProperty(NS, "authorAffiliation");
-    public static final Property authorIdentifierScheme = m.createProperty(NS, "authorIdentifierScheme");
-    public static final Property authorIdentifier = m.createProperty(NS, "authorIdentifier");
+    public static final Property otherId = m.createProperty(NS, "otherId");
+    public static final Property otherIdValue = m.createProperty(NS, "otherIdValue");
+    public static final Property otherIdAgency = m.createProperty(NS, "otherIdAgency");
+
+    public static final Property datasetContact = m.createProperty(NS, "datasetContact");
+    public static final Property datasetContactName = m.createProperty(NS, "datasetContactName");
+    public static final Property datasetContactAffiliation = m.createProperty(NS, "datasetContactAffiliation");
+    public static final Property datasetContactEmail = m.createProperty(NS, "datasetContactEmail");
+    public static final Property dsDescription = m.createProperty(NS, "dsDescription");
+    public static final Property dsDescriptionValue = m.createProperty(NS, "dsDescriptionValue");
+    public static final Property dsDescriptionDate = m.createProperty(NS, "dsDescriptionDate");
+    public static final Property keyword = m.createProperty(NS, "keyword");
+    public static final Property keywordValue = m.createProperty(NS, "keywordValue");
+    public static final Property keywordVocabulary = m.createProperty(NS, "keywordVocabulary");
+    public static final Property keywordVocabularyURI = m.createProperty(NS, "keywordVocabularyURI");
+    public static final Property productionDate = m.createProperty(NS, "productionDate");
+    public static final Property contributor = m.createProperty(NS, "contributor");
+    public static final Property contributorType = m.createProperty(NS, "contributorType");
+    public static final Property contributorName = m.createProperty(NS, "contributorName");
 
     public static String getURI() {
         return NS;

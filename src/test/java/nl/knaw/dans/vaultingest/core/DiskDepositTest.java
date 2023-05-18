@@ -18,6 +18,9 @@ package nl.knaw.dans.vaultingest.core;
 import nl.knaw.dans.vaultingest.core.deposit.DiskDepositLoader;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
+import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
+import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
+import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -28,6 +31,7 @@ class DiskDepositTest {
     @Test
     void process() throws IOException {
         var rdaBagWriter = new RdaBagWriter();
+        var xmlReader = new XmlReaderImpl();
         var depositToBagProcess = new DepositToBagProcess((deposit) -> {
         }, rdaBagWriter, new StdoutBagOutputWriter());
 
@@ -35,7 +39,7 @@ class DiskDepositTest {
         assert s != null;
         var depositDir = Path.of(s.getPath());
 
-        var deposit = new DiskDepositLoader().loadDeposit(depositDir);
+        var deposit = new DiskDepositLoader(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(depositDir);
 
         depositToBagProcess.process(deposit);
     }

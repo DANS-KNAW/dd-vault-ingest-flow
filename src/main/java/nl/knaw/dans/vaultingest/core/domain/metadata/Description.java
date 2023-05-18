@@ -15,15 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.core.domain.metadata;
 
-import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
-@Setter(AccessLevel.NONE)
+@Getter
 @Builder
+@EqualsAndHashCode
+@ToString
 public class Description {
     private String type;
+    private String date;
     private String value;
 }

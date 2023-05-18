@@ -15,40 +15,43 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Keyword;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class OtherIds {
+public class Keywords {
 
-    public static List<Statement> toOtherIds(Resource resource, Collection<OtherId> titles) {
-        if (titles == null) {
+    public static List<Statement> toKeywords(Resource resource, Collection<Keyword> keywords) {
+        if (keywords == null) {
             return List.of();
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return titles.stream()
-            .map(id -> {
-                var otherId = model.createResource();
+        for (var keyword : keywords) {
+            var element = model.createResource();
+            element.addProperty(DVCitation.keywordValue, keyword.getText());
 
-                otherId.addProperty(DVCitation.otherIdValue, id.getValue());
+            if (keyword.getVocabulary() != null) {
+                element.addProperty(DVCitation.keywordVocabulary, keyword.getVocabulary());
+            }
+            if (keyword.getVocabularyUri() != null) {
+                element.addProperty(DVCitation.keywordVocabularyURI, keyword.getVocabularyUri());
+            }
 
-                if (id.getAgency() != null) {
-                    otherId.addProperty(DVCitation.otherIdAgency, id.getAgency());
-                }
+            result.add(model.createStatement(
+                resource,
+                DVCitation.keyword,
+                element
+            ));
+        }
 
-                return model.createStatement(
-                    resource,
-                    DVCitation.otherId,
-                    otherId
-                );
-            })
-            .collect(Collectors.toList());
+        return result;
     }
 }

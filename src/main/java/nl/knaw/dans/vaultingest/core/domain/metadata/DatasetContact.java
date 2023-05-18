@@ -15,16 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.core.domain.metadata;
 
-import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Data;
-import lombok.Setter;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-@Data
 @Builder
-@Setter(AccessLevel.NONE)
+@Getter
+@EqualsAndHashCode
+@ToString
 public class DatasetContact {
-    private String name;
-    private String affiliation;
-    private String email;
+    private final String name;
+    private final String affiliation;
+    private final String email;
 }

@@ -194,10 +194,6 @@ public class DepositOaiOreMapper {
             e.printStackTrace();
         }
 
-        for (var f : model.listStatements().toList()) {
-            System.out.println("STATEMENTS: " + f);
-
-        }
         return new OreResourceMap(model, namespaces);
     }
 

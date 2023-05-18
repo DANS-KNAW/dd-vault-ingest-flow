@@ -15,40 +15,33 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.vocabulary.DCTerms;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class OtherIds {
+public class Languages {
 
-    public static List<Statement> toOtherIds(Resource resource, Collection<OtherId> titles) {
-        if (titles == null) {
+    public static List<Statement> toLanguages(Resource resource, Collection<String> languages) {
+        if (languages == null) {
             return List.of();
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return titles.stream()
-            .map(id -> {
-                var otherId = model.createResource();
+        for (var language : languages) {
+            System.out.println("LANGUAGE: " + language);
+            result.add(model.createStatement(
+                resource,
+                DCTerms.language,
+                language
+            ));
+        }
 
-                otherId.addProperty(DVCitation.otherIdValue, id.getValue());
-
-                if (id.getAgency() != null) {
-                    otherId.addProperty(DVCitation.otherIdAgency, id.getAgency());
-                }
-
-                return model.createStatement(
-                    resource,
-                    DVCitation.otherId,
-                    otherId
-                );
-            })
-            .collect(Collectors.toList());
+        return result;
     }
 }

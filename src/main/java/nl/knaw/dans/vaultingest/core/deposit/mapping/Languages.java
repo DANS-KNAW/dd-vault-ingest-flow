@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit.mapping;
 
+import nl.knaw.dans.vaultingest.core.deposit.LanguageResolver;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.w3c.dom.Document;
 
@@ -22,12 +23,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Languages {
-    public static List<String> getLanguages(Document document) {
+    public static List<String> getLanguages(Document document, LanguageResolver languageResolver) {
         // CIT018, ddm:language / @code
         return XPathEvaluator.strings(document,
             "/ddm:DDM/ddm:dcmiMetadata/ddm:language[" +
                 "@encodingScheme='ISO639-1' or " +
                 "@encodingScheme='ISO639-2']/@code"
-        ).collect(Collectors.toList());
+        )
+            .map(languageResolver::resolve)
+            .collect(Collectors.toList());
     }
 }

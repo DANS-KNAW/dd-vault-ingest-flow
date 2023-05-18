@@ -34,6 +34,8 @@ public class Descriptions {
             .build()
         );
 
+        // TODO CIT010, alternative titles and non-first title?
+
         // CIT011, dcmiMetadata / [tags]
         var dcmiDescriptions = XPathEvaluator.nodes(document,
                 "/ddm:DDM/ddm:dcmiMetadata/dcterms:date",

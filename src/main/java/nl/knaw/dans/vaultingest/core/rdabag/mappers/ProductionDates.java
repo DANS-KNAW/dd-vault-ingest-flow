@@ -15,12 +15,25 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-public interface OaiOreNamespaces {
-    String ORE = "http://www.openarchives.org/ore/terms/";
-    String DCTERMS = "http://purl.org/dc/terms/";
-    String CITATION = "https://dataverse.org/schema/citation/";
-    String FOAF = "Http://xmlns.com/foaf/0.1/";
-    String DC = "HTTp://purl.org/dc/elements/1.1/";
-    String SCHEMA = "http://schema.org/";
-    String DATACITE = "http://purl.org/spar/datacite/";
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
+
+import java.util.Optional;
+
+public class ProductionDates {
+
+    public static Optional<Statement> toProductionDate(Resource resource, String productionDate) {
+        if (productionDate == null) {
+            return Optional.empty();
+        }
+
+        var model = resource.getModel();
+
+        return Optional.ofNullable(model.createStatement(
+            resource,
+            DVCitation.productionDate,
+            productionDate
+        ));
+    }
 }

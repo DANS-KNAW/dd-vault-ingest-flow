@@ -15,18 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.vocabulary.DCTerms;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class OtherIds {
+public class AlternativeTitles {
 
-    public static List<Statement> toOtherIds(Resource resource, Collection<OtherId> titles) {
+    public static List<Statement> toAlternativeTitle(Resource resource, Collection<String> titles) {
         if (titles == null) {
             return List.of();
         }
@@ -34,21 +33,11 @@ public class OtherIds {
         var model = resource.getModel();
 
         return titles.stream()
-            .map(id -> {
-                var otherId = model.createResource();
-
-                otherId.addProperty(DVCitation.otherIdValue, id.getValue());
-
-                if (id.getAgency() != null) {
-                    otherId.addProperty(DVCitation.otherIdAgency, id.getAgency());
-                }
-
-                return model.createStatement(
-                    resource,
-                    DVCitation.otherId,
-                    otherId
-                );
-            })
+            .map(title -> model.createStatement(
+                resource,
+                DCTerms.alternative,
+                model.createLiteral(title)
+            ))
             .collect(Collectors.toList());
     }
 }

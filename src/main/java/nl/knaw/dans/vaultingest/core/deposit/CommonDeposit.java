@@ -17,7 +17,8 @@ package nl.knaw.dans.vaultingest.core.deposit;
 
 import lombok.Builder;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.*;
-import nl.knaw.dans.vaultingest.core.domain.*;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.metadata.*;
 import org.w3c.dom.Document;
 
@@ -36,9 +37,22 @@ public class CommonDeposit implements Deposit {
     private final CommonDepositProperties properties;
     private final CommonDepositBag depositBag;
 
+    private final DatasetContactResolver datasetContactResolver;
+    private final LanguageResolver languageResolver;
+
     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String getDoi() {
+        return this.properties.getProperty(String.class, "identifier.doi");
+    }
+
+    @Override
+    public String getNbn() {
+        return this.properties.getProperty(String.class, "identifier.nbn");
     }
 
     @Override
@@ -99,7 +113,7 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public Collection<String> getLanguages() {
-        return Languages.getLanguages(ddm);
+        return Languages.getLanguages(ddm, languageResolver);
     }
 
     @Override
@@ -144,7 +158,7 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public DatasetContact getContact() {
-        return null;
+        return datasetContactResolver.resolve(this.properties.getProperty(String.class, "depositor.userId"));
     }
 
     @Override

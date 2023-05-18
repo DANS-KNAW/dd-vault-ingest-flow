@@ -15,40 +15,43 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Contributor;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.vocabulary.DCTerms;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class OtherIds {
+public class Contributors {
 
-    public static List<Statement> toOtherIds(Resource resource, Collection<OtherId> titles) {
-        if (titles == null) {
+    public static List<Statement> toContributors(Resource resource, Collection<Contributor> contributors) {
+        if (contributors == null) {
             return List.of();
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return titles.stream()
-            .map(id -> {
-                var otherId = model.createResource();
+        for (var contributor : contributors) {
+            var element = model.createResource();
 
-                otherId.addProperty(DVCitation.otherIdValue, id.getValue());
+            if (contributor.getType() != null) {
+                element.addProperty(DVCitation.contributorType, contributor.getType());
+            }
+            if (contributor.getName() != null) {
+                element.addProperty(DVCitation.contributorName, contributor.getName());
+            }
 
-                if (id.getAgency() != null) {
-                    otherId.addProperty(DVCitation.otherIdAgency, id.getAgency());
-                }
+            result.add(model.createStatement(
+                resource,
+                DCTerms.contributor,
+                element
+            ));
+        }
 
-                return model.createStatement(
-                    resource,
-                    DVCitation.otherId,
-                    otherId
-                );
-            })
-            .collect(Collectors.toList());
+        return result;
     }
 }

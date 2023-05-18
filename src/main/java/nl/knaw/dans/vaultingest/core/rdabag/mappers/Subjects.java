@@ -15,40 +15,34 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DansRel;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class OtherIds {
+public class Subjects {
 
-    public static List<Statement> toOtherIds(Resource resource, Collection<OtherId> titles) {
-        if (titles == null) {
+    public static List<Statement> toSubjects(Resource resource, Collection<String> subjects) {
+        if (subjects == null) {
             return List.of();
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return titles.stream()
-            .map(id -> {
-                var otherId = model.createResource();
+        for (var subject : subjects) {
+            // TODO these are the values according to the Subject mapper, but according to the example
+            // they should be the original values like D52000
+            result.add(model.createStatement(
+                resource,
+                DansRel.dansAudience,
+                subject
+            ));
+        }
 
-                otherId.addProperty(DVCitation.otherIdValue, id.getValue());
-
-                if (id.getAgency() != null) {
-                    otherId.addProperty(DVCitation.otherIdAgency, id.getAgency());
-                }
-
-                return model.createStatement(
-                    resource,
-                    DVCitation.otherId,
-                    otherId
-                );
-            })
-            .collect(Collectors.toList());
+        return result;
     }
 }

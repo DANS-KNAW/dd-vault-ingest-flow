@@ -25,6 +25,9 @@ import java.util.Collection;
 public interface Deposit {
     String getId();
 
+    String getDoi();
+    String getNbn();
+
     String getTitle();
 
     Collection<String> getAlternativeTitles();

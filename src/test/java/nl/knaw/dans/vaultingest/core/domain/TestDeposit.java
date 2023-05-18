@@ -31,6 +31,8 @@ import java.util.List;
 public class TestDeposit implements Deposit {
     private String id;
     private String title;
+    private String nbn;
+    private String doi;
     private List<Description> descriptions;
     private List<DatasetRelation> authors;
     private String rightsHolder;

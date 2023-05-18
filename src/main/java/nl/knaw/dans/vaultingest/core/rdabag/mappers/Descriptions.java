@@ -15,40 +15,40 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class OtherIds {
+public class Descriptions {
 
-    public static List<Statement> toOtherIds(Resource resource, Collection<OtherId> titles) {
-        if (titles == null) {
+    public static List<Statement> toDescriptions(Resource resource, Collection<Description> descriptions) {
+        if (descriptions == null) {
             return List.of();
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return titles.stream()
-            .map(id -> {
-                var otherId = model.createResource();
+        for (var description : descriptions) {
+            var element = model.createResource();
+            element.addProperty(DVCitation.dsDescriptionValue, description.getValue());
 
-                otherId.addProperty(DVCitation.otherIdValue, id.getValue());
+            if (description.getDate() != null) {
+                element.addProperty(DVCitation.dsDescriptionDate, description.getDate());
+            }
 
-                if (id.getAgency() != null) {
-                    otherId.addProperty(DVCitation.otherIdAgency, id.getAgency());
-                }
+            result.add(model.createStatement(
+                resource,
+                DVCitation.dsDescription,
+                element
+            ));
+        }
 
-                return model.createStatement(
-                    resource,
-                    DVCitation.otherId,
-                    otherId
-                );
-            })
-            .collect(Collectors.toList());
+        return result;
     }
 }

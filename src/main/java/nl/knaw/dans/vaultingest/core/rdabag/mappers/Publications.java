@@ -15,29 +15,40 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
+import nl.knaw.dans.vaultingest.core.domain.metadata.Keyword;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Publication;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.Datacite;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.DCTerms;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class AlternativeTitle {
+public class Publications {
 
-    public static List<Statement> toAlternativeTitle(Resource resource, Collection<String> titles) {
-        if (titles == null) {
+    public static List<Statement> toPublications(Resource resource, Collection<Publication> publications) {
+        if (publications == null) {
             return List.of();
         }
 
         var model = resource.getModel();
+        var result = new ArrayList<Statement>();
 
-        return titles.stream()
-            .map(title -> model.createStatement(
+        for (var publication : publications) {
+            var element = model.createResource();
+            element.addProperty(Datacite.resourceIdentifier, publication.getIdNumber());
+            element.addProperty(Datacite.resourceIdentifierScheme, publication.getIdType());
+
+            result.add(model.createStatement(
                 resource,
-                DCTerms.alternative,
-                model.createLiteral(title)
-            ))
-            .collect(Collectors.toList());
+                DCTerms.isReferencedBy,
+                element
+            ));
+        }
+
+        return result;
     }
 }

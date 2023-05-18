@@ -20,16 +20,17 @@ import gov.loc.repository.bagit.exceptions.MaliciousPathException;
 import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
 import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
 import gov.loc.repository.bagit.reader.BagReader;
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
-import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -37,8 +38,18 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@Slf4j
 public class DiskDepositLoader {
-    private final XmlReader xmlReader = new XmlReaderImpl();
+    private final XmlReader xmlReader;
+    private final DatasetContactResolver datasetContactResolver;
+    private final LanguageResolver languageResolver;
+
+    public DiskDepositLoader(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver) {
+        this.xmlReader = xmlReader;
+        this.datasetContactResolver = datasetContactResolver;
+        this.languageResolver = languageResolver;
+    }
+
 
     public Deposit loadDeposit(Path path) {
         try {
@@ -46,7 +57,6 @@ public class DiskDepositLoader {
 
             var ddm = bagDir.resolve(Path.of("metadata", "dataset.xml"));
             var filesXml = bagDir.resolve(Path.of("metadata", "files.xml"));
-
 
             var bag = new BagReader().read(bagDir);
             var originalFilePaths = getOriginalFilepaths(bagDir);
@@ -57,15 +67,18 @@ public class DiskDepositLoader {
 
             return CommonDeposit.builder()
                 .id(path.getFileName().toString())
-                .ddm(xmlReader.readXmlFile(ddm))
-                .filesXml(xmlReader.readXmlFile(filesXml))
+                .ddm(readXmlFile(ddm))
+                .filesXml(readXmlFile(filesXml))
                 .properties(depositProperties)
                 .depositBag(depositBag)
+                .datasetContactResolver(datasetContactResolver)
+                .languageResolver(languageResolver)
                 .build();
 
         } catch (IOException | SAXException | ParserConfigurationException | ConfigurationException |
                  MaliciousPathException | UnparsableVersionException | UnsupportedAlgorithmException |
                  InvalidBagitFileFormatException e) {
+            log.error("Error loading deposit from disk: path={}", path, e);
             throw new RuntimeException(e);
         }
     }
@@ -76,6 +89,10 @@ public class DiskDepositLoader {
                 .findFirst()
                 .orElseThrow();
         }
+    }
+
+    Document readXmlFile(Path path) throws IOException, SAXException, ParserConfigurationException {
+        return xmlReader.readXmlFile(path);
     }
 
     CommonDepositProperties getDepositProperties(Path path) throws ConfigurationException {

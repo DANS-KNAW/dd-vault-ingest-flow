@@ -23,6 +23,9 @@ import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
+import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
+import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
+import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -70,6 +73,7 @@ class DepositToBagProcessTest {
     @Test
     void process_with_originalFilePathMappings() throws IOException {
         var rdaBagWriter = new RdaBagWriter();
+        var xmlReader = new XmlReaderImpl();
         var depositToBagProcess = new DepositToBagProcess((deposit) -> {
         }, rdaBagWriter, new StdoutBagOutputWriter());
 
@@ -78,13 +82,14 @@ class DepositToBagProcessTest {
 
         var bagDir = Path.of(s.getPath());
 
-        var deposit = new DiskDepositLoader().loadDeposit(bagDir);
+        var deposit = new DiskDepositLoader(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);
     }
 
     @Test
     void process_with_originalFilePathMappings_to_zip() throws IOException {
+        var xmlReader = new XmlReaderImpl();
         var rdaBagWriter = new RdaBagWriter();
         var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
         var depositToBagProcess = new DepositToBagProcess((deposit) -> {
@@ -95,7 +100,7 @@ class DepositToBagProcessTest {
 
         var bagDir = Path.of(s.getPath());
 
-        var deposit = new DiskDepositLoader().loadDeposit(bagDir);
+        var deposit = new DiskDepositLoader(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);
     }
