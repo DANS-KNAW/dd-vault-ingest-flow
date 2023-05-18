@@ -39,9 +39,6 @@ public class DepositToBagProcess {
 
         // TODO register deposit with vault catalog
 
-        // convert the deposit to a rda bag
-//        var rdaBag = depositRdaBagConverter.convert(deposit);
-
 
         // send rda bag to vault
         try {

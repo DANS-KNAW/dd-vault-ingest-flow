@@ -20,26 +20,16 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
-import java.util.Iterator;
 import java.util.Map;
 
 public class XmlReaderImpl implements XmlReader {
 
-    private final XPath xpath;
-
     public XmlReaderImpl() {
-        this.xpath = XPathFactory
-            .newInstance()
-            .newXPath();
-
         final var namespaceMap = Map.of(
             "xml", NAMESPACE_XML,
             "dc", NAMESPACE_DC,
@@ -52,25 +42,6 @@ public class XmlReaderImpl implements XmlReader {
             "files", NAMESPACE_FILES_XML,
             "gml", NAMESPACE_OPEN_GIS
         );
-
-        xpath.setNamespaceContext(new NamespaceContext() {
-
-            @Override
-            public String getNamespaceURI(String s) {
-                return namespaceMap.get(s);
-            }
-
-            @Override
-            public String getPrefix(String s) {
-                return null;
-            }
-
-            @Override
-            public Iterator<String> getPrefixes(String s) {
-                return null;
-            }
-        });
-
     }
 
     @Override
