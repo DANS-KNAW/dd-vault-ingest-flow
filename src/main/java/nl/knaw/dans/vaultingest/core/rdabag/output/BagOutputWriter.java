@@ -19,8 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-public interface BagOutputWriter {
+public interface BagOutputWriter extends AutoCloseable {
     void writeBagItem(InputStream inputStream, Path path) throws IOException;
 
-    void close() throws IOException;
 }

@@ -15,6 +15,11 @@
  */
 package nl.knaw.dans.vaultingest.core.domain;
 
+import nl.knaw.dans.vaultingest.core.domain.metadata.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Collection;
 
 public interface Deposit {
@@ -56,10 +61,13 @@ public interface Deposit {
 
     Collection<String> getSources();
 
-    // TODO think about merging the interface into this one
-    DepositBag getBag();
+    DatasetContact getContact();
 
     Collection<DepositFile> getPayloadFiles();
 
-    DatasetContact getContact();
+    InputStream inputStreamForPayloadFile(DepositFile depositFile);
+
+    Collection<Path> getMetadataFiles() throws IOException;
+
+    InputStream inputStreamForMetadataFile(Path path);
 }

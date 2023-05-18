@@ -15,14 +15,18 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.ChecksumCalculator;
-import nl.knaw.dans.vaultingest.core.domain.DepositBag;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.RdaBag;
+import nl.knaw.dans.vaultingest.core.rdabag.converter.DataciteConverter;
+import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
+import nl.knaw.dans.vaultingest.core.rdabag.converter.PidMappingConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
-import nl.knaw.dans.vaultingest.core.serializer.DataciteSerializer;
-import nl.knaw.dans.vaultingest.core.serializer.PidMappingSerializer;
+import nl.knaw.dans.vaultingest.core.rdabag.serializer.DataciteSerializer;
+import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
+import nl.knaw.dans.vaultingest.core.rdabag.serializer.PidMappingSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,48 +45,55 @@ public class RdaBagWriter {
 
     private final DataciteSerializer dataciteSerializer = new DataciteSerializer();
     private final PidMappingSerializer pidMappingSerializer = new PidMappingSerializer();
+    private final OaiOreSerializer oaiOreSerializer = new OaiOreSerializer(new ObjectMapper());
+
+    private final DataciteConverter dataciteConverter = new DataciteConverter();
+    private final PidMappingConverter pidMappingConverter = new PidMappingConverter();
+    private final OaiOreConverter oaiOreConverter = new OaiOreConverter();
 
     private Map<Path, Map<String, String>> checksums = new HashMap<>();
 
-    public void write(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var bag = rdaBag.getBag();
+    public void write(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
 
-        for (var file : bag.getPayloadFiles()) {
+        for (var file : deposit.getPayloadFiles()) {
             log.info("Writing payload file {}", file);
-            outputWriter.writeBagItem(bag.inputStreamForPayloadFile(file), file.getPath());
+            outputWriter.writeBagItem(deposit.inputStreamForPayloadFile(file), file.getPath());
         }
 
         log.info("Writing metadata/datacite.xml");
-        writeDatacite(rdaBag, outputWriter);
+        writeDatacite(deposit, outputWriter);
 
         log.info("Writing metadata/oai-ore");
-        writeOaiOre(rdaBag, outputWriter);
+        writeOaiOre(deposit, outputWriter);
 
         log.info("Writing metadata/pid-mapping.txt");
-        writePidMappings(rdaBag, outputWriter);
+        writePidMappings(deposit, outputWriter);
 
         log.info("Writing bag-info.txt");
-        writeBagInfo(rdaBag, outputWriter);
+        writeBagInfo(deposit, outputWriter);
 
         log.info("Writing bagit.txt");
-        writeBagitFile(rdaBag, outputWriter);
+        writeBagitFile(deposit, outputWriter);
 
-        for (var metadataFile : bag.getMetadataFiles()) {
+        for (var metadataFile : deposit.getMetadataFiles()) {
             log.info("Writing {}", metadataFile);
-            writeMetadataFile(bag, metadataFile, outputWriter);
+            writeMetadataFile(deposit, metadataFile, outputWriter);
         }
 
-        writeManifests(rdaBag, outputWriter);
+        writeManifests(deposit, outputWriter);
 
         // must be last, because all other files must have been written to
-        writeTagManifest(rdaBag, outputWriter);
+        writeTagManifest(deposit, outputWriter);
 
-        outputWriter.close();
+        try {
+            outputWriter.close();
+        } catch (Exception e) {
+            log.error("Error closing output writer", e);
+        }
     }
 
-    private void writeTagManifest(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var bag = rdaBag.getBag();
-        var files = bag.getMetadataFiles();
+    private void writeTagManifest(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+        var files = deposit.getMetadataFiles();
 
         // get the metadata, which is everything EXCEPT the data/** and tagmanifest-* files
         // but the deposit or the rdabag does not know about these files, only this class knows
@@ -104,17 +115,16 @@ public class RdaBagWriter {
         }
     }
 
-    private void writeManifests(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
+    private void writeManifests(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
         // iterate all files in rda bag and get checksum sha1
-        var bag = rdaBag.getBag();
-        var files = bag.getPayloadFiles();
+        var files = deposit.getPayloadFiles();
         var algorithms = List.of("MD5", "SHA-1", "SHA-256");
 
         var calculator = new ChecksumCalculator();
         var checksumMap = new HashMap<DepositFile, Map<String, String>>();
 
         for (var file : files) {
-            try (var inputStream = bag.inputStreamForPayloadFile(file)) {
+            try (var inputStream = deposit.inputStreamForPayloadFile(file)) {
                 var checksums = calculator.calculateChecksums(inputStream, algorithms);
                 checksumMap.put(file, checksums);
             } catch (IOException e) {
@@ -135,49 +145,54 @@ public class RdaBagWriter {
         }
     }
 
-    private void writeDatacite(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var dataciteXml = dataciteSerializer.serialize(rdaBag.getResource());
+    private void writeDatacite(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+        var resource = dataciteConverter.convert(deposit);
+        var dataciteXml = dataciteSerializer.serialize(resource);
+
         checksummedWriteToOutput(new ByteArrayInputStream(dataciteXml.getBytes()), Path.of("metadata/datacite.xml"), outputWriter);
     }
 
-    private void writeOaiOre(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var oaiOre = rdaBag.getOreResourceMap();
+    private void writeOaiOre(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+        var oaiOre = oaiOreConverter.convert(deposit);
 
-        checksummedWriteToOutput(new ByteArrayInputStream(oaiOre.toRDF().getBytes()), Path.of("metadata/oai-ore.rdf"), outputWriter);
-        checksummedWriteToOutput(new ByteArrayInputStream(oaiOre.toJsonLD().getBytes()), Path.of("metadata/oai-ore.jsonld"), outputWriter);
+        var rdf = oaiOreSerializer.serialize(oaiOre, OaiOreSerializer.OutputFormat.RDF);
+        var jsonld = oaiOreSerializer.serialize(oaiOre, OaiOreSerializer.OutputFormat.JSONLD);
+
+        checksummedWriteToOutput(new ByteArrayInputStream(rdf.getBytes()), Path.of("metadata/oai-ore.rdf"), outputWriter);
+        checksummedWriteToOutput(new ByteArrayInputStream(jsonld.getBytes()), Path.of("metadata/oai-ore.jsonld"), outputWriter);
     }
 
-    private void writeMetadataFile(DepositBag bag, Path metadataFile, BagOutputWriter outputWriter) throws IOException {
-        try (var inputStream = bag.inputStreamForMetadataFile(metadataFile)) {
+    private void writeMetadataFile(Deposit deposit, Path metadataFile, BagOutputWriter outputWriter) throws IOException {
+        try (var inputStream = deposit.inputStreamForMetadataFile(metadataFile)) {
             checksummedWriteToOutput(inputStream, metadataFile, outputWriter);
         }
     }
 
-    private void writePidMappings(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var pidMappings = pidMappingSerializer.serialize(rdaBag.getPidMappings());
+    private void writePidMappings(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+
+        var pidMappings = pidMappingConverter.convert(deposit);
+        var pidMappingsSerialized = pidMappingSerializer.serialize(pidMappings);
 
         checksummedWriteToOutput(
-            new ByteArrayInputStream(pidMappings.getBytes()),
+            new ByteArrayInputStream(pidMappingsSerialized.getBytes()),
             Path.of("metadata/pid-mapping.txt"),
             outputWriter
         );
     }
 
-    private void writeBagitFile(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var bag = rdaBag.getBag();
+    private void writeBagitFile(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
         var bagitPath = Path.of("bagit.txt");
 
-        try (var input = bag.getBagItFile()) {
+        try (var input = deposit.inputStreamForMetadataFile(bagitPath)) {
             checksummedWriteToOutput(input, bagitPath, outputWriter);
         }
     }
 
-    private void writeBagInfo(RdaBag rdaBag, BagOutputWriter outputWriter) throws IOException {
-        var bag = rdaBag.getBag();
-        var bagitPath = Path.of("bag-info.txt");
+    private void writeBagInfo(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+        var baginfoPath = Path.of("bag-info.txt");
 
-        try (var input = bag.getBagInfoFile()) {
-            checksummedWriteToOutput(input, bagitPath, outputWriter);
+        try (var input = deposit.inputStreamForMetadataFile(baginfoPath)) {
+            checksummedWriteToOutput(input, baginfoPath, outputWriter);
         }
     }
 

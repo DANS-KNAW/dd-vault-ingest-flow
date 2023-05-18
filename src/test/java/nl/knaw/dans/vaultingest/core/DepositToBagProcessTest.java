@@ -18,28 +18,24 @@ package nl.knaw.dans.vaultingest.core;
 import nl.knaw.dans.vaultingest.core.deposit.DiskDepositLoader;
 import nl.knaw.dans.vaultingest.core.domain.*;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
-import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 
 class DepositToBagProcessTest {
 
     @Test
     void process() throws IOException {
-        var depositRdaBagConverter = new DepositRdaBagConverter();
         var rdaBagWriter = new RdaBagWriter();
-        var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
+        var depositToBagProcess = new DepositToBagProcess((deposit) -> {
         }, rdaBagWriter, new StdoutBagOutputWriter());
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a/valid-bag");
@@ -49,70 +45,9 @@ class DepositToBagProcessTest {
             .filter(Files::isRegularFile)
             .forEach(System.out::println);
 
-        var bag = new DepositBag() {
-
-            private final List<DepositFile> files = List.of(
-                new DepositFile(UUID.randomUUID().toString(), Path.of("data/file/1.txt")),
-                new DepositFile(UUID.randomUUID().toString(), Path.of("data/file/2.txt")),
-                new DepositFile(UUID.randomUUID().toString(), Path.of("data/subdir/a/b/c/file.txt")),
-                new DepositFile(UUID.randomUUID().toString(), Path.of("data/subdir 2/document.xlsx"))
-            );
-
-            @Override
-            public Collection<DepositFile> getPayloadFiles() {
-                return files;
-            }
-
-            @Override
-            public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
-                var str = "Contents of file " + depositFile.getId() + "\n";
-                return new ByteArrayInputStream(str.getBytes());
-            }
-
-            @Override
-            public Collection<Path> getMetadataFiles() {
-                return List.of(
-                    Path.of("metadata/dataset.xml"),
-                    Path.of("metadata/files.xml"),
-                    Path.of("metadata/agreements.xml")
-                );
-            }
-
-            @Override
-            public InputStream inputStreamForMetadataFile(Path path) {
-                var str = "Contents of file " + path + "\n";
-                return new ByteArrayInputStream(str.getBytes());
-            }
-
-            @Override
-            public InputStream getBagInfoFile() {
-                var str = "Payload-Oxum: 0.2\n" +
-                    "Bagging-Date: 2018-05-25\n" +
-                    "Bag-Size: 2.5 KB\n" +
-                    "Created: 2018-11-16T00:00:00.000+02:00\n";
-
-                return new ByteArrayInputStream(str.getBytes());
-            }
-
-            @Override
-            public InputStream getBagItFile() {
-                var str = "BagIt-Version: 0.97\n" +
-                    "Tag-File-Character-Encoding: UTF-8\n";
-
-                return new ByteArrayInputStream(str.getBytes());
-            }
-
-            @Override
-            public List<String> getMetadataValue(String key) {
-                return List.of();
-            }
-
-        };
-
         var deposit = TestDeposit.builder()
             .id("doi:10.17026/dans-12345")
             .title("The beautiful title")
-            .bag(bag)
             .descriptions(List.of(
                 Description.builder().value("Description 1").build(),
                 Description.builder().value("Description 2").build()
@@ -134,9 +69,8 @@ class DepositToBagProcessTest {
 
     @Test
     void process_with_originalFilePathMappings() throws IOException {
-        var depositRdaBagConverter = new DepositRdaBagConverter();
         var rdaBagWriter = new RdaBagWriter();
-        var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
+        var depositToBagProcess = new DepositToBagProcess((deposit) -> {
         }, rdaBagWriter, new StdoutBagOutputWriter());
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
@@ -151,10 +85,9 @@ class DepositToBagProcessTest {
 
     @Test
     void process_with_originalFilePathMappings_to_zip() throws IOException {
-        var depositRdaBagConverter = new DepositRdaBagConverter();
         var rdaBagWriter = new RdaBagWriter();
         var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
-        var depositToBagProcess = new DepositToBagProcess(depositRdaBagConverter, (deposit) -> {
+        var depositToBagProcess = new DepositToBagProcess((deposit) -> {
         }, rdaBagWriter, output);
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");

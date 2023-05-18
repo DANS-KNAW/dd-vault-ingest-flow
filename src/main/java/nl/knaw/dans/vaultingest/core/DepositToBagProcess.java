@@ -16,21 +16,18 @@
 package nl.knaw.dans.vaultingest.core;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.rdabag.DepositRdaBagConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
 import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 
 public class DepositToBagProcess {
 
-    private final DepositRdaBagConverter depositRdaBagConverter;
     private final DepositValidator depositValidator;
     private final RdaBagWriter rdaBagWriter;
 
     private final BagOutputWriter bagOutputWriter;
 
-    public DepositToBagProcess(DepositRdaBagConverter depositRdaBagConverter, DepositValidator depositValidator, RdaBagWriter rdaBagWriter, BagOutputWriter bagOutputWriter) {
-        this.depositRdaBagConverter = depositRdaBagConverter;
+    public DepositToBagProcess(DepositValidator depositValidator, RdaBagWriter rdaBagWriter, BagOutputWriter bagOutputWriter) {
         this.depositValidator = depositValidator;
         this.rdaBagWriter = rdaBagWriter;
         this.bagOutputWriter = bagOutputWriter;
@@ -43,12 +40,12 @@ public class DepositToBagProcess {
         // TODO register deposit with vault catalog
 
         // convert the deposit to a rda bag
-        var rdaBag = depositRdaBagConverter.convert(deposit);
+//        var rdaBag = depositRdaBagConverter.convert(deposit);
 
 
         // send rda bag to vault
         try {
-            rdaBagWriter.write(rdaBag, bagOutputWriter);
+            rdaBagWriter.write(deposit, bagOutputWriter);
         } catch (Exception e) {
             e.printStackTrace();
         }

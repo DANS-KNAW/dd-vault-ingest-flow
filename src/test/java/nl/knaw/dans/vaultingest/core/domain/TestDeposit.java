@@ -17,7 +17,13 @@ package nl.knaw.dans.vaultingest.core.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import nl.knaw.dans.vaultingest.core.domain.metadata.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 
 @Data
@@ -29,7 +35,6 @@ public class TestDeposit implements Deposit {
     private List<DatasetRelation> authors;
     private String rightsHolder;
     private String subject;
-    private DepositBag bag;
     private List<String> alternativeTitles;
     private List<OtherId> otherIds;
     private List<DepositFile> payloadFiles;
@@ -49,4 +54,31 @@ public class TestDeposit implements Deposit {
     private DatasetContact contact;
     private List<String> sources;
 
+    @Override
+    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
+        return new ByteArrayInputStream(
+            String.format(
+                "This is a test payload file with id %s and path %s", depositFile.getId(), depositFile.getPath()
+            ).getBytes()
+        );
+    }
+
+    @Override
+    public Collection<Path> getMetadataFiles() throws IOException {
+        return List.of(
+            Path.of("bag-info.txt"),
+            Path.of("bagit.txt"),
+            Path.of("metadata/files.xml"),
+            Path.of("metadata/dataset.xml")
+        );
+    }
+
+    @Override
+    public InputStream inputStreamForMetadataFile(Path path) {
+        return new ByteArrayInputStream(
+            String.format(
+                "This is a test metadata file with path %s", path
+            ).getBytes()
+        );
+    }
 }

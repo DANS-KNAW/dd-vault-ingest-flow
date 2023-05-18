@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.serializer;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
-import nl.knaw.dans.vaultingest.core.domain.PidMappings;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.io.IOException;
-
-public class PidMappingSerializer {
-
-    public String serialize(PidMappings mappings) throws IOException {
-        var str = new StringBuilder();
-
-        for (var mapping : mappings.getPidMappings()) {
-            str.append(String.format("%s %s\n", mapping.getId(), mapping.getPath()));
-        }
-
-        return str.toString();
-    }
+@Getter
+@Builder
+@ToString
+@EqualsAndHashCode
+public class Keyword {
+    private final String text;
+    private final String vocabulary;
+    private final String vocabularyUri;
 }

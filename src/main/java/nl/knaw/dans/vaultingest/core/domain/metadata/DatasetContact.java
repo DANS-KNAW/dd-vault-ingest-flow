@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
+import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
+import lombok.Setter;
 
-@Getter
+@Data
 @Builder
-@EqualsAndHashCode
-@ToString
-public class Distributor {
-    private final String name;
-    private final String affiliation;
-    private final String abbreviation;
-    private final String url;
-    private final String logoUrl;
+@Setter(AccessLevel.NONE)
+public class DatasetContact {
+    private String name;
+    private String affiliation;
+    private String email;
 }

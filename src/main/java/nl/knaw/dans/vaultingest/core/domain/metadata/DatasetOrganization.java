@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -22,8 +22,6 @@ import lombok.Setter;
 import nl.knaw.dans.vaultingest.core.domain.ids.BaseId;
 import nl.knaw.dans.vaultingest.core.domain.ids.ISNI;
 import nl.knaw.dans.vaultingest.core.domain.ids.VIAF;
-
-import java.util.List;
 
 @Data
 @Builder

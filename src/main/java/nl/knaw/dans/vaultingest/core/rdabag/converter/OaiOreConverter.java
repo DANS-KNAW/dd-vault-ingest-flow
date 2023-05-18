@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag;
+package nl.knaw.dans.vaultingest.core.rdabag.converter;
 
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.AlternativeTitle;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.Author;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.OtherIds;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.Title;
-import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
 import org.apache.jena.rdf.model.Model;

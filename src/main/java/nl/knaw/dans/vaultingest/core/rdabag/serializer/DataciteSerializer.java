@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.serializer;
+package nl.knaw.dans.vaultingest.core.rdabag.serializer;
 
 import nl.knaw.dans.vaultingest.domain.Resource;
 

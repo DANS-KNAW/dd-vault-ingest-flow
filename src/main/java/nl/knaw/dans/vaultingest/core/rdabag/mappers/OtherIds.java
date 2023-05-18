@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 

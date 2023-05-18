@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -24,9 +24,7 @@ import lombok.ToString;
 @Builder
 @EqualsAndHashCode
 @ToString
-public class Publication {
-    private final String citation;
-    private final String idType;
-    private final String idNumber;
-    private final String url;
+public class GrantNumber {
+    private final String agency;
+    private final String value;
 }

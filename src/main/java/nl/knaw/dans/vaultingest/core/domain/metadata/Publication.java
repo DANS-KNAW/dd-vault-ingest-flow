@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.serializer;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
-public class OaiOreSerializer {
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-    public String serialize() {
-
-        return "";
-    }
-
-    public enum OutputFormat {
-        RDF, JSONLD
-    }
+@Getter
+@Builder
+@EqualsAndHashCode
+@ToString
+public class Publication {
+    private final String citation;
+    private final String idType;
+    private final String idNumber;
+    private final String url;
 }

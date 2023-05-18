@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+public interface DatasetRelation {
 
-@Getter
-@Builder
-@EqualsAndHashCode
-@ToString
-public class Contributor {
-    private final String type;
-    private final String name;
+    String getDisplayName();
+
+    String getAffiliation();
+
+    String getIdentifierScheme();
+
+    String getIdentifier();
 }

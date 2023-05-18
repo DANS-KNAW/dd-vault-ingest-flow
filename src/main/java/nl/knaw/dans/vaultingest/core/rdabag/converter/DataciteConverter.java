@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag;
+package nl.knaw.dans.vaultingest.core.rdabag.converter;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.Description;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.domain.Affiliation;
 import nl.knaw.dans.vaultingest.domain.DescriptionType;
 import nl.knaw.dans.vaultingest.domain.Resource;
@@ -24,9 +24,9 @@ import nl.knaw.dans.vaultingest.domain.ResourceType;
 
 import java.util.stream.Collectors;
 
-class DataciteConverter {
+public class DataciteConverter {
 
-    Resource convert(Deposit deposit) {
+    public Resource convert(Deposit deposit) {
         return getResource(deposit);
     }
 

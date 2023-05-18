@@ -21,17 +21,22 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 @Slf4j
 public class ZipBagOutputWriter implements BagOutputWriter {
-
     private final ZipOutputStream outputStream;
+    private final Path outputPath;
+    private final Path workingPath;
 
-    public ZipBagOutputWriter(Path output) throws FileNotFoundException {
-        this.outputStream = new ZipOutputStream(new FileOutputStream(output.toFile()));
+    public ZipBagOutputWriter(Path output) throws IOException {
+        this.workingPath = output.getParent().resolve(output.getFileName().toString() + ".tmp");
+        removeFileIfExists(workingPath);
+        this.outputStream = new ZipOutputStream(new FileOutputStream(workingPath.toFile()));
+        this.outputPath = output;
     }
 
     @Override
@@ -45,5 +50,17 @@ public class ZipBagOutputWriter implements BagOutputWriter {
     @Override
     public void close() throws IOException {
         outputStream.close();
+
+        removeFileIfExists(outputPath);
+
+        log.debug("Moving file {} to {}", workingPath, outputPath);
+        Files.move(workingPath, outputPath);
+    }
+
+    void removeFileIfExists(Path path) throws IOException {
+        if (Files.exists(path)) {
+            log.warn("File {} already exists, removing it", path);
+            Files.delete(path);
+        }
     }
 }

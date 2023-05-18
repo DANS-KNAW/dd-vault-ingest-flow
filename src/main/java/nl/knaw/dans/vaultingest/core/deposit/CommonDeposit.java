@@ -18,8 +18,12 @@ package nl.knaw.dans.vaultingest.core.deposit;
 import lombok.Builder;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.*;
 import nl.knaw.dans.vaultingest.core.domain.*;
+import nl.knaw.dans.vaultingest.core.domain.metadata.*;
 import org.w3c.dom.Document;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -30,7 +34,7 @@ public class CommonDeposit implements Deposit {
     private final Document ddm;
     private final Document filesXml;
     private final CommonDepositProperties properties;
-    private final DepositBag depositBag;
+    private final CommonDepositBag depositBag;
 
     @Override
     public String getId() {
@@ -139,18 +143,28 @@ public class CommonDeposit implements Deposit {
     }
 
     @Override
-    public DepositBag getBag() {
-        return depositBag;
+    public DatasetContact getContact() {
+        return null;
     }
 
     @Override
     public Collection<DepositFile> getPayloadFiles() {
-        return getBag().getPayloadFiles();
+        return this.depositBag.getPayloadFiles();
     }
 
     @Override
-    public DatasetContact getContact() {
-        return null;
+    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
+        return this.depositBag.inputStreamForPayloadFile(depositFile);
+    }
+
+    @Override
+    public Collection<Path> getMetadataFiles() throws IOException {
+        return this.depositBag.getMetadataFiles();
+    }
+
+    @Override
+    public InputStream inputStreamForMetadataFile(Path path) {
+        return this.depositBag.inputStreamForMetadataFile(path);
     }
 
 }

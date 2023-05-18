@@ -15,11 +15,14 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag;
 
-import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
-import nl.knaw.dans.vaultingest.core.domain.Description;
-import nl.knaw.dans.vaultingest.core.domain.OtherId;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
+import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
+import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
+import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -57,8 +60,9 @@ class OaiOreConverterTest {
 
         var converter = new OaiOreConverter();
         var output = converter.convert(deposit);
+        var serializer = new OaiOreSerializer(new ObjectMapper());
 
-        System.out.println("RDF: " + output.toRDF());
-        System.out.println("JSON: " + output.toJsonLD());
+        System.out.println("RDF: " + serializer.serialize(output, OaiOreSerializer.OutputFormat.RDF));
+        System.out.println("JSON: " + serializer.serialize(output, OaiOreSerializer.OutputFormat.JSONLD));
     }
 }

@@ -16,7 +16,6 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.DepositBag;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -274,7 +273,7 @@ class CommonDepositTest {
 
     Deposit loadDeposit() throws Exception {
         var props = Mockito.mock(CommonDepositProperties.class);
-        var bag = Mockito.mock(DepositBag.class);
+        var bag = Mockito.mock(CommonDepositBag.class);
 
         Mockito.when(bag.getMetadataValue(Mockito.eq("Has-Organizational-Identifier")))
             .thenReturn(List.of("DANS:12345"));

@@ -25,7 +25,6 @@ import java.util.List;
 @AllArgsConstructor
 @ToString
 public class OriginalFilepaths {
-
     private final List<Mapping> mappings = new ArrayList<>();
 
     public Path getLogicalPath(Path physicalPath) {

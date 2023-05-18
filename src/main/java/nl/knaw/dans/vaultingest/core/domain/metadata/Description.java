@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Data;
-import nl.knaw.dans.vaultingest.domain.Resource;
+import lombok.Setter;
 
 @Data
-public class RdaBag {
-    private String id;
-    private Resource resource;
-    private PidMappings pidMappings;
-    private OreResourceMap oreResourceMap;
-    private DepositBag bag;
+@Setter(AccessLevel.NONE)
+@Builder
+public class Description {
+    private String type;
+    private String value;
 }

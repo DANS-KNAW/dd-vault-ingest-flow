@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit.mapping;
 
-import nl.knaw.dans.vaultingest.core.domain.GrantNumber;
+import nl.knaw.dans.vaultingest.core.domain.metadata.GrantNumber;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.w3c.dom.Node;
 

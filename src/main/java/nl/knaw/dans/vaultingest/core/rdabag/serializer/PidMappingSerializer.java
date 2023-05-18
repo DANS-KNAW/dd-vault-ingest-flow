@@ -13,30 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.rdabag.serializer;
+
+import nl.knaw.dans.vaultingest.core.domain.PidMappings;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
 
-public interface DepositBag {
+public class PidMappingSerializer {
 
-    Collection<DepositFile> getPayloadFiles();
+    public String serialize(PidMappings mappings) throws IOException {
+        var str = new StringBuilder();
 
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
+        for (var mapping : mappings.getPidMappings()) {
+            str.append(String.format("%s %s\n", mapping.getId(), mapping.getPath()));
+        }
 
-    Collection<Path> getMetadataFiles() throws IOException;
-
-    InputStream inputStreamForMetadataFile(Path path);
-
-    InputStream getBagInfoFile();
-
-    InputStream getBagItFile();
-
-    List<String> getMetadataValue(String key);
-
-
-    // TODO manifests
+        return str.toString();
+    }
 }

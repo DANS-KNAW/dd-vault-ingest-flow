@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.domain;
+package nl.knaw.dans.vaultingest.core.domain.metadata;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Data;
 
-@Getter
+@Data
 @Builder
-@EqualsAndHashCode
-@ToString
-public class SeriesElement {
-    private final String name;
-    private final String information;
+public class OtherId {
+    private String agency;
+    private String value;
+
+    public String getFullName() {
+        if (agency == null) {
+            return value;
+        }
+        return agency + ":" + value;
+    }
 }

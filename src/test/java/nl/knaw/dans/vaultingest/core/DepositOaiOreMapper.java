@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
 import org.apache.jena.query.DatasetFactory;
@@ -25,7 +24,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.JsonLDWriteContext;
 import org.apache.jena.riot.RDFFormat;
 import org.apache.jena.riot.RDFWriter;
-import org.apache.jena.riot.writer.JsonLD10Writer;
 import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.sparql.util.Context;
 import org.apache.jena.vocabulary.RDF;

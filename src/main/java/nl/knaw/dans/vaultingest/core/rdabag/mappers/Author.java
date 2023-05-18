@@ -15,9 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.DatasetRelation;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetRelation;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
-import nl.knaw.dans.vaultingest.core.domain.DatasetAuthor;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 

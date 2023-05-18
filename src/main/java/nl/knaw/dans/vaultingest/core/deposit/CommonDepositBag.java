@@ -18,10 +18,8 @@ package nl.knaw.dans.vaultingest.core.deposit;
 import gov.loc.repository.bagit.domain.Bag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
-import nl.knaw.dans.vaultingest.core.domain.DepositBag;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import org.apache.commons.lang3.StringUtils;
+import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -36,33 +34,27 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CommonDepositBag implements DepositBag {
+public class CommonDepositBag {
     private final Bag bag;
+    private final OriginalFilepaths originalFilepaths;
     private List<DepositFile> files;
-    private OriginalFilepaths originalFilepaths;
 
-    @Override
     public Collection<DepositFile> getPayloadFiles() {
         if (this.files == null) {
             this.files = bag.getPayLoadManifests().stream()
                 .flatMap(manifest -> manifest.getFileToChecksumMap().keySet().stream())
                 .map(path -> this.bag.getRootDir().relativize(path))
                 .map(this::normalizePath)
-                .map(path -> DepositFile.builder()
-                    .path(path)
-                    .id(UUID.randomUUID().toString())
-                    .build())
+                .map(path -> new DepositFile(UUID.randomUUID().toString(), path))
                 .collect(Collectors.toList());
         }
 
         return this.files;
     }
 
-    @Override
     public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
         try {
-            var paths = this.getOriginalFilepaths();
-            var path = paths.getPhysicalPath(depositFile.getPath());
+            var path = originalFilepaths.getPhysicalPath(depositFile.getPath());
 
             return new FileInputStream(bag.getRootDir().resolve(path).toFile());
         } catch (FileNotFoundException e) {
@@ -70,7 +62,6 @@ public class CommonDepositBag implements DepositBag {
         }
     }
 
-    @Override
     public Collection<Path> getMetadataFiles() throws IOException {
         try (var list = Files.list(this.bag.getRootDir().resolve("metadata"))) {
             return list
@@ -79,7 +70,6 @@ public class CommonDepositBag implements DepositBag {
         }
     }
 
-    @Override
     public InputStream inputStreamForMetadataFile(Path path) {
         try {
             return new FileInputStream(bag.getRootDir().resolve(path).toFile());
@@ -88,58 +78,12 @@ public class CommonDepositBag implements DepositBag {
         }
     }
 
-    @Override
-    public InputStream getBagInfoFile() {
-        try {
-            return new FileInputStream(bag.getRootDir().resolve("bag-info.txt").toFile());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public InputStream getBagItFile() {
-        try {
-            return new FileInputStream(bag.getRootDir().resolve("bagit.txt").toFile());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
     public List<String> getMetadataValue(String key) {
         var value = this.bag.getMetadata().get(key);
         return value != null ? value : List.of();
     }
 
     private Path normalizePath(Path path) {
-        var mappings = this.getOriginalFilepaths();
-        return mappings.getLogicalPath(path);
-    }
-
-    // TODO think about where to place this
-    OriginalFilepaths getOriginalFilepaths() {
-        if (this.originalFilepaths == null) {
-            this.originalFilepaths = new OriginalFilepaths();
-
-            try {
-                var path = this.bag.getRootDir().resolve("original-filepaths.txt");
-
-                if (Files.exists(path)) {
-                    try (var lines = Files.lines(path)) {
-                        lines.filter(StringUtils::isNotBlank)
-                            .map(line -> line.split("\\s+", 2))
-                            .forEach(line -> this.originalFilepaths.addMapping(
-                                Path.of(line[1]), Path.of(line[0]))
-                            );
-                    }
-                }
-            } catch (IOException e) {
-                log.error("Could not read original-file-paths.txt", e);
-                // TODO: throw exception?
-            }
-        }
-
-        return this.originalFilepaths;
+        return originalFilepaths.getLogicalPath(path);
     }
 }
