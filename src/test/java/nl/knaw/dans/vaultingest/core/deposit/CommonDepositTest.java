@@ -167,7 +167,7 @@ class CommonDepositTest {
         var languages = deposit.getLanguages();
 
         assertThat(languages)
-            .containsOnly("fy", "kal", "baq");
+            .containsOnly("Western Frisian", "Kalaallisut, Greenlandic", "Basque");
     }
 
 

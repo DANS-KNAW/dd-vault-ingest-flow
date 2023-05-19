@@ -24,8 +24,12 @@ import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.ORE;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.sparql.vocabulary.FOAF;
+import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.RDF;
 import org.apache.jena.vocabulary.SchemaDO;
+
+import java.time.OffsetDateTime;
 
 public class OaiOreConverter {
 
@@ -69,6 +73,25 @@ public class OaiOreConverter {
         var resourceMapType = model.createStatement(resourceMap, RDF.type, ORE.ResourceMap);
 
         model.add(resourceMapType);
+        model.add(model.createStatement(
+            resourceMap,
+            DCTerms.modified,
+            OffsetDateTime.now().toString()
+        ));
+
+        var creator = model.createResource();
+        model.add(model.createStatement(
+            creator,
+            FOAF.name,
+            "DANS Vault Service"
+        ));
+
+        model.add(model.createStatement(
+            resourceMap,
+            DCTerms.creator,
+            creator
+        ));
+
         return resourceMap;
     }
 
