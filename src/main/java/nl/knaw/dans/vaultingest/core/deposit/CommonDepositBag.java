@@ -29,7 +29,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -37,24 +36,11 @@ import java.util.stream.Collectors;
 public class CommonDepositBag {
     private final Bag bag;
     private final OriginalFilepaths originalFilepaths;
-    private List<DepositFile> files;
-
-    public Collection<DepositFile> getPayloadFiles() {
-        if (this.files == null) {
-            this.files = bag.getPayLoadManifests().stream()
-                .flatMap(manifest -> manifest.getFileToChecksumMap().keySet().stream())
-                .map(path -> this.bag.getRootDir().relativize(path))
-                .map(this::normalizePath)
-                .map(path -> new DepositFile(UUID.randomUUID().toString(), path))
-                .collect(Collectors.toList());
-        }
-
-        return this.files;
-    }
 
     public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
         try {
-            var path = originalFilepaths.getPhysicalPath(depositFile.getPath());
+            var path = originalFilepaths.getPhysicalPath(depositFile.getOriginalPath());
+            System.out.println("RESOLVED PATH: " + path);
 
             return new FileInputStream(bag.getRootDir().resolve(path).toFile());
         } catch (FileNotFoundException e) {
@@ -83,7 +69,4 @@ public class CommonDepositBag {
         return value != null ? value : List.of();
     }
 
-    private Path normalizePath(Path path) {
-        return originalFilepaths.getLogicalPath(path);
-    }
 }

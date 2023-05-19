@@ -53,6 +53,7 @@ public final class XPathEvaluator implements XmlNamespaces {
             namespaceMap.put("wfs", XmlNamespaces.NAMESPACE_EASY_WORKFLOW);
             namespaceMap.put("damd", XmlNamespaces.NAMESPACE_DAMD);
             namespaceMap.put("agreements", XmlNamespaces.NAMESPACE_AGREEMENTS);
+            namespaceMap.put("afm", XmlNamespaces.NAMESPACE_AFM);
 
             xpath.setNamespaceContext(new NamespaceContext() {
 

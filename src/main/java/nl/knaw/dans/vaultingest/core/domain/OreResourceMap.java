@@ -17,10 +17,7 @@ package nl.knaw.dans.vaultingest.core.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DansRel;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.Datacite;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.ORE;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Statement;
@@ -79,6 +76,7 @@ public class OreResourceMap {
         namespaces.put("foaf", FOAF.NS);
         namespaces.put("schema", SchemaDO.NS);
         namespaces.put("dansREL", DansRel.NS);
+        namespaces.put("dvcore", DVCore.NS);
 
         return namespaces;
     }

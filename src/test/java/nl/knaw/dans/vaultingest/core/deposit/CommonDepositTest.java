@@ -285,12 +285,25 @@ class CommonDepositTest {
             Path.of(Objects.requireNonNull(getClass().getResource("/xml/example-ddm.xml")).getPath())
         );
 
-        return new CommonDeposit(
-            "id", ddm, null, props, bag, (userId -> DatasetContact.builder()
-            .name(userId)
-            .email(userId + "@test.com")
-            .affiliation(userId + " university")
-            .build()),
-            new TestLanguageResolver());
+        return CommonDeposit.builder()
+            .id("id")
+            .ddm(ddm)
+            .filesXml(null)
+            .properties(props)
+            .depositBag(bag)
+            .datasetContactResolver((userId -> DatasetContact.builder()
+                .name(userId)
+                .email(userId + "@test.com")
+                .affiliation(userId + " university")
+                .build()))
+            .languageResolver(new TestLanguageResolver())
+            .build();
+//        return new CommonDeposit(
+//            "id", ddm, null, props, bag, (userId -> DatasetContact.builder()
+//            .name(userId)
+//            .email(userId + "@test.com")
+//            .affiliation(userId + " university")
+//            .build()),
+//            new TestLanguageResolver());
     }
 }

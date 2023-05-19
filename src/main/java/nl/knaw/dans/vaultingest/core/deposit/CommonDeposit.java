@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Builder
 public class CommonDeposit implements Deposit {
@@ -40,6 +41,8 @@ public class CommonDeposit implements Deposit {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
 
+    private List<DepositFile> depositFiles;
+
     @Override
     public String getId() {
         return id;
@@ -52,7 +55,7 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public String getNbn() {
-        return this.properties.getProperty(String.class, "identifier.nbn");
+        return this.properties.getProperty(String.class, "identifier.urn");
     }
 
     @Override
@@ -163,7 +166,11 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public Collection<DepositFile> getPayloadFiles() {
-        return this.depositBag.getPayloadFiles();
+        if (this.depositFiles == null) {
+            this.depositFiles = Files.getFiles(ddm, filesXml);
+        }
+
+        return this.depositFiles;
     }
 
     @Override

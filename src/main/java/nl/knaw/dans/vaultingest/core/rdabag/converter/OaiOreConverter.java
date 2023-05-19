@@ -19,6 +19,7 @@ import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.*;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCore;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.ORE;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
@@ -31,7 +32,7 @@ public class OaiOreConverter {
     public OreResourceMap convert(Deposit deposit) {
         var model = ModelFactory.createDefaultModel();
 
-        var resourceMap = createResourceMap(model);
+        var resourceMap = createResourceMap(deposit, model);
         var resource = createAggregation(deposit, model);
 
         model.add(Title.toTitle(resource, deposit.getTitle()));
@@ -63,8 +64,8 @@ public class OaiOreConverter {
         return new OreResourceMap(model);
     }
 
-    Resource createResourceMap(Model model) {
-        var resourceMap = model.createResource("urn:uuid:95ac8641-407c-4f1b-8d83-a7e659ca409a");
+    Resource createResourceMap(Deposit deposit, Model model) {
+        var resourceMap = model.createResource("urn:uuid:" + deposit.getId());
         var resourceMapType = model.createStatement(resourceMap, RDF.type, ORE.ResourceMap);
 
         model.add(resourceMapType);
@@ -74,12 +75,27 @@ public class OaiOreConverter {
     Resource createAggregatedResource(Model model, DepositFile depositFile) {
         var resource = model.createResource("urn:uuid:" + depositFile.getId());
 
-        var type = model.createStatement(resource, RDF.type, ORE.AggregatedResource);
-        var name = model.createStatement(resource, SchemaDO.name, depositFile.getPath().toString());
+        // TODO add access rights and checksum
 
-        // TODO add description, access rights and dvcore:restricted, and checksum
+        var type = model.createStatement(resource, RDF.type, ORE.AggregatedResource);
+        // FIL001
+        var name = model.createStatement(resource, SchemaDO.name, depositFile.getRelativePath().toString());
+        // FIL002A, FIL002B, FIL003, FIL004
+        var description = model.createStatement(resource, SchemaDO.description, depositFile.getDescription());
+
         model.add(type);
         model.add(name);
+        model.add(description);
+
+        // FIL002
+        var directoryLabel = depositFile.getDirectoryLabel();
+
+        if (directoryLabel != null) {
+            model.add(model.createStatement(resource, DVCore.directoryLabel, directoryLabel.toString()));
+        }
+
+        // FIL005, FIL006, FIL007
+        model.add(model.createStatement(resource, DVCore.restricted, Boolean.toString(depositFile.isRestricted())));
 
         return resource;
     }

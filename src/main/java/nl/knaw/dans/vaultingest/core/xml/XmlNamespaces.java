@@ -29,4 +29,6 @@ public interface XmlNamespaces {
     String NAMESPACE_EASY_WORKFLOW = "http://easy.dans.knaw.nl/easy/workflow/";
     String NAMESPACE_DAMD = "http://easy.dans.knaw.nl/easy/dataset-administrative-metadata/";
     String NAMESPACE_AGREEMENTS = "http://easy.dans.knaw.nl/schemas/bag/metadata/agreements/";
+    String NAMESPACE_AFM = "http://easy.dans.knaw.nl/schemas/bag/metadata/afm/";
+
 }
