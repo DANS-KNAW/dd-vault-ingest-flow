@@ -51,6 +51,8 @@ class OaiOreConverterIntegrationTest {
         var output = converter.convert(deposit);
         var serializer = new OaiOreSerializer(new ObjectMapper());
 
+        var model = output.getModel();
+        System.out.println(model.getNsPrefixMap());
         System.out.println("RDF: " + serializer.serialize(output, OaiOreSerializer.OutputFormat.RDF));
         System.out.println("JSON: " + serializer.serialize(output, OaiOreSerializer.OutputFormat.JSONLD));
     }

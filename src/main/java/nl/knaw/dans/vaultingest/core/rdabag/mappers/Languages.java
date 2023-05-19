@@ -34,7 +34,6 @@ public class Languages {
         var result = new ArrayList<Statement>();
 
         for (var language : languages) {
-            System.out.println("LANGUAGE: " + language);
             result.add(model.createStatement(
                 resource,
                 DCTerms.language,

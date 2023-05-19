@@ -19,6 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.ORE;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFFormat;
@@ -55,9 +56,9 @@ public class OaiOreSerializer {
     String serializeRdf(OreResourceMap resourceMap) {
         var model = resourceMap.getModel();
         var topLevelResources = new Resource[]{
-            model.createResource("http://www.openarchives.org/ore/terms/AggregatedResource"),
-            model.createResource("http://www.openarchives.org/ore/terms/Aggregation"),
-            model.createResource("http://www.openarchives.org/ore/terms/ResourceMap")
+            ORE.AggregatedResource,
+            ORE.Aggregation,
+            ORE.ResourceMap,
         };
 
         var properties = new HashMap<String, Object>();
@@ -78,7 +79,7 @@ public class OaiOreSerializer {
     String serializeJsonLd(OreResourceMap resourceMap) {
         var model = resourceMap.getModel();
         var context = new Context();
-        var namespaces = namespacesAsJsonObject(resourceMap.getNamespaces());
+        var namespaces = namespacesAsJsonObject(resourceMap.getUsedNamespaces());
         var contextStr = "{ \"@context\": [\n" +
             "    \"https://w3id.org/ore/context\",\n" +
             namespaces +

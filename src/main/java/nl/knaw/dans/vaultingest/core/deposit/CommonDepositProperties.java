@@ -24,10 +24,6 @@ public class CommonDepositProperties {
         this.configuration = configuration;
     }
 
-    public boolean hasProperty(String name) {
-        return configuration.containsKey(name);
-    }
-
     public <T> T getProperty(Class<T> cls, String name) {
         return configuration.get(cls, name);
     }

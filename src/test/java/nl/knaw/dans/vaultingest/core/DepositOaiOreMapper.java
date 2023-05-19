@@ -122,7 +122,7 @@ public class DepositOaiOreMapper {
 
         model.add(model.createStatement(resourceMap, model.createProperty(ore, "describes"), resource));
 
-        return new OreResourceMap(model, namespaces);
+        return new OreResourceMap(model);
     }
 
     Resource createResourceMap(Model model) {
@@ -194,7 +194,7 @@ public class DepositOaiOreMapper {
             e.printStackTrace();
         }
 
-        return new OreResourceMap(model, namespaces);
+        return new OreResourceMap(model);
     }
 
     void frame() {
