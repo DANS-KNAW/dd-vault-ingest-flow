@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.deposit.DiskDepositLoader;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
 import nl.knaw.dans.vaultingest.core.domain.*;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
@@ -82,7 +82,7 @@ class DepositToBagProcessTest {
 
         var bagDir = Path.of(s.getPath());
 
-        var deposit = new DiskDepositLoader(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
+        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);
     }
@@ -100,7 +100,7 @@ class DepositToBagProcessTest {
 
         var bagDir = Path.of(s.getPath());
 
-        var deposit = new DiskDepositLoader(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
+        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);
     }

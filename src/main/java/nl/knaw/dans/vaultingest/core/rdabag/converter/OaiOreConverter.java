@@ -99,16 +99,16 @@ public class OaiOreConverter {
         var resource = model.createResource("urn:uuid:" + depositFile.getId());
 
         // TODO add access rights and checksum
+        model.add(model.createStatement(resource, RDF.type, ORE.AggregatedResource));
+        model.add(model.createStatement(resource, SchemaDO.name, depositFile.getPath().toString()));
 
-        var type = model.createStatement(resource, RDF.type, ORE.AggregatedResource);
-        // FIL001
-        var name = model.createStatement(resource, SchemaDO.name, depositFile.getRelativePath().toString());
         // FIL002A, FIL002B, FIL003, FIL004
-        var description = model.createStatement(resource, SchemaDO.description, depositFile.getDescription());
+        var descriptionText = depositFile.getDescription();
 
-        model.add(type);
-        model.add(name);
-        model.add(description);
+        if (descriptionText != null) {
+            var description = model.createStatement(resource, SchemaDO.description, depositFile.getDescription());
+            model.add(description);
+        }
 
         // FIL002
         var directoryLabel = depositFile.getDirectoryLabel();

@@ -33,20 +33,8 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CommonDepositBag {
+class CommonDepositBag {
     private final Bag bag;
-    private final OriginalFilepaths originalFilepaths;
-
-    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
-        try {
-            var path = originalFilepaths.getPhysicalPath(depositFile.getOriginalPath());
-            System.out.println("RESOLVED PATH: " + path);
-
-            return new FileInputStream(bag.getRootDir().resolve(path).toFile());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public Collection<Path> getMetadataFiles() throws IOException {
         try (var list = Files.list(this.bag.getRootDir().resolve("metadata"))) {

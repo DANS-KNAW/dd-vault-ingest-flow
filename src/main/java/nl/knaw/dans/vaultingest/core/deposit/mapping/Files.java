@@ -16,45 +16,12 @@
 package nl.knaw.dans.vaultingest.core.deposit.mapping;
 
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.KeyValuePair;
-import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.w3c.dom.Document;
 
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class Files extends Base {
     public static List<DepositFile> getFiles(Document ddm, Document filesXml) {
-        return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
-            .map(node -> {
-                var filepath = node.getAttributes().getNamedItem("filepath").getTextContent();
-
-                var afmKeyValuePairs = XPathEvaluator.nodes(node, "afm:keyvaluepair")
-                    .map(keyValuePair -> {
-                        var key = XPathEvaluator.strings(keyValuePair, "afm:key").findFirst().orElse(null);
-                        var value = XPathEvaluator.strings(keyValuePair, "afm:value").findFirst().orElse(null);
-
-                        return new KeyValuePair(key, value);
-                    })
-                    .collect(Collectors.toList());
-
-                var otherKeyValuePairs = XPathEvaluator.nodes(node, "*[not(local-name() = 'keyvaluepair')]")
-                    .map(keyValuePair -> {
-                        var key = keyValuePair.getLocalName();
-                        var value = keyValuePair.getTextContent();
-
-                        return new KeyValuePair(key, value);
-                    })
-                    .collect(Collectors.toList());
-
-                return DepositFile.builder()
-                    .id(UUID.randomUUID().toString())
-                    .keyValuePairs(afmKeyValuePairs)
-                    .otherMetadata(otherKeyValuePairs)
-                    .filepath(filepath)
-                    .build();
-            })
-            .collect(Collectors.toList());
+        return List.of();
     }
 }

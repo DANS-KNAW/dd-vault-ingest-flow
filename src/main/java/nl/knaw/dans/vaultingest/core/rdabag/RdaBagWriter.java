@@ -39,7 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+// TODO clean up messy checksum calculations
 @Slf4j
 public class RdaBagWriter {
 
@@ -55,9 +55,11 @@ public class RdaBagWriter {
 
     public void write(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
 
+        var dataPath = Path.of("data");
+
         for (var file : deposit.getPayloadFiles()) {
             log.info("Writing payload file {}", file);
-            outputWriter.writeBagItem(deposit.inputStreamForPayloadFile(file), file.getPath());
+            outputWriter.writeBagItem(file.openInputStream(), dataPath.resolve(file.getPath()));
         }
 
         log.info("Writing metadata/datacite.xml");
@@ -80,7 +82,7 @@ public class RdaBagWriter {
             writeMetadataFile(deposit, metadataFile, outputWriter);
         }
 
-        writeManifests(deposit, outputWriter);
+        writeManifests(deposit, dataPath, outputWriter);
 
         // must be last, because all other files must have been written to
         writeTagManifest(deposit, outputWriter);
@@ -93,8 +95,6 @@ public class RdaBagWriter {
     }
 
     private void writeTagManifest(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
-        var files = deposit.getMetadataFiles();
-
         // get the metadata, which is everything EXCEPT the data/** and tagmanifest-* files
         // but the deposit or the rdabag does not know about these files, only this class knows
 
@@ -115,7 +115,7 @@ public class RdaBagWriter {
         }
     }
 
-    private void writeManifests(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+    private void writeManifests(Deposit deposit, Path dataPath, BagOutputWriter outputWriter) throws IOException {
         // iterate all files in rda bag and get checksum sha1
         var files = deposit.getPayloadFiles();
         var algorithms = List.of("MD5", "SHA-1", "SHA-256");
@@ -124,7 +124,7 @@ public class RdaBagWriter {
         var checksumMap = new HashMap<DepositFile, Map<String, String>>();
 
         for (var file : files) {
-            try (var inputStream = deposit.inputStreamForPayloadFile(file)) {
+            try (var inputStream = file.openInputStream()) {
                 var checksums = calculator.calculateChecksums(inputStream, algorithms);
                 checksumMap.put(file, checksums);
             } catch (IOException e) {
@@ -138,7 +138,7 @@ public class RdaBagWriter {
 
             for (var file : files) {
                 var checksum = checksumMap.get(file).get(algorithm);
-                outputString.append(String.format("%s  %s\n", checksum, file.getPath()));
+                outputString.append(String.format("%s  %s\n", checksum, dataPath.resolve(file.getPath())));
             }
 
             checksummedWriteToOutput(new ByteArrayInputStream(outputString.toString().getBytes()), Path.of(outputFile), outputWriter);

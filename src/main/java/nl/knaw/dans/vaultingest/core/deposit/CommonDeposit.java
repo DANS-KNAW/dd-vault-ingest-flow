@@ -30,13 +30,13 @@ import java.util.Collection;
 import java.util.List;
 
 @Builder
-public class CommonDeposit implements Deposit {
+class CommonDeposit implements Deposit {
 
     private final String id;
     private final Document ddm;
     private final Document filesXml;
     private final CommonDepositProperties properties;
-    private final CommonDepositBag depositBag;
+    private final CommonDepositBag bag;
 
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
@@ -70,7 +70,7 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public Collection<OtherId> getOtherIds() {
-        return OtherIds.getOtherIds(ddm, depositBag.getMetadataValue("Has-Organizational-Identifier"));
+        return OtherIds.getOtherIds(ddm, getMetadataValue("Has-Organizational-Identifier"));
     }
 
     @Override
@@ -166,26 +166,20 @@ public class CommonDeposit implements Deposit {
 
     @Override
     public Collection<DepositFile> getPayloadFiles() {
-        if (this.depositFiles == null) {
-            this.depositFiles = Files.getFiles(ddm, filesXml);
-        }
-
         return this.depositFiles;
     }
 
     @Override
-    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
-        return this.depositBag.inputStreamForPayloadFile(depositFile);
-    }
-
-    @Override
     public Collection<Path> getMetadataFiles() throws IOException {
-        return this.depositBag.getMetadataFiles();
+        return bag.getMetadataFiles();
     }
 
     @Override
     public InputStream inputStreamForMetadataFile(Path path) {
-        return this.depositBag.inputStreamForMetadataFile(path);
+        return bag.inputStreamForMetadataFile(path);
     }
 
+    private List<String> getMetadataValue(String key) {
+        return bag.getMetadataValue(key);
+    }
 }

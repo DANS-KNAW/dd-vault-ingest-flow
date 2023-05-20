@@ -56,15 +56,15 @@ public class TestDeposit implements Deposit {
     private DatasetContact contact;
     private List<String> sources;
 
-    @Override
-    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
-        return new ByteArrayInputStream(
-            String.format(
-                "This is a test payload file with id %s and path %s", depositFile.getId(), depositFile.getPath()
-            ).getBytes()
-        );
-    }
-
+//    @Override
+//    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
+//        return new ByteArrayInputStream(
+//            String.format(
+//                "This is a test payload file with id %s and path %s", depositFile.getId(), depositFile.getPath()
+//            ).getBytes()
+//        );
+//    }
+//
     @Override
     public Collection<Path> getMetadataFiles() throws IOException {
         return List.of(

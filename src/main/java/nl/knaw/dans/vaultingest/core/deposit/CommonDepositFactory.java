@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
+import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
 import gov.loc.repository.bagit.exceptions.MaliciousPathException;
 import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
@@ -22,7 +23,9 @@ import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
 import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
+import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.PropertiesConfiguration;
@@ -37,14 +40,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
-public class DiskDepositLoader {
+public class CommonDepositFactory {
     private final XmlReader xmlReader;
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
 
-    public DiskDepositLoader(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver) {
+    public CommonDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver) {
         this.xmlReader = xmlReader;
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
@@ -55,22 +61,22 @@ public class DiskDepositLoader {
         try {
             var bagDir = getBagDir(path);
 
-            var ddm = bagDir.resolve(Path.of("metadata", "dataset.xml"));
-            var filesXml = bagDir.resolve(Path.of("metadata", "files.xml"));
+            var ddm = readXmlFile(bagDir.resolve(Path.of("metadata", "dataset.xml")));
+            var filesXml = readXmlFile(bagDir.resolve(Path.of("metadata", "files.xml")));
 
             var bag = new BagReader().read(bagDir);
             var originalFilePaths = getOriginalFilepaths(bagDir);
 
-            var depositBag = new CommonDepositBag(bag, originalFilePaths);
-
             var depositProperties = getDepositProperties(path);
+            var depositFiles = getDepositFiles(bag, ddm, filesXml, originalFilePaths);
 
             return CommonDeposit.builder()
                 .id(path.getFileName().toString())
-                .ddm(readXmlFile(ddm))
-                .filesXml(readXmlFile(filesXml))
+                .ddm(ddm)
+                .bag(new CommonDepositBag(bag))
+                .filesXml(filesXml)
+                .depositFiles(depositFiles)
                 .properties(depositProperties)
-                .depositBag(depositBag)
                 .datasetContactResolver(datasetContactResolver)
                 .languageResolver(languageResolver)
                 .build();
@@ -123,5 +129,17 @@ public class DiskDepositLoader {
         }
 
         return result;
+    }
+
+    List<DepositFile> getDepositFiles(Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
+        return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
+            .map(node -> CommonDepositFile.builder()
+                .id(UUID.randomUUID().toString())
+                .bagDir(bag.getRootDir())
+                .filesXmlNode(node)
+                .ddmNode(ddm)
+                .originalFilepaths(originalFilepaths)
+                .build())
+            .collect(Collectors.toList());
     }
 }

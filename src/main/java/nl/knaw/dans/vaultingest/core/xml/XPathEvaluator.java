@@ -40,20 +40,20 @@ public final class XPathEvaluator implements XmlNamespaces {
                 .newXPath();
 
             final var namespaceMap = new HashMap<String, String>();
-            namespaceMap.put("xml", XmlNamespaces.NAMESPACE_XML);
-            namespaceMap.put("dc", XmlNamespaces.NAMESPACE_DC);
-            namespaceMap.put("dcx-dai", XmlNamespaces.NAMESPACE_DCX_DAI);
-            namespaceMap.put("ddm", XmlNamespaces.NAMESPACE_DDM);
-            namespaceMap.put("dcterms", XmlNamespaces.NAMESPACE_DCTERMS);
-            namespaceMap.put("xsi", XmlNamespaces.NAMESPACE_XSI);
-            namespaceMap.put("id-type", XmlNamespaces.NAMESPACE_ID_TYPE);
-            namespaceMap.put("dcx-gml", XmlNamespaces.NAMESPACE_DCX_GML);
-            namespaceMap.put("files", XmlNamespaces.NAMESPACE_FILES_XML);
-            namespaceMap.put("gml", XmlNamespaces.NAMESPACE_OPEN_GIS);
-            namespaceMap.put("wfs", XmlNamespaces.NAMESPACE_EASY_WORKFLOW);
-            namespaceMap.put("damd", XmlNamespaces.NAMESPACE_DAMD);
-            namespaceMap.put("agreements", XmlNamespaces.NAMESPACE_AGREEMENTS);
-            namespaceMap.put("afm", XmlNamespaces.NAMESPACE_AFM);
+            namespaceMap.put("xml", NAMESPACE_XML);
+            namespaceMap.put("dc", NAMESPACE_DC);
+            namespaceMap.put("dcx-dai", NAMESPACE_DCX_DAI);
+            namespaceMap.put("ddm", NAMESPACE_DDM);
+            namespaceMap.put("dcterms", NAMESPACE_DCTERMS);
+            namespaceMap.put("xsi", NAMESPACE_XSI);
+            namespaceMap.put("id-type", NAMESPACE_ID_TYPE);
+            namespaceMap.put("dcx-gml", NAMESPACE_DCX_GML);
+            namespaceMap.put("files", NAMESPACE_FILES_XML);
+            namespaceMap.put("gml", NAMESPACE_OPEN_GIS);
+            namespaceMap.put("wfs", NAMESPACE_EASY_WORKFLOW);
+            namespaceMap.put("damd", NAMESPACE_DAMD);
+            namespaceMap.put("agreements", NAMESPACE_AGREEMENTS);
+            namespaceMap.put("afm", NAMESPACE_AFM);
 
             xpath.setNamespaceContext(new NamespaceContext() {
 
@@ -80,20 +80,18 @@ public final class XPathEvaluator implements XmlNamespaces {
     public static Stream<Node> nodes(Node node, String... expressions) {
         try {
             return xpathsToStream(node, expressions);
-        }
-        catch (XPathExpressionException e) {
-            // TODO add actual expression to error message
-            throw new RuntimeException("Error evaluating xpath", e);
+        } catch (XPathExpressionException e) {
+            var message = String.join(", ", expressions);
+            throw new RuntimeException(String.format("Error evaluating xpath: %s", message), e);
         }
     }
 
     public static Stream<String> strings(Node node, String... expressions) {
         try {
             return xpathsToStreamOfStrings(node, expressions);
-        }
-        catch (XPathExpressionException e) {
-            // TODO add actual expression to error message
-            throw new RuntimeException("Error evaluating xpath", e);
+        } catch (XPathExpressionException e) {
+            var message = String.join(", ", expressions);
+            throw new RuntimeException(String.format("Error evaluating xpath: %s", message), e);
         }
     }
 

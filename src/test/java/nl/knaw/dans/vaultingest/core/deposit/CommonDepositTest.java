@@ -17,7 +17,6 @@ package nl.knaw.dans.vaultingest.core.deposit;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.DatasetContacts;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
@@ -281,6 +280,7 @@ class CommonDepositTest {
         Mockito.when(bag.getMetadataValue(Mockito.eq("Has-Organizational-Identifier")))
             .thenReturn(List.of("DANS:12345"));
 
+
         var ddm = new XmlReaderImpl().readXmlFile(
             Path.of(Objects.requireNonNull(getClass().getResource("/xml/example-ddm.xml")).getPath())
         );
@@ -288,9 +288,9 @@ class CommonDepositTest {
         return CommonDeposit.builder()
             .id("id")
             .ddm(ddm)
+            .bag(bag)
             .filesXml(null)
             .properties(props)
-            .depositBag(bag)
             .datasetContactResolver((userId -> DatasetContact.builder()
                 .name(userId)
                 .email(userId + "@test.com")
@@ -298,12 +298,5 @@ class CommonDepositTest {
                 .build()))
             .languageResolver(new TestLanguageResolver())
             .build();
-//        return new CommonDeposit(
-//            "id", ddm, null, props, bag, (userId -> DatasetContact.builder()
-//            .name(userId)
-//            .email(userId + "@test.com")
-//            .affiliation(userId + " university")
-//            .build()),
-//            new TestLanguageResolver());
     }
 }

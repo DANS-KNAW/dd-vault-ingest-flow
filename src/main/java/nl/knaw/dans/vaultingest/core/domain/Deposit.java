@@ -68,7 +68,7 @@ public interface Deposit {
 
     Collection<DepositFile> getPayloadFiles();
 
-    InputStream inputStreamForPayloadFile(DepositFile depositFile);
+//    InputStream inputStreamForPayloadFile(DepositFile depositFile);
 
     Collection<Path> getMetadataFiles() throws IOException;
 

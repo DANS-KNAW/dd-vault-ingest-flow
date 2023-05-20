@@ -17,6 +17,7 @@ package nl.knaw.dans.vaultingest.core.rdabag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
+import nl.knaw.dans.vaultingest.core.domain.TestDepositFile;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
@@ -26,6 +27,7 @@ import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,9 +63,9 @@ class OaiOreConverterTest {
                 OtherId.builder().value("agency 1").agency("Agency name").build()
             ))
             .payloadFiles(List.of(
-                    DepositFile.builder()
+                    TestDepositFile.builder()
                         .id(UUID.randomUUID().toString())
-                        .filepath("data/valid/characters.txt")
+                        .path(Path.of("data/valid/characters.txt"))
                         .build()
             ))
             .build();

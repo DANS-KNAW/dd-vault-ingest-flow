@@ -15,23 +15,34 @@
  */
 package nl.knaw.dans.vaultingest.core.domain;
 
+import lombok.Builder;
+import lombok.Data;
+
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
-public interface DepositFile {
+@Data
+@Builder
+public class TestDepositFile implements DepositFile {
+    private final String id;
+    private final boolean restricted;
+    private final Path path;
+    private final String description;
 
-    String getId();
+    @Override
+    public Path getDirectoryLabel() {
+        return path.getParent();
+    }
 
-    boolean isRestricted();
+    @Override
+    public Path getFilename() {
+        return path.getFileName();
+    }
 
-    Path getDirectoryLabel();
-
-    Path getFilename();
-
-    Path getPath();
-
-    String getDescription();
-
-    InputStream openInputStream() throws IOException;
+    @Override
+    public InputStream openInputStream() {
+        return new ByteArrayInputStream(("input for file " + id).getBytes());
+    }
 }

@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.deposit;
+package nl.knaw.dans.vaultingest.core.domain;
 
-import org.apache.commons.configuration2.Configuration;
+public enum ManifestChecksum {
+    MD5("md5"),
+    SHA1("sha1");
 
-class CommonDepositProperties {
-    private final Configuration configuration;
+    private final String algorithm;
 
-    public CommonDepositProperties(Configuration configuration) {
-        this.configuration = configuration;
+    ManifestChecksum(String algorithm) {
+        this.algorithm = algorithm;
     }
 
-    public <T> T getProperty(Class<T> cls, String name) {
-        return configuration.get(cls, name);
+    public String getAlgorithm() {
+        return algorithm;
     }
+
 }
