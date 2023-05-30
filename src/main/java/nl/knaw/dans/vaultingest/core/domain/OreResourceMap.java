@@ -17,19 +17,14 @@ package nl.knaw.dans.vaultingest.core.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.sparql.vocabulary.FOAF;
-import org.apache.jena.vocabulary.DCTerms;
-import org.apache.jena.vocabulary.DC_11;
-import org.apache.jena.vocabulary.SchemaDO;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+// TODO should not be in domain (or should it?)
 @AllArgsConstructor
 @Slf4j
 public class OreResourceMap {
@@ -60,24 +55,10 @@ public class OreResourceMap {
 
         log.trace("predicateNamespaces: {}", predicateNamespaces);
 
-        return this.getNamespaceMap().entrySet()
+        return OreNamespaces.getNamespaces().entrySet()
             .stream().filter(entry -> predicateNamespaces.contains(entry.getValue()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private Map<String, String> getNamespaceMap() {
-        var namespaces = new HashMap<String, String>();
 
-        namespaces.put("cit", DVCitation.NS);
-        namespaces.put("dcterms", DCTerms.NS);
-        namespaces.put("datacite", Datacite.NS);
-        namespaces.put("ore", ORE.NS);
-        namespaces.put("dc", DC_11.NS);
-        namespaces.put("foaf", FOAF.NS);
-        namespaces.put("schema", SchemaDO.NS);
-        namespaces.put("dansREL", DansRel.NS);
-        namespaces.put("dvcore", DVCore.NS);
-
-        return namespaces;
-    }
 }

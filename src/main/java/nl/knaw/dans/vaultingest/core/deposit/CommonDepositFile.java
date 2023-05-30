@@ -49,8 +49,7 @@ class CommonDepositFile implements DepositFile {
     private final Node filesXmlNode;
     private final Node ddmNode;
 
-    private final Path bagDir;
-    private final OriginalFilepaths originalFilepaths;
+    private final Path physicalPath;
     // TODO also store checksums here?
     // TODO embargoes
 
@@ -166,9 +165,7 @@ class CommonDepositFile implements DepositFile {
 
     @Override
     public InputStream openInputStream() throws IOException {
-        var physicalPath = originalFilepaths.getPhysicalPath(Path.of(getFilePathAttribute()));
-        var path = bagDir.resolve(physicalPath);
-        return new FileInputStream(path.toFile());
+        return new FileInputStream(physicalPath.toFile());
     }
 
     private String getFilePathAttribute() {

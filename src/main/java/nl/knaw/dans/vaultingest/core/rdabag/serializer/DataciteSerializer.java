@@ -33,7 +33,6 @@ public class DataciteSerializer {
             marshaller.marshal(resource, writer);
             return writer.toString();
         } catch (Exception e) {
-            e.printStackTrace();
             throw new RuntimeException(e.getMessage(), e);
         }
     }

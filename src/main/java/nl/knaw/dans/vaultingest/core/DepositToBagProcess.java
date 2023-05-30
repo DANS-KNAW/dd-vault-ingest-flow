@@ -15,35 +15,42 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
-import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
+import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
 import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
+import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 
+@Slf4j
 public class DepositToBagProcess {
 
     private final DepositValidator depositValidator;
     private final RdaBagWriter rdaBagWriter;
+    private final BagOutputWriterFactory bagOutputWriterFactory;
+    private final VaultCatalogService vaultCatalogService;
 
-    private final BagOutputWriter bagOutputWriter;
-
-    public DepositToBagProcess(DepositValidator depositValidator, RdaBagWriter rdaBagWriter, BagOutputWriter bagOutputWriter) {
+    public DepositToBagProcess(DepositValidator depositValidator, RdaBagWriter rdaBagWriter, BagOutputWriterFactory bagOutputWriterFactory, VaultCatalogService vaultCatalogService) {
         this.depositValidator = depositValidator;
         this.rdaBagWriter = rdaBagWriter;
-        this.bagOutputWriter = bagOutputWriter;
+        this.bagOutputWriterFactory = bagOutputWriterFactory;
+        this.vaultCatalogService = vaultCatalogService;
     }
 
-    void process(Deposit deposit) {
+    public void process(Deposit deposit) {
         // validate deposit?
         depositValidator.validate(deposit);
 
         // TODO register deposit with vault catalog
-
+        vaultCatalogService.registerDeposit(deposit);
 
         // send rda bag to vault
         try {
-            rdaBagWriter.write(deposit, bagOutputWriter);
+            try (var writer = bagOutputWriterFactory.createBagOutputWriter(deposit)) {
+                rdaBagWriter.write(deposit, writer);
+            }
         } catch (Exception e) {
+            log.error("Error writing bag", e);
             e.printStackTrace();
         }
 

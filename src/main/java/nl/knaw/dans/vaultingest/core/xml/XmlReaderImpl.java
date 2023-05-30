@@ -29,21 +29,6 @@ import java.util.Map;
 
 public class XmlReaderImpl implements XmlReader {
 
-    public XmlReaderImpl() {
-        final var namespaceMap = Map.of(
-            "xml", NAMESPACE_XML,
-            "dc", NAMESPACE_DC,
-            "dcx-dai", NAMESPACE_DCX_DAI,
-            "ddm", NAMESPACE_DDM,
-            "dcterms", NAMESPACE_DCTERMS,
-            "xsi", NAMESPACE_XSI,
-            "id-type", NAMESPACE_ID_TYPE,
-            "dcx-gml", NAMESPACE_DCX_GML,
-            "files", NAMESPACE_FILES_XML,
-            "gml", NAMESPACE_OPEN_GIS
-        );
-    }
-
     @Override
     public Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException {
         var factory = getFactory();

@@ -23,6 +23,6 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class KeyValuePair {
-    private String key;
-    private String value;
+    private final String key;
+    private final String value;
 }

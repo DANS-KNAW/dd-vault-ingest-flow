@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.xml;
+package nl.knaw.dans.vaultingest.core.deposit;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.nio.file.Path;
+public class CommonDepositValidator implements DepositValidator {
 
-public interface XmlReader {
 
-    Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
+    @Override
+    public void validate(Deposit deposit) {
 
-    Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException;
 
+    }
 }

@@ -42,18 +42,7 @@ public class OaiOreSerializer {
         this.objectMapper = objectMapper;
     }
 
-    public String serialize(OreResourceMap resourceMap, OutputFormat outputFormat) {
-        switch (outputFormat) {
-            case RDF:
-                return serializeRdf(resourceMap);
-            case JSONLD:
-                return serializeJsonLd(resourceMap);
-        }
-
-        return null;
-    }
-
-    String serializeRdf(OreResourceMap resourceMap) {
+    public String serializeAsRdf(OreResourceMap resourceMap) {
         var model = resourceMap.getModel();
         var topLevelResources = new Resource[]{
             ORE.AggregatedResource,
@@ -76,7 +65,7 @@ public class OaiOreSerializer {
         return output.toString();
     }
 
-    String serializeJsonLd(OreResourceMap resourceMap) {
+    public String serializeAsJsonLd(OreResourceMap resourceMap) {
         var model = resourceMap.getModel();
         var context = new Context();
         var namespaces = namespacesAsJsonObject(resourceMap.getUsedNamespaces());

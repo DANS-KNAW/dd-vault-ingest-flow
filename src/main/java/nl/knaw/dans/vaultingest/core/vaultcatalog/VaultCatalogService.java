@@ -13,19 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.xml;
+package nl.knaw.dans.vaultingest.core.vaultcatalog;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.nio.file.Path;
+public interface VaultCatalogService {
 
-public interface XmlReader {
-
-    Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
-
-    Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException;
+    void registerDeposit(Deposit deposit);
 
 }

@@ -21,7 +21,7 @@ import java.io.IOException;
 
 public class PidMappingSerializer {
 
-    public String serialize(PidMappings mappings) throws IOException {
+    public String serialize(PidMappings mappings) {
         var str = new StringBuilder();
 
         for (var mapping : mappings.getPidMappings()) {

@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.core;
 
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.domain.*;
+import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
@@ -25,8 +25,10 @@ import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
+import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -38,15 +40,19 @@ class DepositToBagProcessTest {
     @Test
     void process() throws IOException {
         var rdaBagWriter = new RdaBagWriter();
+        var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
         var depositToBagProcess = new DepositToBagProcess((deposit) -> {
-        }, rdaBagWriter, new StdoutBagOutputWriter());
+        }, rdaBagWriter,
+            deposit -> new StdoutBagOutputWriter(),
+            vaultCatalogService);
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a/valid-bag");
         assert s != null;
         var bagDir = Path.of(s.getPath());
-        Files.walk(bagDir)
-            .filter(Files::isRegularFile)
-            .forEach(System.out::println);
+
+        try (var files = Files.walk(bagDir)) {
+            files.filter(Files::isRegularFile).forEach(System.out::println);
+        }
 
         var deposit = TestDeposit.builder()
             .id("doi:10.17026/dans-12345")
@@ -74,8 +80,11 @@ class DepositToBagProcessTest {
     void process_with_originalFilePathMappings() throws IOException {
         var rdaBagWriter = new RdaBagWriter();
         var xmlReader = new XmlReaderImpl();
+        var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
         var depositToBagProcess = new DepositToBagProcess((deposit) -> {
-        }, rdaBagWriter, new StdoutBagOutputWriter());
+        }, rdaBagWriter,
+            deposit -> new StdoutBagOutputWriter(),
+            vaultCatalogService);
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
         assert s != null;
@@ -92,8 +101,9 @@ class DepositToBagProcessTest {
         var xmlReader = new XmlReaderImpl();
         var rdaBagWriter = new RdaBagWriter();
         var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
+        var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
         var depositToBagProcess = new DepositToBagProcess((deposit) -> {
-        }, rdaBagWriter, output);
+        }, rdaBagWriter, (path) -> output, vaultCatalogService);
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
         assert s != null;

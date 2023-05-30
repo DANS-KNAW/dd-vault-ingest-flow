@@ -52,7 +52,7 @@ class OaiOreConverterIntegrationTest {
         var serializer = new OaiOreSerializer(new ObjectMapper());
 
         var model = output.getModel();
-        System.out.println("RDF: " + serializer.serialize(output, OaiOreSerializer.OutputFormat.RDF));
-        System.out.println("JSON: " + serializer.serialize(output, OaiOreSerializer.OutputFormat.JSONLD));
+        System.out.println("RDF: " + serializer.serializeAsRdf(output));
+        System.out.println("JSON: " + serializer.serializeAsJsonLd(output));
     }
 }

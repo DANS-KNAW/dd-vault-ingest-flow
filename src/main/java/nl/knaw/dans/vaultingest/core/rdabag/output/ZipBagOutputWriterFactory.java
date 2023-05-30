@@ -13,19 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.xml;
+package nl.knaw.dans.vaultingest.core.rdabag.output;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Path;
 
-public interface XmlReader {
+public class ZipBagOutputWriterFactory implements BagOutputWriterFactory {
+    private final Path outputDir = Path.of("/tmp");
 
-    Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
+    @Override
+    public BagOutputWriter createBagOutputWriter(Deposit deposit) throws IOException {
+        var output = outputDir.resolve(outputFilename(deposit.getDoi(), "1.0"));
+        return new ZipBagOutputWriter(output);
+    }
 
-    Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException;
-
+    private Path outputFilename(String doi, String version) {
+        doi = doi.replaceAll("[^a-zA-Z0-9]", "-");
+        return Path.of(String.format("%s-v%s.zip", doi, version).toLowerCase());
+    }
 }

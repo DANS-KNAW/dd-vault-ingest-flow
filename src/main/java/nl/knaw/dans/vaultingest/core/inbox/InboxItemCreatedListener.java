@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.xml;
+package nl.knaw.dans.vaultingest.core.inbox;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.nio.file.Path;
 
-public interface XmlReader {
+public interface InboxItemCreatedListener {
 
-    Document readXmlFile(Path path) throws ParserConfigurationException, IOException, SAXException;
-
-    Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException;
-
+    void onInboxItemCreated(Path path);
 }

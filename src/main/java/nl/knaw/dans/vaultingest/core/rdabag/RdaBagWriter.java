@@ -86,12 +86,6 @@ public class RdaBagWriter {
 
         // must be last, because all other files must have been written to
         writeTagManifest(deposit, outputWriter);
-
-        try {
-            outputWriter.close();
-        } catch (Exception e) {
-            log.error("Error closing output writer", e);
-        }
     }
 
     private void writeTagManifest(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
@@ -155,8 +149,8 @@ public class RdaBagWriter {
     private void writeOaiOre(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
         var oaiOre = oaiOreConverter.convert(deposit);
 
-        var rdf = oaiOreSerializer.serialize(oaiOre, OaiOreSerializer.OutputFormat.RDF);
-        var jsonld = oaiOreSerializer.serialize(oaiOre, OaiOreSerializer.OutputFormat.JSONLD);
+        var rdf = oaiOreSerializer.serializeAsRdf(oaiOre);
+        var jsonld = oaiOreSerializer.serializeAsJsonLd(oaiOre);
 
         checksummedWriteToOutput(new ByteArrayInputStream(rdf.getBytes()), Path.of("metadata/oai-ore.rdf"), outputWriter);
         checksummedWriteToOutput(new ByteArrayInputStream(jsonld.getBytes()), Path.of("metadata/oai-ore.jsonld"), outputWriter);

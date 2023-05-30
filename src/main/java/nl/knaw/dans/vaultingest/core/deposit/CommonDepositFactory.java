@@ -132,14 +132,19 @@ public class CommonDepositFactory {
     }
 
     List<DepositFile> getDepositFiles(Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
+
         return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
-            .map(node -> CommonDepositFile.builder()
-                .id(UUID.randomUUID().toString())
-                .bagDir(bag.getRootDir())
-                .filesXmlNode(node)
-                .ddmNode(ddm)
-                .originalFilepaths(originalFilepaths)
-                .build())
+            .map(node -> {
+                var filePath = node.getAttributes().getNamedItem("filepath").getTextContent();
+                var physicalPath = bag.getRootDir().resolve(originalFilepaths.getPhysicalPath(Path.of(filePath)));
+
+                return CommonDepositFile.builder()
+                    .id(UUID.randomUUID().toString())
+                    .physicalPath(physicalPath)
+                    .filesXmlNode(node)
+                    .ddmNode(ddm)
+                    .build();
+            })
             .collect(Collectors.toList());
     }
 }
