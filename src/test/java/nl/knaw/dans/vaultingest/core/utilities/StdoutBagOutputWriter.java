@@ -13,7 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag.output;
+package nl.knaw.dans.vaultingest.core.utilities;
+
+import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,12 +29,13 @@ public class StdoutBagOutputWriter implements BagOutputWriter {
 
         try {
             // only output first 512 bytes
-            byte[] bytes = new byte[512];
-            inputStream.read(bytes);
-            System.out.write(bytes);
-            System.out.println("...");
-            // inputStream.transferTo(System.out);
-        } catch (Exception e) {
+            //            byte[] bytes = new byte[512];
+            //            inputStream.read(bytes);
+            //            System.out.write(bytes);
+            //            System.out.println("...");
+            inputStream.transferTo(System.out);
+        }
+        catch (Exception e) {
             e.printStackTrace();
         }
 

@@ -16,28 +16,14 @@
 package nl.knaw.dans.vaultingest.config;
 
 import lombok.Getter;
-import nl.knaw.dans.lib.util.ExecutorServiceFactory;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 
 @Getter
-public class IngestFlowConfig {
+public class LanguageConfig {
     @NotNull
-    @Valid
-    private InboxConfig autoIngest;
+    private Path iso6391;
     @NotNull
-    @Valid
-    private InboxConfig migration;
-    @NotNull
-    @Valid
-    private ExecutorServiceFactory taskQueue;
-
-    @NotNull
-    private Path rdaBagOutputDir;
-
-    @NotNull
-    @Valid
-    private LanguageConfig languages;
+    private Path iso6392;
 }

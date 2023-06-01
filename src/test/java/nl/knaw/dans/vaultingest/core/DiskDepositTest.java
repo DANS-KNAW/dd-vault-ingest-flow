@@ -18,7 +18,7 @@ package nl.knaw.dans.vaultingest.core;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
-import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
+import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;

@@ -23,7 +23,7 @@ import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
-import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
+import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
