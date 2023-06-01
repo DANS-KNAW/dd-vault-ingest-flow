@@ -21,7 +21,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 public class ZipBagOutputWriterFactory implements BagOutputWriterFactory {
-    private final Path outputDir = Path.of("/tmp");
+    private final Path outputDir;
+
+    public ZipBagOutputWriterFactory(Path outputDir) {
+        this.outputDir = outputDir;
+    }
 
     @Override
     public BagOutputWriter createBagOutputWriter(Deposit deposit) throws IOException {

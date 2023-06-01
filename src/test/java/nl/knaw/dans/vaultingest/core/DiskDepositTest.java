@@ -16,6 +16,7 @@
 package nl.knaw.dans.vaultingest.core;
 
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
@@ -25,24 +26,23 @@ import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 class DiskDepositTest {
 
     @Test
-    void process() throws IOException {
+    void process() throws Exception {
         var rdaBagWriter = new RdaBagWriter();
         var xmlReader = new XmlReaderImpl();
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
-        var depositToBagProcess = new DepositToBagProcess((deposit) -> {
-        }, rdaBagWriter, (p) -> new StdoutBagOutputWriter(), vaultCatalogService);
+        var depositValidator = Mockito.mock(CommonDepositValidator.class);
+        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (p) -> new StdoutBagOutputWriter(), vaultCatalogService);
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a");
         assert s != null;
         var depositDir = Path.of(s.getPath());
 
-        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(depositDir);
+        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(depositDir);
 
         depositToBagProcess.process(deposit);
     }

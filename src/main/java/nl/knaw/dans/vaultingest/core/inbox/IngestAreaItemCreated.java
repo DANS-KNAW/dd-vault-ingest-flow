@@ -13,29 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.vaultingest.core.inbox;
 
-package nl.knaw.dans.vaultingest;
+import java.nio.file.Path;
 
-import io.dropwizard.Configuration;
-import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
-import nl.knaw.dans.vaultingest.config.ValidateDansBagConfig;
-import nl.knaw.dans.vaultingest.config.VaultCatalogConfig;
+public interface IngestAreaItemCreated {
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
-@Getter
-public class DdVaultIngestFlowConfiguration extends Configuration {
-    @NotNull
-    @Valid
-    private ValidateDansBagConfig validateDansBag;
-
-    @NotNull
-    @Valid
-    private IngestFlowConfig ingestFlow;
-
-    @NotNull
-    @Valid
-    private VaultCatalogConfig vaultCatalog;
+    void onItemCreated(Path path);
 }

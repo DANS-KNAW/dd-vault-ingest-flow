@@ -13,29 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.vaultingest.config;
 
-package nl.knaw.dans.vaultingest;
-
-import io.dropwizard.Configuration;
-import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
-import nl.knaw.dans.vaultingest.config.ValidateDansBagConfig;
-import nl.knaw.dans.vaultingest.config.VaultCatalogConfig;
+import io.dropwizard.client.JerseyClientConfiguration;
+import lombok.Data;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.net.URI;
 
-@Getter
-public class DdVaultIngestFlowConfiguration extends Configuration {
+@Data
+public class ValidateDansBagConfig {
     @NotNull
     @Valid
-    private ValidateDansBagConfig validateDansBag;
+    private URI baseUrl;
 
-    @NotNull
     @Valid
-    private IngestFlowConfig ingestFlow;
-
     @NotNull
-    @Valid
-    private VaultCatalogConfig vaultCatalog;
+    private JerseyClientConfiguration httpClient = new JerseyClientConfiguration();
 }

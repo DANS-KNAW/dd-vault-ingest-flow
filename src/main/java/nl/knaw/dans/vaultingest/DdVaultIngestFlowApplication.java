@@ -17,20 +17,20 @@
 package nl.knaw.dans.vaultingest;
 
 import io.dropwizard.Application;
+import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
 import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
-import nl.knaw.dans.vaultingest.core.inbox.ThreadedInboxItemCreatedListener;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.util.concurrent.Executors;
 
 public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowConfiguration> {
 
@@ -51,33 +51,40 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
     @Override
     public void run(final DdVaultIngestFlowConfiguration configuration, final Environment environment) throws IOException {
 
-        var outboxPath = Path.of("data/outbox");
+        final var dansBagValidatorClient = new JerseyClientBuilder(environment)
+            .withProvider(MultiPartFeature.class)
+            .using(configuration.getValidateDansBag().getHttpClient())
+            .build(getName());
+
         var xmlReader = new XmlReaderImpl();
+        var depositValidator = new CommonDepositValidator(dansBagValidatorClient, configuration.getValidateDansBag().getBaseUrl());
         var depositFactory = new CommonDepositFactory(
             xmlReader,
             userId -> DatasetContact.builder().name(userId).email(userId + "@test.com").build(),
-            language -> language
+            language -> language,
+            depositValidator
         );
 
         var rdaBagWriter = new RdaBagWriter();
-        var outputWriterFactory = new ZipBagOutputWriterFactory();
+        var outputWriterFactory = new ZipBagOutputWriterFactory(configuration.getIngestFlow().getRdaBagOutputDir());
 
         var depositToBagProcess = new DepositToBagProcess(
-            deposit -> {
-
-            },
             rdaBagWriter,
             outputWriterFactory,
             deposit -> {
 
             }
-
         );
-        var inbox = Path.of("data/inbox");
-        var threadPool = Executors.newFixedThreadPool(10);
-        var inboxListener = new ThreadedInboxItemCreatedListener(threadPool, depositFactory, depositToBagProcess, outboxPath);
 
-        var ingestArea = new AutoIngestArea(inbox, 500, inboxListener);
+        var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);
+
+        var inboxListener = new AutoIngestArea(
+            taskQueue,
+            depositFactory,
+            depositToBagProcess,
+            configuration.getIngestFlow().getAutoIngest().getInbox(),
+            configuration.getIngestFlow().getAutoIngest().getOutbox()
+        );
     }
 
 }

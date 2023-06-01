@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.inbox;
+package nl.knaw.dans.vaultingest.config;
 
-import java.nio.file.Path;
+import lombok.Getter;
 
-public interface InboxItemCreatedListener {
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.net.URL;
 
-    void onInboxItemCreated(Path path);
+@Getter
+public class VaultCatalogConfig {
+    @Valid
+    @NotNull
+    private URL url;
 }

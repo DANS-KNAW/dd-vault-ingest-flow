@@ -18,5 +18,5 @@ package nl.knaw.dans.vaultingest.core.validator;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 
 public interface DepositValidator {
-    void validate(Deposit deposit);
+    void validate(Deposit deposit) throws InvalidDepositException;
 }

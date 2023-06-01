@@ -16,10 +16,13 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
+import gov.loc.repository.bagit.exceptions.MaliciousPathException;
+import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
+import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
+import gov.loc.repository.bagit.reader.BagReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,27 +37,50 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 class CommonDepositBag {
-    private final Bag bag;
+    private final Path bagDir;
+    private Bag bag;
 
     public Collection<Path> getMetadataFiles() throws IOException {
-        try (var list = Files.list(this.bag.getRootDir().resolve("metadata"))) {
+        try (var list = Files.list(this.bagDir.resolve("metadata"))) {
             return list
-                .map(path -> this.bag.getRootDir().relativize(path))
+                .map(this.bagDir::relativize)
                 .collect(Collectors.toList());
         }
     }
 
     public InputStream inputStreamForMetadataFile(Path path) {
         try {
-            return new FileInputStream(bag.getRootDir().resolve(path).toFile());
-        } catch (FileNotFoundException e) {
+            return new FileInputStream(bagDir.resolve(path).toFile());
+        }
+        catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
 
     public List<String> getMetadataValue(String key) {
-        var value = this.bag.getMetadata().get(key);
+        var bag = getBag();
+        var value = bag.getMetadata().get(key);
         return value != null ? value : List.of();
     }
 
+    private Bag getBag() {
+        if (this.bag == null) {
+            try {
+                this.bag = new BagReader().read(this.bagDir);
+            }
+            catch (IOException |
+                   InvalidBagitFileFormatException |
+                   UnsupportedAlgorithmException |
+                   MaliciousPathException |
+                   UnparsableVersionException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return this.bag;
+    }
+
+    Path getBagDir() {
+        return bagDir;
+    }
 }

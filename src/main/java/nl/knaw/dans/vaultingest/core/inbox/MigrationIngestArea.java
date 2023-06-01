@@ -25,15 +25,14 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
-public class AutoIngestArea {
+public class MigrationIngestArea {
     private final ExecutorService executorService;
-    // TODO extract interface and use that, also make it a Manager (or something) that has a move() method
     private final CommonDepositFactory depositFactory;
     private final DepositToBagProcess depositToBagProcess;
     private final Path inboxPath;
     private final Path outboxPath;
 
-    public AutoIngestArea(ExecutorService executorService, CommonDepositFactory depositFactory, DepositToBagProcess depositToBagProcess, Path inboxPath, Path outboxPath)
+    public MigrationIngestArea(ExecutorService executorService, CommonDepositFactory depositFactory, DepositToBagProcess depositToBagProcess, Path inboxPath, Path outboxPath)
         throws IOException {
         this.executorService = executorService;
         this.depositFactory = depositFactory;
@@ -44,21 +43,25 @@ public class AutoIngestArea {
         this.start();
     }
 
-    void start() throws IOException {
-        var listener = new IngestAreaListener(500, (path) -> {
-            log.info("Deposit found in inbox; path = {}", path);
-            var task = new ProcessDepositTask(depositFactory, depositToBagProcess, path, outboxPath);
-            executorService.execute(task);
-        });
+    public void ingest(Path depositPath) {
+        var path = depositPath.toAbsolutePath();
 
+        // FIXME the current ingestflow has support for batches too, this is not currently implemented
+        if (!path.startsWith(inboxPath)) {
+            throw new IllegalArgumentException(
+                String.format("Input directory must be subdirectory of %s. Provide correct absolute path or a path relative to this directory.", inboxPath));
+        }
+
+        log.info("Deposit found in inbox; path = {}", depositPath);
+        var task = new ProcessDepositTask(depositFactory, depositToBagProcess, depositPath, outboxPath);
+        executorService.execute(task);
+    }
+
+    void start() throws IOException {
         log.info("Creating directories in outbox; path = {}", outboxPath);
         Files.createDirectories(outboxPath);
         Files.createDirectories(outboxPath.resolve("processed"));
         Files.createDirectories(outboxPath.resolve("rejected"));
         Files.createDirectories(outboxPath.resolve("failed"));
-
-        log.info("Starting listener; path = {}", inboxPath);
-        listener.start(inboxPath);
     }
-
 }

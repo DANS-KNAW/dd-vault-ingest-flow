@@ -20,4 +20,5 @@ TEMPDIR=data
 touch $TEMPDIR/dd-vault-ingest-flow.log
 mkdir $TEMPDIR/inbox
 mkdir $TEMPDIR/outbox
+mkdir $TEMPDIR/rda-bag
 echo "OK"

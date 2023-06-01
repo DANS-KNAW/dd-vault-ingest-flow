@@ -22,16 +22,17 @@ health:
         checkInterval: 60s
 
 ingestFlow:
-    autoIngest:
-        # todo: how to check if an update is authorized?
-        inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
-        outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
-    migration:
-        inbox: /var/opt/dans.knaw.nl/tmp/migration/inbox
-        outbox: /var/opt/dans.knaw.nl/tmp/migration/outbox
+  rdaBagOutputDir: /var/opt/dans.knaw.nl/tmp/rda-bag
+  autoIngest:
+    # todo: how to check if an update is authorized?
+    inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
+    outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
+  migration:
+    inbox: /var/opt/dans.knaw.nl/tmp/migration/inbox
+    outbox: /var/opt/dans.knaw.nl/tmp/migration/outbox
 
 vaultCatalog:
-    url: https://vault.dans.knaw.nl/catalog
+  url: https://vault.dans.knaw.nl/catalog
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
@@ -43,3 +44,19 @@ logging:
       archive: false
       timeZone: system
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-vault-ingest-flow/dd-vault-ingest-flow.log
+
+validateDansBag:
+  baseUrl: 'http://localhost:20330'
+  pingUrl: 'http://localhost:20331/ping'
+  httpClient:
+    timeout: 5min
+    connectionTimeout: 1min
+    # disable chunked encoding because it breaks the multipart/form-data headers:
+    chunkedEncodingEnabled: false
+    timeToLive: 1h
+    cookiesEnabled: false
+    maxConnections: 128
+    maxConnectionsPerRoute: 128
+    keepAlive: 0ms
+    retries: 0
+    userAgent: dd-ingest-flow

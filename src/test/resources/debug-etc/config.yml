@@ -1,4 +1,3 @@
-
 server:
   applicationContextPath: /
   adminContextPath: /
@@ -26,3 +25,21 @@ logging:
     - type: file
       archive: false
       currentLogFilename: data/dd-vault-ingest-flow.log
+
+validateDansBag:
+  baseUrl: 'http://localhost:20010/validate'
+  pingUrl: 'http://localhost:20011/ping'
+  connectionTimeoutMs: 10000
+  readTimeoutMs: 30000
+
+  httpClient:
+    timeout: 30000ms
+    connectionTimeout: 10000ms
+    chunkedEncodingEnabled: false
+    timeToLive: 1h
+    cookiesEnabled: false
+    maxConnections: 128
+    maxConnectionsPerRoute: 128
+    keepAlive: 0ms
+    retries: 0
+    userAgent: dd-vault-ingest-flow

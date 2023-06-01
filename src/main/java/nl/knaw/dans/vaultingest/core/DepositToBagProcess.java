@@ -25,22 +25,17 @@ import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 @Slf4j
 public class DepositToBagProcess {
 
-    private final DepositValidator depositValidator;
     private final RdaBagWriter rdaBagWriter;
     private final BagOutputWriterFactory bagOutputWriterFactory;
     private final VaultCatalogService vaultCatalogService;
 
-    public DepositToBagProcess(DepositValidator depositValidator, RdaBagWriter rdaBagWriter, BagOutputWriterFactory bagOutputWriterFactory, VaultCatalogService vaultCatalogService) {
-        this.depositValidator = depositValidator;
+    public DepositToBagProcess(RdaBagWriter rdaBagWriter, BagOutputWriterFactory bagOutputWriterFactory, VaultCatalogService vaultCatalogService) {
         this.rdaBagWriter = rdaBagWriter;
         this.bagOutputWriterFactory = bagOutputWriterFactory;
         this.vaultCatalogService = vaultCatalogService;
     }
 
     public void process(Deposit deposit) {
-        // validate deposit?
-        depositValidator.validate(deposit);
-
         // TODO register deposit with vault catalog
         vaultCatalogService.registerDeposit(deposit);
 
@@ -49,12 +44,12 @@ public class DepositToBagProcess {
             try (var writer = bagOutputWriterFactory.createBagOutputWriter(deposit)) {
                 rdaBagWriter.write(deposit, writer);
             }
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error("Error writing bag", e);
             e.printStackTrace();
         }
 
         // TODO update deposit with vault catalog
-        // TODO move deposit to somewhere
     }
 }

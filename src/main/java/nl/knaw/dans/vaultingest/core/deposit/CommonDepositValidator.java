@@ -15,15 +15,70 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
+import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.validatedansbag.api.ValidateCommand;
+import nl.knaw.dans.validatedansbag.api.ValidateOk;
+import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
-public class CommonDepositValidator implements DepositValidator {
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.stream.Collectors;
 
+@Slf4j
+public class CommonDepositValidator {
 
-    @Override
-    public void validate(Deposit deposit) {
+    private final Client httpClient;
+    private final URI serviceUri;
 
+    public CommonDepositValidator(Client httpClient, URI serviceUri) {
+        this.httpClient = httpClient;
+        this.serviceUri = serviceUri;
+    }
 
+    public void validate(Path bagDir) throws InvalidDepositException {
+        var command = new ValidateCommand()
+            .bagLocation(bagDir.toString())
+            .packageType(ValidateCommand.PackageTypeEnum.DEPOSIT);
+
+        log.debug("Validating bag {} with command {}", bagDir, command);
+
+        try (var multipart = new FormDataMultiPart()
+            .field("command", command, MediaType.APPLICATION_JSON_TYPE)) {
+
+            try (var response = httpClient.target(serviceUri)
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()))) {
+
+                if (response.getStatus() == 200) {
+                    var entity = response.readEntity(ValidateOk.class);
+                    throw formatValidationError(entity);
+                }
+                else {
+                    throw new RuntimeException(String.format(
+                        "DANS Bag Validation failed (%s): %s",
+                        response.getStatusInfo(), response.readEntity(String.class)));
+                }
+            }
+        }
+        catch (IOException e) {
+            log.error("Unable to create multipart form data object", e);
+        }
+
+    }
+
+    private InvalidDepositException formatValidationError(ValidateOk result) {
+        var violations = result.getRuleViolations().stream()
+            .map(r -> String.format("- [%s] %s", r.getRule(), r.getViolation()))
+            .collect(Collectors.joining("\n"));
+
+        return new InvalidDepositException(String.format(
+            "Bag was not valid according to Profile Version %s. Violations: %s",
+            result.getProfileVersion(), violations)
+        );
     }
 }

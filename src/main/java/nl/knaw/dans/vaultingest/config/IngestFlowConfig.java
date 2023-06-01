@@ -13,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.vaultingest.config;
 
-package nl.knaw.dans.vaultingest;
-
-import io.dropwizard.Configuration;
 import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
-import nl.knaw.dans.vaultingest.config.ValidateDansBagConfig;
-import nl.knaw.dans.vaultingest.config.VaultCatalogConfig;
+import nl.knaw.dans.lib.util.ExecutorServiceFactory;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.nio.file.Path;
 
 @Getter
-public class DdVaultIngestFlowConfiguration extends Configuration {
+public class IngestFlowConfig {
     @NotNull
     @Valid
-    private ValidateDansBagConfig validateDansBag;
-
+    private InboxConfig autoIngest;
     @NotNull
     @Valid
-    private IngestFlowConfig ingestFlow;
-
+    private InboxConfig migration;
     @NotNull
     @Valid
-    private VaultCatalogConfig vaultCatalog;
+    private ExecutorServiceFactory taskQueue;
+    private Path rdaBagOutputDir;
 }

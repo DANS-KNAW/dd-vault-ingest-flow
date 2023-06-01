@@ -40,7 +40,6 @@ class CommonDeposit implements Deposit {
 
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
-
     private List<DepositFile> depositFiles;
 
     @Override
@@ -181,5 +180,9 @@ class CommonDeposit implements Deposit {
 
     private List<String> getMetadataValue(String key) {
         return bag.getMetadataValue(key);
+    }
+
+    Path getBagDir() {
+        return bag.getBagDir();
     }
 }

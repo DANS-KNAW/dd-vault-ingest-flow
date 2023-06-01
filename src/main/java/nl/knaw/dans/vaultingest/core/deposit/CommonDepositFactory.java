@@ -15,16 +15,11 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
-import gov.loc.repository.bagit.exceptions.MaliciousPathException;
-import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
-import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
-import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
+import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.apache.commons.configuration2.FileBasedConfiguration;
@@ -50,30 +45,36 @@ public class CommonDepositFactory {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
 
-    public CommonDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver) {
+    private final CommonDepositValidator commonDepositValidator;
+
+    public CommonDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, CommonDepositValidator commonDepositValidator) {
         this.xmlReader = xmlReader;
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
+        this.commonDepositValidator = commonDepositValidator;
     }
 
-
-    public Deposit loadDeposit(Path path) {
+    public Deposit loadDeposit(Path path) throws InvalidDepositException {
         try {
             var bagDir = getBagDir(path);
 
             var ddm = readXmlFile(bagDir.resolve(Path.of("metadata", "dataset.xml")));
             var filesXml = readXmlFile(bagDir.resolve(Path.of("metadata", "files.xml")));
 
-            var bag = new BagReader().read(bagDir);
             var originalFilePaths = getOriginalFilepaths(bagDir);
 
             var depositProperties = getDepositProperties(path);
-            var depositFiles = getDepositFiles(bag, ddm, filesXml, originalFilePaths);
+            var depositFiles = getDepositFiles(bagDir, ddm, filesXml, originalFilePaths);
+
+            // TODO think about the validate step being in the loadDeposit
+            // it makes sense because why would you want to load a bag that is invalid
+            // but it also breaks the SRP
+            commonDepositValidator.validate(bagDir);
 
             return CommonDeposit.builder()
                 .id(path.getFileName().toString())
                 .ddm(ddm)
-                .bag(new CommonDepositBag(bag))
+                .bag(new CommonDepositBag(bagDir))
                 .filesXml(filesXml)
                 .depositFiles(depositFiles)
                 .properties(depositProperties)
@@ -81,9 +82,8 @@ public class CommonDepositFactory {
                 .languageResolver(languageResolver)
                 .build();
 
-        } catch (IOException | SAXException | ParserConfigurationException | ConfigurationException |
-                 MaliciousPathException | UnparsableVersionException | UnsupportedAlgorithmException |
-                 InvalidBagitFileFormatException e) {
+        }
+        catch (IOException | SAXException | ParserConfigurationException | ConfigurationException e) {
             log.error("Error loading deposit from disk: path={}", path, e);
             throw new RuntimeException(e);
         }
@@ -131,12 +131,12 @@ public class CommonDepositFactory {
         return result;
     }
 
-    List<DepositFile> getDepositFiles(Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
+    List<DepositFile> getDepositFiles(Path bagDir, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
 
         return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
             .map(node -> {
                 var filePath = node.getAttributes().getNamedItem("filepath").getTextContent();
-                var physicalPath = bag.getRootDir().resolve(originalFilepaths.getPhysicalPath(Path.of(filePath)));
+                var physicalPath = bagDir.resolve(originalFilepaths.getPhysicalPath(Path.of(filePath)));
 
                 return CommonDepositFile.builder()
                     .id(UUID.randomUUID().toString())

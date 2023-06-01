@@ -16,6 +16,7 @@
 package nl.knaw.dans.vaultingest.core.rdabag;
 
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
@@ -39,13 +40,14 @@ class DataciteConverterIntegrationTest {
         var testXmlPath = Path.of(Objects.requireNonNull(getClass().getResource("/xml/example-ddm.xml")).getPath());
         var testXml = xmlReader.readXmlFile(testXmlPath);
 
+        var depositValidator = Mockito.mock(CommonDepositValidator.class);
         var depositDir = Path.of(s.toURI());
         var toMockPath = depositDir.resolve("valid-bag/metadata/dataset.xml");
 
         // insert a different dataset.xml into the deposit
         Mockito.doReturn(testXml).when(xmlReader).readXmlFile(toMockPath);
 
-        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(depositDir);
+        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(depositDir);
         var converter = new DataciteConverter();
         var output = converter.convert(deposit);
         var serializer = new DataciteSerializer();
