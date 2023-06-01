@@ -25,6 +25,8 @@ import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
 import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
+import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
+import nl.knaw.dans.vaultingest.core.inbox.ProcessDepositTaskFactory;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
@@ -78,13 +80,22 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
 
         var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);
 
+        var processDepositTaskFactory = new ProcessDepositTaskFactory(
+            depositFactory,
+            depositToBagProcess
+        );
+
+        var ingestAreaDirectoryWatcher = new IngestAreaDirectoryWatcher(500,
+            configuration.getIngestFlow().getAutoIngest().getInbox());
+
         var inboxListener = new AutoIngestArea(
             taskQueue,
-            depositFactory,
-            depositToBagProcess,
-            configuration.getIngestFlow().getAutoIngest().getInbox(),
+            processDepositTaskFactory,
+            ingestAreaDirectoryWatcher,
             configuration.getIngestFlow().getAutoIngest().getOutbox()
         );
+
+        inboxListener.start();
     }
 
 }

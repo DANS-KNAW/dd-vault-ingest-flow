@@ -79,8 +79,4 @@ class CommonDepositBag {
 
         return this.bag;
     }
-
-    Path getBagDir() {
-        return bagDir;
-    }
 }

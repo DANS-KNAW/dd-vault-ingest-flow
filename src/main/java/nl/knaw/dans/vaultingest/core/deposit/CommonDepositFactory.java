@@ -67,7 +67,7 @@ public class CommonDepositFactory {
             var depositFiles = getDepositFiles(bagDir, ddm, filesXml, originalFilePaths);
 
             // TODO think about the validate step being in the loadDeposit
-            // it makes sense because why would you want to load a bag that is invalid
+            // it makes sense because why would you want to load a bag that is invalid,
             // but it also breaks the SRP
             commonDepositValidator.validate(bagDir);
 

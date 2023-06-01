@@ -25,35 +25,42 @@ import java.io.File;
 import java.nio.file.Path;
 
 @Slf4j
-public class IngestAreaListener {
+public class IngestAreaDirectoryWatcher {
     private final long pollingInterval;
-    private final IngestAreaItemCreated ingestAreaItemCreated;
+    private final Path directory;
 
-    public IngestAreaListener(long pollingIntervalMilliseconds, IngestAreaItemCreated ingestAreaItemCreated) {
+    public IngestAreaDirectoryWatcher(long pollingIntervalMilliseconds, Path directory) {
         this.pollingInterval = pollingIntervalMilliseconds;
-        this.ingestAreaItemCreated = ingestAreaItemCreated;
+        this.directory = directory;
     }
 
-    void start(Path inboxDir) {
+    void start(IngestAreaItemCreated callback) {
+        log.debug("Starting listener; path = {}", directory);
         var filter = FileFilterUtils.and(
             FileFilterUtils.directoryFileFilter(),
-            FileFilterUtils.asFileFilter(f -> f.getParentFile().equals(inboxDir.toFile()))
+            FileFilterUtils.asFileFilter(f -> f.getParentFile().equals(directory.toFile()))
         );
 
-        var observer = new FileAlterationObserver(inboxDir.toFile(), filter);
-        observer.addListener(new EventHandler());
+        var observer = new FileAlterationObserver(directory.toFile(), filter);
+        observer.addListener(new EventHandler(callback));
         var monitor = new FileAlterationMonitor(pollingInterval);
         monitor.addObserver(observer);
 
         try {
-            log.debug("Starting FileAlterationMonitor for directory {}", inboxDir);
+            log.debug("Starting FileAlterationMonitor for directory {}", directory);
             monitor.start();
-        } catch (Exception e) {
-            throw new IllegalStateException(String.format("Could not start monitoring %s", inboxDir), e);
+        }
+        catch (Exception e) {
+            throw new IllegalStateException(String.format("Could not start monitoring %s", directory), e);
         }
     }
 
-    private class EventHandler extends FileAlterationListenerAdaptor {
+    private static class EventHandler extends FileAlterationListenerAdaptor {
+        private final IngestAreaItemCreated callback;
+
+        private EventHandler(IngestAreaItemCreated callback) {
+            this.callback = callback;
+        }
 
         @Override
         public void onStart(FileAlterationObserver observer) {
@@ -62,7 +69,8 @@ public class IngestAreaListener {
 
         @Override
         public void onDirectoryCreate(File directory) {
-            ingestAreaItemCreated.onItemCreated(directory.toPath());
+            log.trace("Directory created: {}", directory);
+            callback.onItemCreated(directory.toPath().toAbsolutePath());
         }
     }
 }

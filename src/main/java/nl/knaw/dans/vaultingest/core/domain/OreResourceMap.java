@@ -42,10 +42,6 @@ public class OreResourceMap {
         return model;
     }
 
-    /*
-    TODO: figure out if filtering out unused namespaces is a hard requirement,
-    or just for aesthetics.
-     */
     public Map<String, String> getUsedNamespaces() {
         var predicateNamespaces = this.model.listStatements()
             .toList().stream()

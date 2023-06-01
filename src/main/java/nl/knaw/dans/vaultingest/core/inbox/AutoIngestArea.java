@@ -16,8 +16,6 @@
 package nl.knaw.dans.vaultingest.core.inbox;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,38 +25,30 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class AutoIngestArea {
     private final ExecutorService executorService;
-    // TODO extract interface and use that, also make it a Manager (or something) that has a move() method
-    private final CommonDepositFactory depositFactory;
-    private final DepositToBagProcess depositToBagProcess;
-    private final Path inboxPath;
+    // TODO extract interface and use that
+    private final ProcessDepositTaskFactory processDepositTaskFactory;
+    private final IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher;
     private final Path outboxPath;
 
-    public AutoIngestArea(ExecutorService executorService, CommonDepositFactory depositFactory, DepositToBagProcess depositToBagProcess, Path inboxPath, Path outboxPath)
+    public AutoIngestArea(ExecutorService executorService, ProcessDepositTaskFactory processDepositTaskFactory, IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher, Path outboxPath)
         throws IOException {
         this.executorService = executorService;
-        this.depositFactory = depositFactory;
-        this.depositToBagProcess = depositToBagProcess;
-        this.inboxPath = inboxPath.toAbsolutePath();
+        this.processDepositTaskFactory = processDepositTaskFactory;
+        this.ingestAreaDirectoryWatcher = ingestAreaDirectoryWatcher;
         this.outboxPath = outboxPath.toAbsolutePath();
-
-        this.start();
     }
 
-    void start() throws IOException {
-        var listener = new IngestAreaListener(500, (path) -> {
-            log.info("Deposit found in inbox; path = {}", path);
-            var task = new ProcessDepositTask(depositFactory, depositToBagProcess, path, outboxPath);
-            executorService.execute(task);
-        });
-
+    public void start() throws IOException {
         log.info("Creating directories in outbox; path = {}", outboxPath);
         Files.createDirectories(outboxPath);
         Files.createDirectories(outboxPath.resolve("processed"));
         Files.createDirectories(outboxPath.resolve("rejected"));
         Files.createDirectories(outboxPath.resolve("failed"));
 
-        log.info("Starting listener; path = {}", inboxPath);
-        listener.start(inboxPath);
+        ingestAreaDirectoryWatcher.start((path) -> {
+            log.info("New item in inbox; path = {}", path);
+            executorService.submit(processDepositTaskFactory.createProcessDepositTask(path, outboxPath));
+        });
     }
 
 }

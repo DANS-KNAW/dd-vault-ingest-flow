@@ -18,6 +18,7 @@ package nl.knaw.dans.vaultingest.core;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
+import nl.knaw.dans.vaultingest.core.domain.TestDepositFile;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
@@ -35,6 +36,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 
 class DepositToBagProcessTest {
 
@@ -55,7 +57,8 @@ class DepositToBagProcessTest {
         }
 
         var deposit = TestDeposit.builder()
-            .id("doi:10.17026/dans-12345")
+            .id(UUID.randomUUID().toString())
+            .doi("doi:10.17026/dans-12345")
             .title("The beautiful title")
             .descriptions(List.of(
                 Description.builder().value("Description 1").build(),
@@ -71,6 +74,10 @@ class DepositToBagProcessTest {
             ))
             .subject("Something about science")
             .rightsHolder("John Rights")
+            .payloadFiles(List.of(
+                TestDepositFile.builder().path(Path.of("data/file1.txt")).id(UUID.randomUUID().toString()).build(),
+                TestDepositFile.builder().path(Path.of("data/file2.txt")).id(UUID.randomUUID().toString()).build()
+            ))
             .build();
 
         depositToBagProcess.process(deposit);

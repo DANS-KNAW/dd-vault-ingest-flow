@@ -18,7 +18,12 @@ package nl.knaw.dans.vaultingest.core.domain;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class PidMappings {
     private final Map<String, String> mapping = new HashMap<>();
@@ -33,7 +38,7 @@ public class PidMappings {
     }
 
     public Collection<PidMapping> getPidMappings() {
-        return orderedMappings;
+        return Collections.unmodifiableList(orderedMappings);
     }
 
     @Getter

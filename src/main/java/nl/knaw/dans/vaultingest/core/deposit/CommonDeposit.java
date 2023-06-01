@@ -182,7 +182,4 @@ class CommonDeposit implements Deposit {
         return bag.getMetadataValue(key);
     }
 
-    Path getBagDir() {
-        return bag.getBagDir();
-    }
 }

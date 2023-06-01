@@ -51,7 +51,7 @@ public class RdaBagWriter {
     private final PidMappingConverter pidMappingConverter = new PidMappingConverter();
     private final OaiOreConverter oaiOreConverter = new OaiOreConverter();
 
-    private Map<Path, Map<String, String>> checksums = new HashMap<>();
+    private final Map<Path, Map<String, String>> checksums = new HashMap<>();
 
     public void write(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
 

@@ -29,6 +29,7 @@ public class ZipBagOutputWriterFactory implements BagOutputWriterFactory {
 
     @Override
     public BagOutputWriter createBagOutputWriter(Deposit deposit) throws IOException {
+        // TODO version should be coming from the deposit
         var output = outputDir.resolve(outputFilename(deposit.getDoi(), "1.0"));
         return new ZipBagOutputWriter(output);
     }
