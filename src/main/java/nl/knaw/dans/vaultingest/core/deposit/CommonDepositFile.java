@@ -20,15 +20,18 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.KeyValuePair;
-import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
+import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.w3c.dom.Node;
 
+import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -50,13 +53,12 @@ class CommonDepositFile implements DepositFile {
     private final Node ddmNode;
 
     private final Path physicalPath;
-    // TODO also store checksums here?
+    private final Map<ManifestAlgorithm, String> checksums;
     // TODO embargoes
 
     public String getId() {
         return id;
     }
-
 
     // TODO implement according to TRM003 and TRM004
     public boolean isRestricted() {
@@ -136,12 +138,12 @@ class CommonDepositFile implements DepositFile {
             .collect(Collectors.toList());
 
         // FIL002A (migration only)
-        for (var item : afmKeyValuePairs) {
+        for (var item: afmKeyValuePairs) {
             metadataFields.put(item.getKey(), item.getValue());
         }
 
         // FIL002B (migration only)
-        for (var item : otherKeyValuePairs) {
+        for (var item: otherKeyValuePairs) {
             metadataFields.put(item.getKey(), item.getValue());
         }
 
@@ -165,7 +167,7 @@ class CommonDepositFile implements DepositFile {
 
     @Override
     public InputStream openInputStream() throws IOException {
-        return new FileInputStream(physicalPath.toFile());
+        return new BufferedInputStream(new FileInputStream(physicalPath.toFile()));
     }
 
     private String getFilePathAttribute() {
@@ -184,5 +186,10 @@ class CommonDepositFile implements DepositFile {
     private String getAccessRights() {
         // TODO implement
         return null;
+    }
+
+    @Override
+    public Map<ManifestAlgorithm, String> getChecksums() {
+        return Collections.unmodifiableMap(checksums);
     }
 }

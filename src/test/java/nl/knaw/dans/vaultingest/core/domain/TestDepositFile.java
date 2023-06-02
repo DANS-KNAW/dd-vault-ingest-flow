@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Data
 @Builder
@@ -30,6 +31,7 @@ public class TestDepositFile implements DepositFile {
     private final boolean restricted;
     private final Path path;
     private final String description;
+    private final Map<ManifestAlgorithm, String> checksums;
 
     @Override
     public Path getDirectoryLabel() {

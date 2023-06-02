@@ -20,46 +20,49 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.ChecksumCalculator;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
+import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.PidMappingConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
+import nl.knaw.dans.vaultingest.core.rdabag.serializer.OriginalMetadataSerializer;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.PidMappingSerializer;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.security.DigestInputStream;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // TODO clean up messy checksum calculations
 @Slf4j
 public class RdaBagWriter {
 
+    // TODO make injected
     private final DataciteSerializer dataciteSerializer = new DataciteSerializer();
     private final PidMappingSerializer pidMappingSerializer = new PidMappingSerializer();
     private final OaiOreSerializer oaiOreSerializer = new OaiOreSerializer(new ObjectMapper());
+    private final OriginalMetadataSerializer originalMetadataSerializer = new OriginalMetadataSerializer();
 
     private final DataciteConverter dataciteConverter = new DataciteConverter();
     private final PidMappingConverter pidMappingConverter = new PidMappingConverter();
     private final OaiOreConverter oaiOreConverter = new OaiOreConverter();
 
-    private final Map<Path, Map<String, String>> checksums = new HashMap<>();
+    private final Map<Path, Map<ManifestAlgorithm, String>> checksums = new HashMap<>();
+    private final List<ManifestAlgorithm> requiredAlgorithms = List.of(ManifestAlgorithm.SHA1, ManifestAlgorithm.MD5);
 
     public void write(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
 
         var dataPath = Path.of("data");
 
-        for (var file : deposit.getPayloadFiles()) {
+        for (var file: deposit.getPayloadFiles()) {
             log.info("Writing payload file {}", file);
-            outputWriter.writeBagItem(file.openInputStream(), dataPath.resolve(file.getPath()));
+            writePayloadFile(file, dataPath, outputWriter);
         }
 
         log.info("Writing metadata/datacite.xml");
@@ -77,10 +80,12 @@ public class RdaBagWriter {
         log.info("Writing bagit.txt");
         writeBagitFile(deposit, outputWriter);
 
-        for (var metadataFile : deposit.getMetadataFiles()) {
+        for (var metadataFile: deposit.getMetadataFiles()) {
             log.info("Writing {}", metadataFile);
             writeMetadataFile(deposit, metadataFile, outputWriter);
         }
+
+        writeOriginalMetadata(deposit, outputWriter);
 
         writeManifests(deposit, dataPath, outputWriter);
 
@@ -88,23 +93,50 @@ public class RdaBagWriter {
         writeTagManifest(deposit, outputWriter);
     }
 
+    private void writePayloadFile(DepositFile file, Path dataPath, BagOutputWriter outputWriter) throws IOException {
+        var targetPath = dataPath.resolve(file.getPath());
+        var existingChecksums = file.getChecksums();
+        var checksumsToCalculate = requiredAlgorithms.stream()
+            .filter(algorithm -> !existingChecksums.containsKey(algorithm))
+            .collect(Collectors.toList());
+
+        var allChecksums = new HashMap<>(existingChecksums);
+        log.debug("Checksums already present: {}", existingChecksums);
+
+        try (var inputStream = file.openInputStream();
+            var digestInputStream = new MultiDigestInputStream(inputStream, checksumsToCalculate)) {
+
+            log.info("Writing payload file {} to output", targetPath);
+            outputWriter.writeBagItem(digestInputStream, targetPath);
+
+            var newChecksums = digestInputStream.getChecksums();
+            log.debug("Newly calculated checksums: {}", newChecksums);
+
+            allChecksums.putAll(digestInputStream.getChecksums());
+        }
+
+        checksums.put(targetPath, allChecksums);
+    }
+
+    private void writeOriginalMetadata(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
+        var outputFile = originalMetadataSerializer.serialize(deposit);
+        checksummedWriteToOutput(outputFile, Path.of("original-metadata.zip"), outputWriter);
+    }
+
     private void writeTagManifest(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
         // get the metadata, which is everything EXCEPT the data/** and tagmanifest-* files
         // but the deposit or the rdabag does not know about these files, only this class knows
-
-        var algorithms = List.of("MD5", "SHA-1", "SHA-256");
-
-        for (var algorithm : algorithms) {
+        for (var algorithm: requiredAlgorithms) {
             var outputString = new StringBuilder();
 
-            for (var entry : checksums.entrySet()) {
+            for (var entry: checksums.entrySet()) {
                 var path = entry.getKey();
                 var checksum = entry.getValue().get(algorithm);
 
                 outputString.append(String.format("%s  %s\n", checksum, path));
             }
 
-            var outputFile = String.format("tagmanifest-%s.txt", algorithm.replaceAll("-", "").toLowerCase());
+            var outputFile = String.format("tagmanifest-%s.txt", algorithm.getName());
             outputWriter.writeBagItem(new ByteArrayInputStream(outputString.toString().getBytes()), Path.of(outputFile));
         }
     }
@@ -112,25 +144,25 @@ public class RdaBagWriter {
     private void writeManifests(Deposit deposit, Path dataPath, BagOutputWriter outputWriter) throws IOException {
         // iterate all files in rda bag and get checksum sha1
         var files = deposit.getPayloadFiles();
-        var algorithms = List.of("MD5", "SHA-1", "SHA-256");
 
         var calculator = new ChecksumCalculator();
-        var checksumMap = new HashMap<DepositFile, Map<String, String>>();
+        var checksumMap = new HashMap<DepositFile, Map<ManifestAlgorithm, String>>();
 
-        for (var file : files) {
+        for (var file: files) {
             try (var inputStream = file.openInputStream()) {
-                var checksums = calculator.calculateChecksums(inputStream, algorithms);
+                var checksums = calculator.calculateChecksums(inputStream, requiredAlgorithms);
                 checksumMap.put(file, checksums);
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        for (var algorithm : algorithms) {
-            var outputFile = String.format("manifest-%s.txt", algorithm.replaceAll("-", "").toLowerCase());
+        for (var algorithm: requiredAlgorithms) {
+            var outputFile = String.format("manifest-%s.txt", algorithm.getName());
             var outputString = new StringBuilder();
 
-            for (var file : files) {
+            for (var file: files) {
                 var checksum = checksumMap.get(file).get(algorithm);
                 outputString.append(String.format("%s  %s\n", checksum, dataPath.resolve(file.getPath())));
             }
@@ -163,7 +195,6 @@ public class RdaBagWriter {
     }
 
     private void writePidMappings(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
-
         var pidMappings = pidMappingConverter.convert(deposit);
         var pidMappingsSerialized = pidMappingSerializer.serialize(pidMappings);
 
@@ -191,36 +222,8 @@ public class RdaBagWriter {
     }
 
     void checksummedWriteToOutput(InputStream inputStream, Path path, BagOutputWriter outputWriter) throws IOException {
-        var checksumInputStreams = new HashMap<String, DigestInputStream>();
-
-        var input = inputStream;
-
-        for (var alg : List.of("MD5", "SHA-1", "SHA-256")) {
-            try {
-                input = new DigestInputStream(input, MessageDigest.getInstance(alg));
-                checksumInputStreams.put(alg, (DigestInputStream) input);
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            }
-        }
-
+        var input = new MultiDigestInputStream(inputStream, requiredAlgorithms);
         outputWriter.writeBagItem(input, path);
-
-        var pathEntry = new HashMap<String, String>();
-
-        for (var entry : checksumInputStreams.entrySet()) {
-            pathEntry.put(entry.getKey(), bytesToHex(entry.getValue().getMessageDigest().digest()));
-        }
-
-        checksums.put(path, pathEntry);
-    }
-
-
-    private String bytesToHex(byte[] digest) {
-        var sb = new StringBuilder();
-        for (var b : digest) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
+        checksums.put(path, input.getChecksums());
     }
 }

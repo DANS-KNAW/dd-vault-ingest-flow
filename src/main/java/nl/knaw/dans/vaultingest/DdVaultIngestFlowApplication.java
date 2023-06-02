@@ -85,9 +85,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         var depositToBagProcess = new DepositToBagProcess(
             rdaBagWriter,
             outputWriterFactory,
-            deposit -> {
-                System.out.println("Deposit: " + deposit.getId());
-            }
+            deposit -> System.out.println("Deposit: " + deposit.getId())
         );
 
         var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);

@@ -18,6 +18,7 @@ package nl.knaw.dans.vaultingest.core.domain;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.Map;
 
 public interface DepositFile {
 
@@ -34,4 +35,6 @@ public interface DepositFile {
     String getDescription();
 
     InputStream openInputStream() throws IOException;
+
+    Map<ManifestAlgorithm, String> getChecksums();
 }

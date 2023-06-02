@@ -23,9 +23,9 @@ import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
-import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
+import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
@@ -108,16 +108,15 @@ class DepositToBagProcessTest {
     void process_with_originalFilePathMappings_to_zip() throws Exception {
         var xmlReader = new XmlReaderImpl();
         var rdaBagWriter = new RdaBagWriter();
-        var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
         var depositValidator = Mockito.mock(CommonDepositValidator.class);
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
-        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (path) -> output, vaultCatalogService);
 
+        var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
+        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (path) -> output, vaultCatalogService);
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
         assert s != null;
 
         var bagDir = Path.of(s.getPath());
-
         var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);

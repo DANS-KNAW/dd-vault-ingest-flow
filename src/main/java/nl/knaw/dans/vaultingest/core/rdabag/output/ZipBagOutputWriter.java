@@ -17,6 +17,7 @@ package nl.knaw.dans.vaultingest.core.rdabag.output;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +35,9 @@ public class ZipBagOutputWriter implements BagOutputWriter {
     public ZipBagOutputWriter(Path output) throws IOException {
         this.workingPath = output.getParent().resolve(output.getFileName().toString() + ".tmp");
         removeFileIfExists(workingPath);
-        this.outputStream = new ZipOutputStream(new FileOutputStream(workingPath.toFile()));
+        // ZipOutputStream closes the underlying stream when closing, so does the BufferedOutputStream
+        // so no need to individually close the streams
+        this.outputStream = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(workingPath.toFile())));
         this.outputPath = output;
     }
 

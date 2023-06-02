@@ -15,9 +15,12 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
+import gov.loc.repository.bagit.domain.Bag;
+import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
+import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
@@ -35,7 +38,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -58,23 +64,24 @@ public class CommonDepositFactory {
         try {
             var bagDir = getBagDir(path);
 
+            // TODO think about the validate step being in the loadDeposit
+            // it makes sense because why would you want to load a bag that is invalid,
+            // but it also breaks the SRP
+            commonDepositValidator.validate(bagDir);
+
+            var bag = new BagReader().read(bagDir);
             var ddm = readXmlFile(bagDir.resolve(Path.of("metadata", "dataset.xml")));
             var filesXml = readXmlFile(bagDir.resolve(Path.of("metadata", "files.xml")));
 
             var originalFilePaths = getOriginalFilepaths(bagDir);
 
             var depositProperties = getDepositProperties(path);
-            var depositFiles = getDepositFiles(bagDir, ddm, filesXml, originalFilePaths);
-
-            // TODO think about the validate step being in the loadDeposit
-            // it makes sense because why would you want to load a bag that is invalid,
-            // but it also breaks the SRP
-            commonDepositValidator.validate(bagDir);
+            var depositFiles = getDepositFiles(bagDir, bag, ddm, filesXml, originalFilePaths);
 
             return CommonDeposit.builder()
                 .id(path.getFileName().toString())
                 .ddm(ddm)
-                .bag(new CommonDepositBag(bagDir))
+                .bag(new CommonDepositBag(bag))
                 .filesXml(filesXml)
                 .depositFiles(depositFiles)
                 .properties(depositProperties)
@@ -83,7 +90,7 @@ public class CommonDepositFactory {
                 .build();
 
         }
-        catch (IOException | SAXException | ParserConfigurationException | ConfigurationException e) {
+        catch (Exception e) {
             log.error("Error loading deposit from disk: path={}", path, e);
             throw new RuntimeException(e);
         }
@@ -131,18 +138,38 @@ public class CommonDepositFactory {
         return result;
     }
 
-    List<DepositFile> getDepositFiles(Path bagDir, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
+    List<DepositFile> getDepositFiles(Path bagDir, Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
+        var manifests = new HashMap<Path, Map<ManifestAlgorithm, String>>();
+
+        for (var manifest: bag.getPayLoadManifests()) {
+            try {
+                var alg = ManifestAlgorithm.from(manifest.getAlgorithm().getMessageDigestName());
+
+                for (var entry: manifest.getFileToChecksumMap().entrySet()) {
+                    var relativePath = bagDir.relativize(entry.getKey());
+                    var checksum = entry.getValue();
+
+                    manifests.computeIfAbsent(relativePath, k -> new HashMap<>())
+                        .put(alg, checksum);
+                }
+            }
+            catch (NoSuchAlgorithmException e) {
+                log.warn("Bag contains a checksum algorithm that is not supported: algorithm={}", manifest.getAlgorithm().getMessageDigestName(), e);
+            }
+        }
 
         return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
             .map(node -> {
                 var filePath = node.getAttributes().getNamedItem("filepath").getTextContent();
                 var physicalPath = bagDir.resolve(originalFilepaths.getPhysicalPath(Path.of(filePath)));
+                var checksums = manifests.get(bagDir.relativize(physicalPath));
 
                 return CommonDepositFile.builder()
                     .id(UUID.randomUUID().toString())
                     .physicalPath(physicalPath)
                     .filesXmlNode(node)
                     .ddmNode(ddm)
+                    .checksums(checksums)
                     .build();
             })
             .collect(Collectors.toList());
