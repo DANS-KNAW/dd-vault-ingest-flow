@@ -20,42 +20,30 @@ import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
 import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
-import org.apache.commons.configuration2.FileBasedConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class MigrationDepositFactory {
-    private final XmlReader xmlReader;
+public class MigrationDepositFactory extends AbstractDepositFactory {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
     private final DepositValidator depositValidator;
 
     public MigrationDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
-        this.xmlReader = xmlReader;
+        super(xmlReader);
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
         this.depositValidator = depositValidator;
@@ -70,8 +58,8 @@ public class MigrationDepositFactory {
             var bag = new BagReader().read(bagDir);
             var ddm = readXmlFile(bagDir.resolve(Path.of("metadata", "dataset.xml")));
             var filesXml = readXmlFile(bagDir.resolve(Path.of("metadata", "files.xml")));
-            var agreements = readXmlFile(bagDir.resolve(Path.of("metadata", "amd.xml")));
-            var amd = readXmlFile(bagDir.resolve(Path.of("metadata", "agreements.xml")));
+            var agreements = readOptionalXmlFile(bagDir.resolve(Path.of("metadata", "amd.xml")));
+            var amd = readOptionalXmlFile(bagDir.resolve(Path.of("metadata", "agreements.xml")));
             var originalFilePaths = getOriginalFilepaths(bagDir);
 
             var depositProperties = getDepositProperties(path);
@@ -101,76 +89,17 @@ public class MigrationDepositFactory {
         }
     }
 
-    Path getBagDir(Path path) throws IOException {
-        try (var list = Files.list(path)) {
-            return list.filter(Files::isDirectory)
-                .findFirst()
-                .orElseThrow();
-        }
-    }
-
-    Document readXmlFile(Path path) throws IOException, SAXException, ParserConfigurationException {
-        return xmlReader.readXmlFile(path);
-    }
-
     Document readOptionalXmlFile(Path path) throws IOException, SAXException, ParserConfigurationException {
         try {
-            return xmlReader.readXmlFile(path);
+            return readXmlFile(path);
         }
         catch (FileNotFoundException e) {
             return null;
         }
     }
 
-    CommonDepositProperties getDepositProperties(Path path) throws ConfigurationException {
-        var propertiesFile = path.resolve("deposit.properties");
-        var params = new Parameters();
-        var paramConfig = params.properties()
-            .setFileName(propertiesFile.toString());
-
-        var builder = new FileBasedConfigurationBuilder<FileBasedConfiguration>
-            (PropertiesConfiguration.class, null, true)
-            .configure(paramConfig);
-
-        return new CommonDepositProperties(builder.getConfiguration());
-    }
-
-    OriginalFilepaths getOriginalFilepaths(Path bagDir) throws IOException {
-        var originalFilepathsFile = bagDir.resolve("original-filepaths.txt");
-        var result = new OriginalFilepaths();
-
-        if (Files.exists(originalFilepathsFile)) {
-            try (var lines = Files.lines(originalFilepathsFile)) {
-                lines.filter(StringUtils::isNotBlank)
-                    .map(line -> line.split("\\s+", 2))
-                    .forEach(line -> result.addMapping(
-                        Path.of(line[1]), Path.of(line[0]))
-                    );
-            }
-        }
-
-        return result;
-    }
-
     List<DepositFile> getDepositFiles(Path bagDir, Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
-        var manifests = new HashMap<Path, Map<ManifestAlgorithm, String>>();
-
-        for (var manifest: bag.getPayLoadManifests()) {
-            try {
-                var alg = ManifestAlgorithm.from(manifest.getAlgorithm().getMessageDigestName());
-
-                for (var entry: manifest.getFileToChecksumMap().entrySet()) {
-                    var relativePath = bagDir.relativize(entry.getKey());
-                    var checksum = entry.getValue();
-
-                    manifests.computeIfAbsent(relativePath, k -> new HashMap<>())
-                        .put(alg, checksum);
-                }
-            }
-            catch (NoSuchAlgorithmException e) {
-                log.warn("Bag contains a checksum algorithm that is not supported: algorithm={}", manifest.getAlgorithm().getMessageDigestName(), e);
-            }
-        }
+        var manifests = getPrecomputedChecksums(bagDir, bag);
 
         return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
             .map(node -> {
