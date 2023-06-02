@@ -28,6 +28,6 @@ import java.util.Map;
 @ToString
 @EqualsAndHashCode
 public class ChecksumManifest {
-    private Path path;
-    private Map<String, ChecksumManifestEntry> entries;
+    private final Path path;
+    private final Map<String, ChecksumManifestEntry> entries;
 }

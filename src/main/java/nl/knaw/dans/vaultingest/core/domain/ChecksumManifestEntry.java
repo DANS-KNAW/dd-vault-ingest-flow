@@ -25,6 +25,6 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class ChecksumManifestEntry {
-    private String algorithm;
-    private String checksum;
+    private final String algorithm;
+    private final String checksum;
 }

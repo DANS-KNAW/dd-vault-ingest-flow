@@ -36,5 +36,6 @@ public interface DepositFile {
 
     InputStream openInputStream() throws IOException;
 
+    // TODO refactor to getChecksumAlgorithms() and getChecksumFor(algorithm)
     Map<ManifestAlgorithm, String> getChecksums();
 }

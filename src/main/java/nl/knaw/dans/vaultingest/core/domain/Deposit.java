@@ -15,7 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.core.domain;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.*;
+import nl.knaw.dans.vaultingest.core.domain.metadata.CollectionDate;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Contributor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetRelation;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Distributor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.GrantNumber;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Keyword;
+import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Publication;
+import nl.knaw.dans.vaultingest.core.domain.metadata.SeriesElement;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +36,7 @@ public interface Deposit {
     String getId();
 
     String getDoi();
+
     String getNbn();
 
     String getTitle();
