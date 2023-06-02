@@ -17,7 +17,6 @@ package nl.knaw.dans.vaultingest.core.rdabag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.ChecksumCalculator;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
@@ -25,14 +24,17 @@ import nl.knaw.dans.vaultingest.core.rdabag.converter.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.PidMappingConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
+import nl.knaw.dans.vaultingest.core.rdabag.output.MultiDigestInputStream;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.OriginalMetadataSerializer;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.PidMappingSerializer;
+import org.apache.commons.io.output.NullOutputStream;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -144,17 +146,14 @@ public class RdaBagWriter {
     private void writeManifests(Deposit deposit, Path dataPath, BagOutputWriter outputWriter) throws IOException {
         // iterate all files in rda bag and get checksum sha1
         var files = deposit.getPayloadFiles();
-
-        var calculator = new ChecksumCalculator();
         var checksumMap = new HashMap<DepositFile, Map<ManifestAlgorithm, String>>();
 
         for (var file: files) {
-            try (var inputStream = file.openInputStream()) {
-                var checksums = calculator.calculateChecksums(inputStream, requiredAlgorithms);
-                checksumMap.put(file, checksums);
-            }
-            catch (IOException e) {
-                e.printStackTrace();
+            var output = (OutputStream) NullOutputStream.NULL_OUTPUT_STREAM;
+
+            try (var input = new MultiDigestInputStream(file.openInputStream(), requiredAlgorithms)) {
+                input.transferTo(output);
+                checksumMap.put(file, input.getChecksums());
             }
         }
 

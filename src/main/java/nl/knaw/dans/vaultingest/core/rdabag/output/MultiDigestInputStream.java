@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag;
+package nl.knaw.dans.vaultingest.core.rdabag.output;
 
 import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 
@@ -66,6 +66,7 @@ public class MultiDigestInputStream extends InputStream {
     }
 
     @Override
+    // Overriding this method has significant performance benefits for the DigestInputStream
     public int read(byte[] b, int off, int len) throws IOException {
         return this.inputStream.read(b, off, len);
     }

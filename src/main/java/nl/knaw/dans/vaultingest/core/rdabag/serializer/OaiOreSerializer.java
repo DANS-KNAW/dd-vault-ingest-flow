@@ -104,8 +104,4 @@ public class OaiOreSerializer {
             throw new RuntimeException(e);
         }
     }
-
-    public enum OutputFormat {
-        RDF, JSONLD
-    }
 }

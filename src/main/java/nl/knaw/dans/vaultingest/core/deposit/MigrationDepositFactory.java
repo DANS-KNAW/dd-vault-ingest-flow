@@ -22,7 +22,6 @@ import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
-import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
@@ -37,6 +36,7 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,14 +48,13 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CommonDepositFactory {
+public class MigrationDepositFactory {
     private final XmlReader xmlReader;
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
-
     private final DepositValidator depositValidator;
 
-    public CommonDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
+    public MigrationDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
         this.xmlReader = xmlReader;
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
@@ -66,31 +65,35 @@ public class CommonDepositFactory {
         try {
             var bagDir = getBagDir(path);
 
-            // TODO think about the validate step being in the loadDeposit
-            // it makes sense because why would you want to load a bag that is invalid,
-            // but it also breaks the SRP
             depositValidator.validate(bagDir);
 
             var bag = new BagReader().read(bagDir);
             var ddm = readXmlFile(bagDir.resolve(Path.of("metadata", "dataset.xml")));
             var filesXml = readXmlFile(bagDir.resolve(Path.of("metadata", "files.xml")));
-
+            var agreements = readXmlFile(bagDir.resolve(Path.of("metadata", "amd.xml")));
+            var amd = readXmlFile(bagDir.resolve(Path.of("metadata", "agreements.xml")));
             var originalFilePaths = getOriginalFilepaths(bagDir);
 
             var depositProperties = getDepositProperties(path);
             var depositFiles = getDepositFiles(bagDir, bag, ddm, filesXml, originalFilePaths);
 
-            return CommonDeposit.builder()
+            return MigrationDeposit.builder()
                 .id(path.getFileName().toString())
                 .ddm(ddm)
-                .bag(new CommonDepositBag(bag))
                 .filesXml(filesXml)
+                .agreementsXml(agreements)
+                .amdXml(amd)
+                .bag(new CommonDepositBag(bag))
                 .depositFiles(depositFiles)
                 .properties(depositProperties)
                 .datasetContactResolver(datasetContactResolver)
                 .languageResolver(languageResolver)
                 .build();
 
+        }
+        catch (InvalidDepositException e) {
+            log.error("Invalid deposit: path={}", path, e);
+            throw e;
         }
         catch (Exception e) {
             log.error("Error loading deposit from disk: path={}", path, e);
@@ -108,6 +111,15 @@ public class CommonDepositFactory {
 
     Document readXmlFile(Path path) throws IOException, SAXException, ParserConfigurationException {
         return xmlReader.readXmlFile(path);
+    }
+
+    Document readOptionalXmlFile(Path path) throws IOException, SAXException, ParserConfigurationException {
+        try {
+            return xmlReader.readXmlFile(path);
+        }
+        catch (FileNotFoundException e) {
+            return null;
+        }
     }
 
     CommonDepositProperties getDepositProperties(Path path) throws ConfigurationException {

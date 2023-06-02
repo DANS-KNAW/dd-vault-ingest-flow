@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.core;
 
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
 import nl.knaw.dans.vaultingest.core.domain.TestDepositFile;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;

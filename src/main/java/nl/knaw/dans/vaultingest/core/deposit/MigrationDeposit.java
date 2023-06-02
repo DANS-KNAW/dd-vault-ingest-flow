@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.validator;
+package nl.knaw.dans.vaultingest.core.deposit;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import lombok.experimental.SuperBuilder;
+import org.w3c.dom.Document;
 
-import java.nio.file.Path;
-
-public interface DepositValidator {
-    void validate(Path bagDir) throws InvalidDepositException;
+@SuperBuilder
+public class MigrationDeposit extends CommonDeposit {
+    private final Document agreementsXml;
+    private final Document amdXml;
 }

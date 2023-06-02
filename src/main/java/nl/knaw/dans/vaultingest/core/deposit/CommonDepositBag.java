@@ -16,11 +16,6 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import gov.loc.repository.bagit.domain.Bag;
-import gov.loc.repository.bagit.exceptions.InvalidBagitFileFormatException;
-import gov.loc.repository.bagit.exceptions.MaliciousPathException;
-import gov.loc.repository.bagit.exceptions.UnparsableVersionException;
-import gov.loc.repository.bagit.exceptions.UnsupportedAlgorithmException;
-import gov.loc.repository.bagit.reader.BagReader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -38,7 +33,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 class CommonDepositBag {
-//    private final Path bagDir;
     private final Bag bag;
 
     public Collection<Path> getMetadataFiles() throws IOException {
@@ -63,21 +57,4 @@ class CommonDepositBag {
         var value = bag.getMetadata().get(key);
         return value != null ? value : List.of();
     }
-
-//    private Bag getBag() {
-//        if (this.bag == null) {
-//            try {
-//                this.bag = new BagReader().read(this.bagDir);
-//            }
-//            catch (IOException |
-//                   InvalidBagitFileFormatException |
-//                   UnsupportedAlgorithmException |
-//                   MaliciousPathException |
-//                   UnparsableVersionException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//
-//        return this.bag;
-//    }
 }

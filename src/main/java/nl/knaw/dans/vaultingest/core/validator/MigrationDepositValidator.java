@@ -13,31 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.deposit;
+package nl.knaw.dans.vaultingest.core.validator;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.validatedansbag.api.ValidateCommand;
 
-import java.util.Map;
+import javax.ws.rs.client.Client;
+import java.net.URI;
 
-@Slf4j
-@AllArgsConstructor
-public class HashMapLanguageResolver implements LanguageResolver {
-    private final Map<String, String> iso6391;
-    private final Map<String, String> iso6392;
+public class MigrationDepositValidator extends AbstractDepositValidator {
+
+    public MigrationDepositValidator(Client httpClient, URI serviceUri) {
+        super(httpClient, serviceUri);
+    }
 
     @Override
-    public String resolve(String language) {
-        if (language == null) {
-            return null;
-        }
-
-        if (language.length() == 2) {
-            return iso6391.get(language);
-        } else if (language.length() == 3) {
-            return iso6392.get(language);
-        }
-
-        return null;
+    protected ValidateCommand.PackageTypeEnum getPackageType() {
+        return ValidateCommand.PackageTypeEnum.MIGRATION;
     }
 }

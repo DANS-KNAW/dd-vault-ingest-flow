@@ -21,28 +21,20 @@ import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
-import nl.knaw.dans.vaultingest.core.deposit.HashMapLanguageResolver;
-import nl.knaw.dans.vaultingest.core.deposit.LanguageResolver;
+import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
 import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
 import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
 import nl.knaw.dans.vaultingest.core.inbox.ProcessDepositTaskFactory;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
+import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowConfiguration> {
@@ -69,7 +61,10 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             .using(configuration.getValidateDansBag().getHttpClient())
             .build(getName());
 
-        var languageResolver = getLanguageResolver(configuration.getIngestFlow());
+        var languageResolver = new CsvLanguageResolver(
+            configuration.getIngestFlow().getLanguages().getIso6391(),
+            configuration.getIngestFlow().getLanguages().getIso6392()
+        );
         var xmlReader = new XmlReaderImpl();
         var depositValidator = new CommonDepositValidator(dansBagValidatorClient, configuration.getValidateDansBag().getBaseUrl());
         var depositFactory = new CommonDepositFactory(
@@ -108,30 +103,5 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         );
 
         inboxListener.start();
-    }
-
-    private LanguageResolver getLanguageResolver(IngestFlowConfig config) {
-        var iso1 = readLanguageCsv(config.getLanguages().getIso6391(), "ISO639-1");
-        var iso2 = readLanguageCsv(config.getLanguages().getIso6392(), "ISO639-2");
-
-        return new HashMapLanguageResolver(iso1, iso2);
-    }
-
-    private Map<String, String> readLanguageCsv(Path path, String keyColumn) {
-        try {
-            try (var parser = CSVParser.parse(path, StandardCharsets.UTF_8, CSVFormat.RFC4180.withFirstRecordAsHeader())) {
-                var result = new HashMap<String, String>();
-
-                for (var record : parser) {
-                    result.put(record.get(keyColumn), record.get("Dataverse-language"));
-                }
-
-                return result;
-            }
-        }
-        catch (Exception e) {
-            log.error("Could not load csv", e);
-            return Map.of();
-        }
     }
 }

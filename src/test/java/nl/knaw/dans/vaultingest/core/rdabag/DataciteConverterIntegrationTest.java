@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.core.rdabag;
 
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;

@@ -15,11 +15,38 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import lombok.Builder;
-import nl.knaw.dans.vaultingest.core.deposit.mapping.*;
+import lombok.experimental.SuperBuilder;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Author;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.CollectionDates;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Contributors;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Creator;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Descriptions;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.DistributionDate;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Distributors;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.GrantNumbers;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Keywords;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Languages;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Organizations;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.OtherIds;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.ProductionDate;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Publications;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Series;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Sources;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Subjects;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Title;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.metadata.*;
+import nl.knaw.dans.vaultingest.core.domain.metadata.CollectionDate;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Contributor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetRelation;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Distributor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.GrantNumber;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Keyword;
+import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Publication;
+import nl.knaw.dans.vaultingest.core.domain.metadata.SeriesElement;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -29,18 +56,18 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@Builder
+@SuperBuilder
 class CommonDeposit implements Deposit {
 
+    // for the migration deposit
+    protected final Document ddm;
+    protected final Document filesXml;
+    protected final CommonDepositBag bag;
     private final String id;
-    private final Document ddm;
-    private final Document filesXml;
     private final CommonDepositProperties properties;
-    private final CommonDepositBag bag;
-
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
-    private List<DepositFile> depositFiles;
+    private final List<DepositFile> depositFiles;
 
     @Override
     public String getId() {
@@ -49,12 +76,12 @@ class CommonDeposit implements Deposit {
 
     @Override
     public String getDoi() {
-        return this.properties.getProperty(String.class, "identifier.doi");
+        return this.getProperty("identifier.doi");
     }
 
     @Override
     public String getNbn() {
-        return this.properties.getProperty(String.class, "identifier.urn");
+        return this.getProperty("identifier.urn");
     }
 
     @Override
@@ -160,7 +187,7 @@ class CommonDeposit implements Deposit {
 
     @Override
     public DatasetContact getContact() {
-        return datasetContactResolver.resolve(this.properties.getProperty(String.class, "depositor.userId"));
+        return datasetContactResolver.resolve(this.getProperty("depositor.userId"));
     }
 
     @Override
@@ -182,4 +209,7 @@ class CommonDeposit implements Deposit {
         return bag.getMetadataValue(key);
     }
 
+    protected String getProperty(String name) {
+        return this.properties.getProperty(String.class, name);
+    }
 }

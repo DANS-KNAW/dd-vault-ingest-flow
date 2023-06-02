@@ -15,10 +15,19 @@
  */
 package nl.knaw.dans.vaultingest.core.validator;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.validatedansbag.api.ValidateCommand;
 
-import java.nio.file.Path;
+import javax.ws.rs.client.Client;
+import java.net.URI;
 
-public interface DepositValidator {
-    void validate(Path bagDir) throws InvalidDepositException;
+public class CommonDepositValidator extends AbstractDepositValidator {
+
+    public CommonDepositValidator(Client httpClient, URI serviceUri) {
+        super(httpClient, serviceUri);
+    }
+
+    @Override
+    protected ValidateCommand.PackageTypeEnum getPackageType() {
+        return ValidateCommand.PackageTypeEnum.DEPOSIT;
+    }
 }

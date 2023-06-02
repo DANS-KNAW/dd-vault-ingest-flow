@@ -17,7 +17,7 @@ package nl.knaw.dans.vaultingest.core.rdabag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;

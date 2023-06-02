@@ -61,7 +61,6 @@ class CommonDepositFileTest {
         assertEquals(Path.of("here_________.txt"), depositFile.getFilename());
     }
 
-
     @Test
     void getPath_should_transform_output() throws Exception {
         var depositFile = CommonDepositFile.builder()
@@ -69,6 +68,24 @@ class CommonDepositFileTest {
             .build();
 
         assertEquals(Path.of("invalid/characters/here_________.txt"), depositFile.getPath());
+    }
+
+    @Test
+    void getDescription_should_be_empty() throws Exception {
+        var depositFile = CommonDepositFile.builder()
+            .filesXmlNode(getFilesXmlNode("path/to/file.txt"))
+            .build();
+
+        assertEquals("", depositFile.getDescription());
+    }
+
+    @Test
+    void getDescription_should_have_original_filepath_attribute() throws Exception {
+        var depositFile = CommonDepositFile.builder()
+            .filesXmlNode(getFilesXmlNode("data/invalid/characters/here:*?\"<>|;#.txt"))
+            .build();
+
+        assertEquals("original_filepath: data/invalid/characters/here:*?\"<>|;#.txt", depositFile.getDescription());
     }
 
     Node getFilesXmlNode(String path) throws Exception {

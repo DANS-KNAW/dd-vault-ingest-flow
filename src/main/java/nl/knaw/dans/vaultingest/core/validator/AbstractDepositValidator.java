@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.deposit;
+package nl.knaw.dans.vaultingest.core.validator;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.validatedansbag.api.ValidateCommand;
 import nl.knaw.dans.validatedansbag.api.ValidateOk;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 import javax.ws.rs.client.Client;
@@ -30,20 +29,20 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CommonDepositValidator {
+public abstract class AbstractDepositValidator implements DepositValidator {
+    protected final Client httpClient;
+    protected final URI serviceUri;
 
-    private final Client httpClient;
-    private final URI serviceUri;
-
-    public CommonDepositValidator(Client httpClient, URI serviceUri) {
+    public AbstractDepositValidator(Client httpClient, URI serviceUri) {
         this.httpClient = httpClient;
         this.serviceUri = serviceUri;
     }
 
+    @Override
     public void validate(Path bagDir) throws InvalidDepositException {
         var command = new ValidateCommand()
             .bagLocation(bagDir.toString())
-            .packageType(ValidateCommand.PackageTypeEnum.DEPOSIT);
+            .packageType(getPackageType());
 
         log.debug("Validating bag {} with command {}", bagDir, command);
 
@@ -68,7 +67,6 @@ public class CommonDepositValidator {
         catch (IOException e) {
             log.error("Unable to create multipart form data object", e);
         }
-
     }
 
     private InvalidDepositException formatValidationError(ValidateOk result) {
@@ -81,4 +79,6 @@ public class CommonDepositValidator {
             result.getProfileVersion(), violations)
         );
     }
+
+    protected abstract ValidateCommand.PackageTypeEnum getPackageType();
 }
