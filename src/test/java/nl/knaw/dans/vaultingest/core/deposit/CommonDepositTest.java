@@ -28,6 +28,7 @@ import java.util.Objects;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class CommonDepositTest {
 
@@ -142,7 +143,6 @@ class CommonDepositTest {
             );
     }
 
-
     @Test
     void getPublications() throws Exception {
         var deposit = this.loadDeposit();
@@ -168,7 +168,6 @@ class CommonDepositTest {
         assertThat(languages)
             .containsOnly("Western Frisian", "Kalaallisut, Greenlandic", "Basque");
     }
-
 
     @Test
     void getProductionDate() throws Exception {
@@ -210,7 +209,6 @@ class CommonDepositTest {
             .extracting("agency")
             .containsOnly("NWO");
     }
-
 
     @Test
     void getDistributors() throws Exception {
@@ -273,13 +271,40 @@ class CommonDepositTest {
             );
     }
 
+    @Test
+    void rightsHolders() throws Exception {
+        var deposit = this.loadDeposit();
+        var values = deposit.getRightsHolder();
+
+        assertThat(values)
+            .containsOnly("I Lastname");
+    }
+
+    @Test
+    void isPersonalDataPresent() throws Exception {
+        var deposit = this.loadDeposit();
+        var personalData = deposit.isPersonalDataPresent();
+
+        assertFalse(personalData);
+    }
+
+    @Test
+    void getMetadataLanguages() throws Exception {
+        var deposit = this.loadDeposit();
+        var sources = deposit.getMetadataLanguages();
+
+        assertThat(sources)
+            .containsOnly(
+                "English", "Haitian, Haitian Creole", "Georgian"
+            );
+    }
+
     Deposit loadDeposit() throws Exception {
         var props = Mockito.mock(CommonDepositProperties.class);
         var bag = Mockito.mock(CommonDepositBag.class);
 
         Mockito.when(bag.getMetadataValue(Mockito.eq("Has-Organizational-Identifier")))
             .thenReturn(List.of("DANS:12345"));
-
 
         var ddm = new XmlReaderImpl().readXmlFile(
             Path.of(Objects.requireNonNull(getClass().getResource("/xml/example-ddm.xml")).getPath())

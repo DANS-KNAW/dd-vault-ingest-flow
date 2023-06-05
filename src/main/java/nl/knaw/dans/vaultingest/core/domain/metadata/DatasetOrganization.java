@@ -22,6 +22,7 @@ import lombok.Setter;
 import nl.knaw.dans.vaultingest.core.domain.ids.BaseId;
 import nl.knaw.dans.vaultingest.core.domain.ids.ISNI;
 import nl.knaw.dans.vaultingest.core.domain.ids.VIAF;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Builder
@@ -29,20 +30,19 @@ import nl.knaw.dans.vaultingest.core.domain.ids.VIAF;
 public class DatasetOrganization implements DatasetRelation {
 
     private String name;
+    private String role;
     private ISNI isni;
     private VIAF viaf;
 
     @Override
     public String getDisplayName() {
         return this.getName();
-
     }
 
     @Override
     public String getAffiliation() {
         return null;
     }
-
 
     public String getIdentifierScheme() {
         var identifier = this.getIdentifierObject();
@@ -71,12 +71,16 @@ public class DatasetOrganization implements DatasetRelation {
         };
 
         // return first match
-        for (var scheme : schemes) {
+        for (var scheme: schemes) {
             if (scheme != null) {
                 return scheme;
             }
         }
 
         return null;
+    }
+
+    public boolean isRightsHolder() {
+        return StringUtils.equals(this.getRole(), "RightsHolder");
     }
 }

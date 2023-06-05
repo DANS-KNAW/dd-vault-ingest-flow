@@ -17,7 +17,17 @@ package nl.knaw.dans.vaultingest.core.domain;
 
 import lombok.Builder;
 import lombok.Data;
-import nl.knaw.dans.vaultingest.core.domain.metadata.*;
+import nl.knaw.dans.vaultingest.core.domain.metadata.CollectionDate;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Contributor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetRelation;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Distributor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.GrantNumber;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Keyword;
+import nl.knaw.dans.vaultingest.core.domain.metadata.OtherId;
+import nl.knaw.dans.vaultingest.core.domain.metadata.Publication;
+import nl.knaw.dans.vaultingest.core.domain.metadata.SeriesElement;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,17 +39,20 @@ import java.util.List;
 @Data
 @Builder
 public class TestDeposit implements Deposit {
+    boolean update;
     private String id;
     private String title;
     private String nbn;
     private String doi;
     private List<Description> descriptions;
     private List<DatasetRelation> authors;
-    private String rightsHolder;
+    private List<String> rightsHolder;
     private String subject;
     private List<String> alternativeTitles;
     private List<OtherId> otherIds;
     private List<DepositFile> payloadFiles;
+    private String depositorId;
+    private String swordToken;
 
     private List<String> subjects;
     private List<Keyword> keywords;
@@ -55,16 +68,17 @@ public class TestDeposit implements Deposit {
     private List<SeriesElement> series;
     private DatasetContact contact;
     private List<String> sources;
+    private State state;
+    private String stateDescription;
+    private List<String> metadataLanguages;
+    private boolean personalDataPresent;
 
-//    @Override
-//    public InputStream inputStreamForPayloadFile(DepositFile depositFile) {
-//        return new ByteArrayInputStream(
-//            String.format(
-//                "This is a test payload file with id %s and path %s", depositFile.getId(), depositFile.getPath()
-//            ).getBytes()
-//        );
-//    }
-//
+    @Override
+    public void setState(State state, String message) {
+        this.state = state;
+        this.stateDescription = message;
+    }
+
     @Override
     public Collection<Path> getMetadataFiles() throws IOException {
         return List.of(

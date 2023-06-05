@@ -16,10 +16,38 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import lombok.experimental.SuperBuilder;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Author;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.Organizations;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
+import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetOrganization;
 import org.w3c.dom.Document;
+
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 public class MigrationDeposit extends CommonDeposit {
     private final Document agreementsXml;
     private final Document amdXml;
+
+    @Override
+    public Collection<String> getRightsHolder() {
+        var result = super.getRightsHolder();
+
+        // RIG000A
+        result.addAll(Author.getAuthors(ddm)
+            .stream()
+            .filter(DatasetAuthor::isRightsHolder)
+            .map(DatasetAuthor::getRightsHolderDisplayName)
+            .collect(Collectors.toList()));
+
+        // RIG000B
+        result.addAll(Organizations.getOrganizations(ddm)
+            .stream()
+            .filter(DatasetOrganization::isRightsHolder)
+            .map(DatasetOrganization::getDisplayName)
+            .collect(Collectors.toList()));
+
+        return result;
+    }
 }

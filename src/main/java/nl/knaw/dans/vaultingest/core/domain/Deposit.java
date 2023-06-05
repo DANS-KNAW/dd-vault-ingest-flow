@@ -39,7 +39,17 @@ public interface Deposit {
 
     String getNbn();
 
+    void setNbn(String nbn);
+
     String getTitle();
+
+    boolean isUpdate();
+
+    String getSwordToken();
+
+    String getDepositorId();
+
+    void setState(State state, String message);
 
     Collection<String> getAlternativeTitles();
 
@@ -51,7 +61,7 @@ public interface Deposit {
 
     Collection<String> getSubjects();
 
-    String getRightsHolder();
+    Collection<String> getRightsHolder();
 
     Collection<Keyword> getKeywords();
 
@@ -77,9 +87,18 @@ public interface Deposit {
 
     DatasetContact getContact();
 
+    boolean isPersonalDataPresent();
+
+    Collection<String> getMetadataLanguages();
+
     Collection<DepositFile> getPayloadFiles();
 
     Collection<Path> getMetadataFiles() throws IOException;
 
     InputStream inputStreamForMetadataFile(Path path);
+
+    enum State {
+        ACCEPTED,
+        REJECTED,
+    }
 }

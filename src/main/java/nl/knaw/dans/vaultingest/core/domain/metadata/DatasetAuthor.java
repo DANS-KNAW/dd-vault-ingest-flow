@@ -19,7 +19,10 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Setter;
-import nl.knaw.dans.vaultingest.core.domain.ids.*;
+import nl.knaw.dans.vaultingest.core.domain.ids.BaseId;
+import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
+import nl.knaw.dans.vaultingest.core.domain.ids.ISNI;
+import nl.knaw.dans.vaultingest.core.domain.ids.ORCID;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.stream.Collectors;
@@ -51,6 +54,22 @@ public class DatasetAuthor implements DatasetRelation {
             .collect(Collectors.joining(" "));
     }
 
+    public String getRightsHolderDisplayName() {
+        // titles + initials + insertions + surname
+        var name = Stream.of(
+                this.getTitles(),
+                this.getInitials(),
+                this.getInsertions(),
+                this.getSurname()
+            ).filter(StringUtils::isNotBlank)
+            .collect(Collectors.joining(" "));
+
+        if (StringUtils.isNotBlank(this.getOrganization())) {
+            name += " (" + this.getOrganization() + ")";
+        }
+
+        return name;
+    }
 
     public String getIdentifierScheme() {
         var identifier = this.getIdentifierObject();
@@ -80,12 +99,16 @@ public class DatasetAuthor implements DatasetRelation {
         };
 
         // return first match
-        for (var scheme : schemes) {
+        for (var scheme: schemes) {
             if (scheme != null) {
                 return scheme;
             }
         }
 
         return null;
+    }
+
+    public boolean isRightsHolder() {
+        return StringUtils.equals(this.getRole(), "RightsHolder");
     }
 }

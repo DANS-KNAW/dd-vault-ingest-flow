@@ -15,13 +15,16 @@
  */
 package nl.knaw.dans.vaultingest.core.vaultcatalog;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 
-import java.util.Optional;
-
-public interface VaultCatalogService {
-
-    void registerDeposit(Deposit deposit);
-
-    Optional<VaultCatalogDeposit> findDeposit(String swordToken);
+@Getter
+@Builder
+@ToString
+@EqualsAndHashCode
+public class VaultCatalogDeposit {
+    private String dataSupplier;
+    private String nbn;
 }

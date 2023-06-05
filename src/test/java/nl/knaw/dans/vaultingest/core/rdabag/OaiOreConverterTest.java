@@ -56,7 +56,7 @@ class OaiOreConverterTest {
                     .build()
             ))
             .subject("Something about science")
-            .rightsHolder("John Rights")
+            .rightsHolder(List.of("John Rights"))
             .alternativeTitles(List.of("alt title 1", "alt title 2"))
             .otherIds(List.of(
                 OtherId.builder().value("without agency").build(),

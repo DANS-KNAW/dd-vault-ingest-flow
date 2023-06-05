@@ -13,22 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.deposit;
+package nl.knaw.dans.vaultingest.core.utilities;
 
-import org.apache.commons.configuration2.Configuration;
+import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
 
-class CommonDepositProperties {
-    private final Configuration configuration;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Path;
 
-    public CommonDepositProperties(Configuration configuration) {
-        this.configuration = configuration;
+public class NullBagOutputWriter implements BagOutputWriter {
+
+    @Override
+    public void writeBagItem(InputStream inputStream, Path path) {
+        var output = OutputStream.nullOutputStream();
+
+        try {
+            inputStream.transferTo(output);
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public <T> T getProperty(Class<T> cls, String name) {
-        return configuration.get(cls, name);
-    }
-
-    public void setProperty(String name, Object value) {
-        configuration.setProperty(name, value);
+    @Override
+    public void close() throws IOException {
+        // noop
     }
 }

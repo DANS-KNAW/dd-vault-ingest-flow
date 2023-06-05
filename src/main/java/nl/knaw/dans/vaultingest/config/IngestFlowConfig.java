@@ -33,10 +33,8 @@ public class IngestFlowConfig {
     @NotNull
     @Valid
     private ExecutorServiceFactory taskQueue;
-
     @NotNull
     private Path rdaBagOutputDir;
-
     @NotNull
     @Valid
     private LanguageConfig languages;

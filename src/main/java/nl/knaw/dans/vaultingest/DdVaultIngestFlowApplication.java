@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
 import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
 import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
 import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
@@ -31,10 +32,13 @@ import nl.knaw.dans.vaultingest.core.inbox.ProcessDepositTaskFactory;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
 import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogDeposit;
+import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowConfiguration> {
@@ -80,7 +84,18 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         var depositToBagProcess = new DepositToBagProcess(
             rdaBagWriter,
             outputWriterFactory,
-            deposit -> System.out.println("Deposit: " + deposit.getId())
+            new VaultCatalogService() {
+
+                @Override
+                public void registerDeposit(Deposit deposit) {
+                    log.info("Registering deposit: {}", deposit);
+                }
+
+                @Override
+                public Optional<VaultCatalogDeposit> findDeposit(String swordToken) {
+                    return Optional.empty();
+                }
+            }
         );
 
         var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);

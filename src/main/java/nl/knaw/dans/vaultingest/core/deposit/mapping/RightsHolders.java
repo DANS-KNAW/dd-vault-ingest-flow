@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.vaultcatalog;
+package nl.knaw.dans.vaultingest.core.deposit.mapping;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
+import org.w3c.dom.Document;
 
-import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public interface VaultCatalogService {
+public class RightsHolders {
 
-    void registerDeposit(Deposit deposit);
-
-    Optional<VaultCatalogDeposit> findDeposit(String swordToken);
+    public static List<String> getOtherIds(Document document) {
+        // RIG001
+        return XPathEvaluator.strings(document, "/ddm:DDM/ddm:dcmiMetadata/dcterms:rightsHolder")
+            .collect(Collectors.toList());
+    }
 }

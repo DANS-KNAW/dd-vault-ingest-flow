@@ -28,8 +28,10 @@ import nl.knaw.dans.vaultingest.core.deposit.mapping.Keywords;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.Languages;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.Organizations;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.OtherIds;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.PersonalData;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.ProductionDate;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.Publications;
+import nl.knaw.dans.vaultingest.core.deposit.mapping.RightsHolders;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.Series;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.Sources;
 import nl.knaw.dans.vaultingest.core.deposit.mapping.Subjects;
@@ -85,8 +87,34 @@ class CommonDeposit implements Deposit {
     }
 
     @Override
+    public void setNbn(String nbn) {
+        this.setProperty("identifier.urn", nbn);
+    }
+
+    @Override
     public String getTitle() {
         return Title.getTitle(ddm);
+    }
+
+    @Override
+    public boolean isUpdate() {
+        return bag.getMetadataValue("Is-Version-Of").size() > 0;
+    }
+
+    @Override
+    public String getSwordToken() {
+        return null;
+    }
+
+    @Override
+    public String getDepositorId() {
+        return null;
+    }
+
+    @Override
+    public void setState(State state, String message) {
+        setProperty("state.label", state.name());
+        setProperty("state.description", message);
     }
 
     @Override
@@ -126,8 +154,8 @@ class CommonDeposit implements Deposit {
     }
 
     @Override
-    public String getRightsHolder() {
-        return null;
+    public Collection<String> getRightsHolder() {
+        return RightsHolders.getOtherIds(ddm);
     }
 
     @Override
@@ -191,6 +219,16 @@ class CommonDeposit implements Deposit {
     }
 
     @Override
+    public boolean isPersonalDataPresent() {
+        return PersonalData.isPersonalDataPresent(ddm);
+    }
+
+    @Override
+    public Collection<String> getMetadataLanguages() {
+        return Languages.getMetadataLanguages(ddm, languageResolver);
+    }
+
+    @Override
     public Collection<DepositFile> getPayloadFiles() {
         return this.depositFiles;
     }
@@ -211,5 +249,9 @@ class CommonDeposit implements Deposit {
 
     protected String getProperty(String name) {
         return this.properties.getProperty(String.class, name);
+    }
+
+    protected void setProperty(String name, String value) {
+        this.properties.setProperty(name, value);
     }
 }

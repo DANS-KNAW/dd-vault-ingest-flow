@@ -33,4 +33,12 @@ public class Languages {
             .map(languageResolver::resolve)
             .collect(Collectors.toList());
     }
+
+    public static List<String> getMetadataLanguages(Document document, LanguageResolver languageResolver) {
+        // CIT018, ddm:language / @code
+        return XPathEvaluator.strings(document, "//@xml:lang")
+            .distinct()
+            .map(languageResolver::resolve)
+            .collect(Collectors.toList());
+    }
 }

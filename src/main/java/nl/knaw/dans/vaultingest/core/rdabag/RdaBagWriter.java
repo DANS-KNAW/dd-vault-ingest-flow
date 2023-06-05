@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-// TODO clean up messy checksum calculations
 @Slf4j
 public class RdaBagWriter {
 
@@ -166,7 +165,7 @@ public class RdaBagWriter {
                 outputString.append(String.format("%s  %s\n", checksum, dataPath.resolve(file.getPath())));
             }
 
-            checksummedWriteToOutput(new ByteArrayInputStream(outputString.toString().getBytes()), Path.of(outputFile), outputWriter);
+            checksummedWriteToOutput(outputString.toString(), Path.of(outputFile), outputWriter);
         }
     }
 
@@ -174,7 +173,7 @@ public class RdaBagWriter {
         var resource = dataciteConverter.convert(deposit);
         var dataciteXml = dataciteSerializer.serialize(resource);
 
-        checksummedWriteToOutput(new ByteArrayInputStream(dataciteXml.getBytes()), Path.of("metadata/datacite.xml"), outputWriter);
+        checksummedWriteToOutput(dataciteXml, Path.of("metadata/datacite.xml"), outputWriter);
     }
 
     private void writeOaiOre(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
@@ -183,8 +182,8 @@ public class RdaBagWriter {
         var rdf = oaiOreSerializer.serializeAsRdf(oaiOre);
         var jsonld = oaiOreSerializer.serializeAsJsonLd(oaiOre);
 
-        checksummedWriteToOutput(new ByteArrayInputStream(rdf.getBytes()), Path.of("metadata/oai-ore.rdf"), outputWriter);
-        checksummedWriteToOutput(new ByteArrayInputStream(jsonld.getBytes()), Path.of("metadata/oai-ore.jsonld"), outputWriter);
+        checksummedWriteToOutput(rdf, Path.of("metadata/oai-ore.rdf"), outputWriter);
+        checksummedWriteToOutput(jsonld, Path.of("metadata/oai-ore.jsonld"), outputWriter);
     }
 
     private void writeMetadataFile(Deposit deposit, Path metadataFile, BagOutputWriter outputWriter) throws IOException {
@@ -198,7 +197,7 @@ public class RdaBagWriter {
         var pidMappingsSerialized = pidMappingSerializer.serialize(pidMappings);
 
         checksummedWriteToOutput(
-            new ByteArrayInputStream(pidMappingsSerialized.getBytes()),
+            pidMappingsSerialized,
             Path.of("metadata/pid-mapping.txt"),
             outputWriter
         );
@@ -221,8 +220,13 @@ public class RdaBagWriter {
     }
 
     void checksummedWriteToOutput(InputStream inputStream, Path path, BagOutputWriter outputWriter) throws IOException {
-        var input = new MultiDigestInputStream(inputStream, requiredAlgorithms);
-        outputWriter.writeBagItem(input, path);
-        checksums.put(path, input.getChecksums());
+        try (var input = new MultiDigestInputStream(inputStream, requiredAlgorithms)) {
+            outputWriter.writeBagItem(input, path);
+            checksums.put(path, input.getChecksums());
+        }
+    }
+
+    void checksummedWriteToOutput(String string, Path path, BagOutputWriter outputWriter) throws IOException {
+        checksummedWriteToOutput(new ByteArrayInputStream(string.getBytes()), path, outputWriter);
     }
 }

@@ -19,12 +19,17 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.UUID;
 
 @Slf4j
 public class DepositToBagProcess {
 
+    // TODO extract to new class
+    private static final String nbnPrefix = "nl:ui:13-";
     private final RdaBagWriter rdaBagWriter;
     private final BagOutputWriterFactory bagOutputWriterFactory;
     private final VaultCatalogService vaultCatalogService;
@@ -35,21 +40,51 @@ public class DepositToBagProcess {
         this.vaultCatalogService = vaultCatalogService;
     }
 
-    public void process(Deposit deposit) {
-        // TODO register deposit with vault catalog
-        vaultCatalogService.registerDeposit(deposit);
+    public void process(Deposit deposit) throws InvalidDepositException {
+
+        // TODO
+        // - deposit loading and processing is separated here, but how do we update the deposit if it failed to load?
+        // - think about where the state should be set
+        // - think about how to handle the deposit state in case of failure
+        if (deposit.isUpdate()) {
+            // check if deposit exists in vault catalog
+            var catalogDeposit = vaultCatalogService.findDeposit(deposit.getSwordToken())
+                .orElseThrow(() -> new InvalidDepositException(String.format("Deposit with sword token %s not found in vault catalog", deposit.getSwordToken())));
+
+            // compare user id
+            if (!StringUtils.equals(deposit.getDepositorId(), catalogDeposit.getDataSupplier())) {
+                throw new InvalidDepositException(String.format(
+                    "Depositor id %s does not match the depositor id %s in the vault catalog", deposit.getDepositorId(), catalogDeposit.getDataSupplier()
+                ));
+            }
+
+            deposit.setNbn(catalogDeposit.getNbn());
+        }
+        else {
+            // generate nbn for new deposit
+            deposit.setNbn(mintUrnNbn());
+        }
 
         // send rda bag to vault
         try {
             try (var writer = bagOutputWriterFactory.createBagOutputWriter(deposit)) {
                 rdaBagWriter.write(deposit, writer);
             }
+
+            deposit.setState(Deposit.State.ACCEPTED, "Deposit accepted");
         }
         catch (Exception e) {
+            // TODO throw some kind of FAILURE state, which is different from REJECTED
             log.error("Error writing bag", e);
             e.printStackTrace();
         }
 
-        // TODO update deposit with vault catalog
+        vaultCatalogService.registerDeposit(deposit);
+
     }
+
+    String mintUrnNbn() {
+        return String.format("urn:nbn:%s%s", nbnPrefix, UUID.randomUUID());
+    }
+
 }

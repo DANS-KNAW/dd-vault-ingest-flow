@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.vaultcatalog;
+package nl.knaw.dans.vaultingest.core.deposit.mapping;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
+import org.w3c.dom.Document;
 
-import java.util.Optional;
+public class PersonalData {
 
-public interface VaultCatalogService {
-
-    void registerDeposit(Deposit deposit);
-
-    Optional<VaultCatalogDeposit> findDeposit(String swordToken);
+    public static boolean isPersonalDataPresent(Document document) {
+        return XPathEvaluator.nodes(document, "/ddm:DDM/ddm:profile/ddm:personalData[@present = 'Yes']")
+            .findAny().isPresent();
+    }
 }

@@ -108,4 +108,8 @@ public class AbstractDepositFactory {
 
         return manifests;
     }
+
+    public void saveDeposit(Path path) {
+
+    }
 }

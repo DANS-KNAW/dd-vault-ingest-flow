@@ -18,6 +18,7 @@ package nl.knaw.dans.vaultingest.core.inbox;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 
 import java.nio.file.Files;
@@ -42,6 +43,7 @@ class ProcessDepositTask implements Runnable {
         try {
             var deposit = depositFactory.loadDeposit(path);
             depositToBagProcess.process(deposit);
+            depositFactory.saveDeposit(path);
 
             log.info("Deposit {} processed successfully", deposit.getId());
             moveDeposit(path, outboxPath.resolve("processed"));

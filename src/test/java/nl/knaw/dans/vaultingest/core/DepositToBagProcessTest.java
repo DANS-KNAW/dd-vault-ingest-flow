@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.core;
 
 import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
 import nl.knaw.dans.vaultingest.core.domain.TestDepositFile;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
@@ -25,23 +25,30 @@ import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
+import nl.knaw.dans.vaultingest.core.utilities.NullBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
+import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class DepositToBagProcessTest {
 
     @Test
-    void process() throws IOException {
+    void process() throws Exception {
         var rdaBagWriter = new RdaBagWriter();
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
         var depositToBagProcess = new DepositToBagProcess(rdaBagWriter,
@@ -73,14 +80,24 @@ class DepositToBagProcessTest {
                     .build()
             ))
             .subject("Something about science")
-            .rightsHolder("John Rights")
+            .rightsHolder(List.of("John Rights"))
             .payloadFiles(List.of(
-                TestDepositFile.builder().path(Path.of("data/file1.txt")).id(UUID.randomUUID().toString()).build(),
-                TestDepositFile.builder().path(Path.of("data/file2.txt")).id(UUID.randomUUID().toString()).build()
+                TestDepositFile.builder()
+                    .path(Path.of("data/file1.txt"))
+                    .checksums(Map.of())
+                    .id(UUID.randomUUID().toString())
+                    .build(),
+                TestDepositFile.builder()
+                    .path(Path.of("data/file2.txt"))
+                    .checksums(Map.of())
+                    .id(UUID.randomUUID().toString())
+                    .build()
             ))
             .build();
 
         depositToBagProcess.process(deposit);
+
+        System.out.println(deposit);
     }
 
     @Test
@@ -120,5 +137,62 @@ class DepositToBagProcessTest {
         var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(bagDir);
 
         depositToBagProcess.process(deposit);
+    }
+
+    @Test
+    void process_should_process_nonUpdate_deposit() throws Exception {
+        var deposit = TestDeposit.builder()
+            .id(UUID.randomUUID().toString())
+            .payloadFiles(List.of(
+                TestDepositFile.builder()
+                    .path(Path.of("data/file1.txt"))
+                    .checksums(Map.of())
+                    .id(UUID.randomUUID().toString())
+                    .build()
+            ))
+            .build();
+
+        var rdaBagWriter = Mockito.mock(RdaBagWriter.class);
+        var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+
+        var depositToBagProcess = new DepositToBagProcess(
+            rdaBagWriter,
+            d -> new NullBagOutputWriter(),
+            vaultCatalogService
+        );
+
+        depositToBagProcess.process(deposit);
+
+        assertEquals(Deposit.State.ACCEPTED, deposit.getState());
+    }
+
+    @Test
+    void process_should_fail_if_update_cannot_be_found() throws Exception {
+        var deposit = TestDeposit.builder()
+            .id(UUID.randomUUID().toString())
+            .update(true)
+            .swordToken("sword-token")
+            .payloadFiles(List.of(
+                TestDepositFile.builder()
+                    .path(Path.of("data/file1.txt"))
+                    .checksums(Map.of())
+                    .id(UUID.randomUUID().toString())
+                    .build()
+            ))
+            .build();
+
+        var rdaBagWriter = Mockito.mock(RdaBagWriter.class);
+        var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+
+        Mockito.doReturn(Optional.empty())
+            .when(vaultCatalogService).findDeposit(Mockito.any());
+
+        var depositToBagProcess = new DepositToBagProcess(
+            rdaBagWriter,
+            d -> new NullBagOutputWriter(),
+            vaultCatalogService
+        );
+
+        assertThrows(InvalidDepositException.class, () -> depositToBagProcess.process(deposit));
     }
 }
