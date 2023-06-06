@@ -15,13 +15,19 @@
  */
 package nl.knaw.dans.vaultingest.core.validator;
 
-public class InvalidDepositException extends Exception {
+import nl.knaw.dans.validatedansbag.api.ValidateCommand;
 
-    public InvalidDepositException(String msg) {
-        super(msg);
+import javax.ws.rs.client.Client;
+import java.net.URI;
+
+public class MigrationBagValidator extends AbstractBagValidator {
+
+    public MigrationBagValidator(Client httpClient, URI serviceUri) {
+        super(httpClient, serviceUri);
     }
 
-    public InvalidDepositException(String msg, Throwable cause) {
-        super(msg, cause);
+    @Override
+    protected ValidateCommand.PackageTypeEnum getPackageType() {
+        return ValidateCommand.PackageTypeEnum.MIGRATION;
     }
 }

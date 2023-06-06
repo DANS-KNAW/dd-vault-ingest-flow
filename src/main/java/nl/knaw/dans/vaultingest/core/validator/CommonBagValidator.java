@@ -20,9 +20,9 @@ import nl.knaw.dans.validatedansbag.api.ValidateCommand;
 import javax.ws.rs.client.Client;
 import java.net.URI;
 
-public class CommonDepositValidator extends AbstractDepositValidator {
+public class CommonBagValidator extends AbstractBagValidator {
 
-    public CommonDepositValidator(Client httpClient, URI serviceUri) {
+    public CommonBagValidator(Client httpClient, URI serviceUri) {
         super(httpClient, serviceUri);
     }
 

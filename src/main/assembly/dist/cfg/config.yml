@@ -30,6 +30,18 @@ ingestFlow:
   migration:
     inbox: /var/opt/dans.knaw.nl/tmp/migration/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/migration/outbox
+  languages:
+    iso6391: data/iso639-1-to-dv.csv
+    iso6392: data/iso639-2-to-dv.csv
+  taskQueue:
+    nameFormat: "vault-ingest-worker-%d"
+    maxQueueSize: 5000
+    # Number of threads will be increased when maxQueueSize is exceeded.
+    minThreads: 2
+    # No more than maxThreads will be created though
+    maxThreads: 5
+    # Threads will die after 60 seconds of idleness
+    keepAliveTime: 60 seconds
 
 vaultCatalog:
   url: https://vault.dans.knaw.nl/catalog
@@ -46,8 +58,8 @@ logging:
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-vault-ingest-flow/dd-vault-ingest-flow.log
 
 validateDansBag:
-  baseUrl: 'http://localhost:20330'
-  pingUrl: 'http://localhost:20331/ping'
+  validateUrl: 'http://localhost:20330/validate'
+  pingUrl: 'http://localhost:20330'
   httpClient:
     timeout: 5min
     connectionTimeout: 1min

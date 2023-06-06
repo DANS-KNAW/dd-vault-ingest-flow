@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
+import nl.knaw.dans.vaultingest.core.validator.InvalidBagException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.apache.commons.configuration2.ex.ConfigurationException;
@@ -44,7 +44,7 @@ public class CommonDepositManager extends AbstractDepositManager {
     }
 
     @Override
-    public Deposit loadDeposit(Path path) throws InvalidDepositException {
+    public Deposit loadDeposit(Path path) throws InvalidBagException {
         try {
             var bagDir = getBagDir(path);
 

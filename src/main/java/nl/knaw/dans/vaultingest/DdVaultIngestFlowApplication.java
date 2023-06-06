@@ -32,10 +32,11 @@ import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
 import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
-import nl.knaw.dans.vaultingest.core.validator.VoidDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.VoidBagValidator;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogDeposit;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
+import nl.knaw.dans.vaultingest.health.DansBagValidatorHealthCheck;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.IOException;
@@ -62,58 +63,65 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
     public void run(final DdVaultIngestFlowConfiguration configuration, final Environment environment) throws IOException {
 
         var dansBagValidatorClient = new JerseyClientBuilder(environment)
-            .withProvider(MultiPartFeature.class)
-            .using(configuration.getValidateDansBag().getHttpClient())
-            .build(getName());
+                .withProvider(MultiPartFeature.class)
+                .using(configuration.getValidateDansBag().getHttpClient())
+                .build(getName());
 
         var languageResolver = new CsvLanguageResolver(
-            configuration.getIngestFlow().getLanguages().getIso6391(),
-            configuration.getIngestFlow().getLanguages().getIso6392()
+                configuration.getIngestFlow().getLanguages().getIso6391(),
+                configuration.getIngestFlow().getLanguages().getIso6392()
         );
         var xmlReader = new XmlReaderImpl();
-        var depositValidator = new VoidDepositValidator();
+        var depositValidator = new VoidBagValidator();
         //        var depositValidator = new CommonDepositValidator(dansBagValidatorClient, configuration.getValidateDansBag().getBaseUrl());
         var depositFactory = new CommonDepositManager(
-            xmlReader,
-            userId -> DatasetContact.builder().name(userId).email(userId + "@test.com").build(),
-            languageResolver
+                xmlReader,
+                userId -> DatasetContact.builder().name(userId).email(userId + "@test.com").build(),
+                languageResolver
         );
 
         var rdaBagWriter = new RdaBagWriter();
         var outputWriterFactory = new ZipBagOutputWriterFactory(configuration.getIngestFlow().getRdaBagOutputDir());
 
         var depositToBagProcess = new DepositToBagProcess(
-            rdaBagWriter,
-            outputWriterFactory,
-            new VaultCatalogService() {
+                rdaBagWriter,
+                outputWriterFactory,
+                new VaultCatalogService() {
 
-                @Override
-                public void registerDeposit(Deposit deposit) {
-                    log.info("Registering deposit: {}", deposit);
-                }
+                    @Override
+                    public void registerDeposit(Deposit deposit) {
+                        log.info("Registering deposit: {}", deposit);
+                    }
 
-                @Override
-                public Optional<VaultCatalogDeposit> findDeposit(String swordToken) {
-                    return Optional.empty();
-                }
-            },
-            depositFactory, depositValidator, new IdMinter());
+                    @Override
+                    public Optional<VaultCatalogDeposit> findDeposit(String swordToken) {
+                        return Optional.empty();
+                    }
+                },
+                depositFactory, depositValidator, new IdMinter());
 
         var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);
 
         var ingestAreaDirectoryWatcher = new IngestAreaDirectoryWatcher(
-            500,
-            configuration.getIngestFlow().getAutoIngest().getInbox()
+                500,
+                configuration.getIngestFlow().getAutoIngest().getInbox()
         );
 
         var autoIngestOutbox = new CommonDepositOutbox(configuration.getIngestFlow().getAutoIngest().getOutbox());
         var inboxListener = new AutoIngestArea(
-            taskQueue,
-            ingestAreaDirectoryWatcher,
-            depositToBagProcess,
-            autoIngestOutbox
+                taskQueue,
+                ingestAreaDirectoryWatcher,
+                depositToBagProcess,
+                autoIngestOutbox
         );
 
         inboxListener.start();
+
+        environment.healthChecks().register(
+                "DansBagValidator",
+                new DansBagValidatorHealthCheck(
+                        dansBagValidatorClient, configuration.getValidateDansBag().getPingUrl()
+                )
+        );
     }
 }

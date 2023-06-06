@@ -21,8 +21,8 @@ import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.Outbox;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
+import nl.knaw.dans.vaultingest.core.validator.BagValidator;
+import nl.knaw.dans.vaultingest.core.validator.InvalidBagException;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import org.apache.commons.lang3.StringUtils;
 
@@ -36,7 +36,7 @@ public class DepositToBagProcess {
     private final BagOutputWriterFactory bagOutputWriterFactory;
     private final VaultCatalogService vaultCatalogService;
     private final DepositManager depositManager;
-    private final DepositValidator depositValidator;
+    private final BagValidator bagValidator;
     private final IdMinter idMinter;
 
     public DepositToBagProcess(
@@ -44,20 +44,20 @@ public class DepositToBagProcess {
         BagOutputWriterFactory bagOutputWriterFactory,
         VaultCatalogService vaultCatalogService,
         DepositManager depositManager,
-        DepositValidator depositValidator,
+        BagValidator bagValidator,
         IdMinter idMinter) {
         this.rdaBagWriter = rdaBagWriter;
         this.bagOutputWriterFactory = bagOutputWriterFactory;
         this.vaultCatalogService = vaultCatalogService;
         this.depositManager = depositManager;
-        this.depositValidator = depositValidator;
+        this.bagValidator = bagValidator;
         this.idMinter = idMinter;
     }
 
     public void process(Path path, Outbox outbox) {
         try {
             log.info("Validating deposit on path {}", path);
-            depositValidator.validate(path);
+            bagValidator.validate(path);
 
             log.info("Loading deposit on path {}", path);
             var deposit = depositManager.loadDeposit(path);
@@ -69,7 +69,7 @@ public class DepositToBagProcess {
             log.info("Moving deposit to outbox");
             outbox.moveDeposit(deposit);
         }
-        catch (InvalidDepositException e) {
+        catch (InvalidBagException e) {
             handleFailedDeposit(path, outbox, Deposit.State.REJECTED, e);
         }
         catch (Throwable e) {
@@ -89,16 +89,16 @@ public class DepositToBagProcess {
         }
     }
 
-    void processDeposit(Deposit deposit) throws InvalidDepositException {
+    void processDeposit(Deposit deposit) throws InvalidBagException {
 
         if (deposit.isUpdate()) {
             // check if deposit exists in vault catalog
             var catalogDeposit = vaultCatalogService.findDeposit(deposit.getSwordToken())
-                .orElseThrow(() -> new InvalidDepositException(String.format("Deposit with sword token %s not found in vault catalog", deposit.getSwordToken())));
+                .orElseThrow(() -> new InvalidBagException(String.format("Deposit with sword token %s not found in vault catalog", deposit.getSwordToken())));
 
             // compare user id
             if (!StringUtils.equals(deposit.getDepositorId(), catalogDeposit.getDataSupplier())) {
-                throw new InvalidDepositException(String.format(
+                throw new InvalidBagException(String.format(
                     "Depositor id %s does not match the depositor id %s in the vault catalog", deposit.getDepositorId(), catalogDeposit.getDataSupplier()
                 ));
             }

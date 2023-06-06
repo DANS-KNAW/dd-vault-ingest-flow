@@ -17,10 +17,8 @@ package nl.knaw.dans.vaultingest.core.deposit;
 
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.nio.file.Path;
 

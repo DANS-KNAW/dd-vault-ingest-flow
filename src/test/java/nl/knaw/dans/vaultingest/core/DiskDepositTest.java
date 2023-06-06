@@ -21,7 +21,7 @@ import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
 import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.BagValidator;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
@@ -36,7 +36,7 @@ class DiskDepositTest {
         var rdaBagWriter = new RdaBagWriter();
         var xmlReader = new XmlReaderImpl();
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
-        var depositValidator = Mockito.mock(DepositValidator.class);
+        var depositValidator = Mockito.mock(BagValidator.class);
         var depositManager = Mockito.mock(DepositManager.class);
         var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (p) -> new StdoutBagOutputWriter(), vaultCatalogService, depositManager, depositValidator, new IdMinter());
 

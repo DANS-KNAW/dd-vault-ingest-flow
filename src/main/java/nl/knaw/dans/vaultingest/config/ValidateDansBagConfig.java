@@ -26,7 +26,11 @@ import java.net.URI;
 public class ValidateDansBagConfig {
     @NotNull
     @Valid
-    private URI baseUrl;
+    private URI validateUrl;
+
+    @NotNull
+    @Valid
+    private URI pingUrl;
 
     @Valid
     @NotNull

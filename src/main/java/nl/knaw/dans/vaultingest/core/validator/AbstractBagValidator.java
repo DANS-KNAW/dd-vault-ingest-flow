@@ -30,31 +30,31 @@ import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @Slf4j
-public abstract class AbstractDepositValidator implements DepositValidator {
-    protected final Client httpClient;
-    protected final URI serviceUri;
+public abstract class AbstractBagValidator implements BagValidator {
+    private final Client httpClient;
+    private final URI serviceUri;
 
-    public AbstractDepositValidator(Client httpClient, URI serviceUri) {
+    public AbstractBagValidator(Client httpClient, URI serviceUri) {
         this.httpClient = httpClient;
         this.serviceUri = serviceUri;
     }
 
     @Override
-    public void validate(Path depositDir) throws InvalidDepositException {
+    public void validate(Path depositDir) throws InvalidBagException {
         var bagDir = getBagDir(depositDir);
 
         var command = new ValidateCommand()
-            .bagLocation(bagDir.toString())
-            .packageType(getPackageType());
+                .bagLocation(bagDir.toString())
+                .packageType(getPackageType());
 
         log.debug("Validating bag {} with command {}", bagDir, command);
 
         try (var multipart = new FormDataMultiPart()
-            .field("command", command, MediaType.APPLICATION_JSON_TYPE)) {
+                .field("command", command, MediaType.APPLICATION_JSON_TYPE)) {
 
             try (var response = httpClient.target(serviceUri)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()))) {
+                    .request()
+                    .post(Entity.entity(multipart, multipart.getMediaType()))) {
 
                 if (response.getStatus() == 200) {
                     var entity = response.readEntity(ValidateOk.class);
@@ -62,8 +62,8 @@ public abstract class AbstractDepositValidator implements DepositValidator {
                 }
                 else {
                     throw new RuntimeException(String.format(
-                        "DANS Bag Validation failed (%s): %s",
-                        response.getStatusInfo(), response.readEntity(String.class)));
+                            "DANS Bag Validation failed (%s): %s",
+                            response.getStatusInfo(), response.readEntity(String.class)));
                 }
             }
         }
@@ -72,27 +72,27 @@ public abstract class AbstractDepositValidator implements DepositValidator {
         }
     }
 
-    private InvalidDepositException formatValidationError(ValidateOk result) {
+    private InvalidBagException formatValidationError(ValidateOk result) {
         var violations = result.getRuleViolations().stream()
-            .map(r -> String.format("- [%s] %s", r.getRule(), r.getViolation()))
-            .collect(Collectors.joining("\n"));
+                .map(r -> String.format("- [%s] %s", r.getRule(), r.getViolation()))
+                .collect(Collectors.joining("\n"));
 
-        return new InvalidDepositException(String.format(
-            "Bag was not valid according to Profile Version %s. Violations: %s",
-            result.getProfileVersion(), violations)
+        return new InvalidBagException(String.format(
+                "Bag was not valid according to Profile Version %s. Violations: %s",
+                result.getProfileVersion(), violations)
         );
     }
 
     protected abstract ValidateCommand.PackageTypeEnum getPackageType();
 
-    protected Path getBagDir(Path path) throws InvalidDepositException {
+    protected Path getBagDir(Path path) throws InvalidBagException {
         try (var list = Files.list(path)) {
             return list.filter(Files::isDirectory)
-                .findFirst()
-                .orElseThrow();
+                    .findFirst()
+                    .orElseThrow();
         }
         catch (IOException e) {
-            throw new InvalidDepositException("Unable to find bag directory", e);
+            throw new InvalidBagException("Unable to find bag directory", e);
         }
     }
 }

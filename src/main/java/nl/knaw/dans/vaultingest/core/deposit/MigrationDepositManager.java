@@ -21,8 +21,8 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
+import nl.knaw.dans.vaultingest.core.validator.BagValidator;
+import nl.knaw.dans.vaultingest.core.validator.InvalidBagException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.w3c.dom.Document;
@@ -40,20 +40,20 @@ import java.util.stream.Collectors;
 public class MigrationDepositManager extends AbstractDepositManager {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
-    private final DepositValidator depositValidator;
+    private final BagValidator bagValidator;
 
-    public MigrationDepositManager(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
+    public MigrationDepositManager(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, BagValidator bagValidator) {
         super(xmlReader);
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
-        this.depositValidator = depositValidator;
+        this.bagValidator = bagValidator;
     }
 
-    public Deposit loadDeposit(Path path) throws InvalidDepositException {
+    public Deposit loadDeposit(Path path) throws InvalidBagException {
         try {
             var bagDir = getBagDir(path);
 
-            depositValidator.validate(bagDir);
+            bagValidator.validate(bagDir);
 
             var bag = new BagReader().read(bagDir);
             var ddm = readXmlFile(bagDir.resolve(Path.of("metadata", "dataset.xml")));
@@ -79,7 +79,7 @@ public class MigrationDepositManager extends AbstractDepositManager {
                 .build();
 
         }
-        catch (InvalidDepositException e) {
+        catch (InvalidBagException e) {
             log.error("Invalid deposit: path={}", path, e);
             throw e;
         }

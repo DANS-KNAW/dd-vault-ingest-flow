@@ -16,12 +16,12 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
+import nl.knaw.dans.vaultingest.core.validator.InvalidBagException;
 
 import java.nio.file.Path;
 
 public interface DepositManager {
-    Deposit loadDeposit(Path path) throws InvalidDepositException;
+    Deposit loadDeposit(Path path) throws InvalidBagException;
 
     void saveDeposit(Deposit deposit);
 
