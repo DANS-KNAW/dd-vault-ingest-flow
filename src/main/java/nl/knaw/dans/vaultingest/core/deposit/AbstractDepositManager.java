@@ -40,7 +40,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Slf4j
-public class AbstractDepositFactory {
+public abstract class AbstractDepositManager implements DepositManager {
     private final XmlReader xmlReader;
 
     protected Path getBagDir(Path path) throws IOException {
@@ -65,7 +65,12 @@ public class AbstractDepositFactory {
             (PropertiesConfiguration.class, null, true)
             .configure(paramConfig);
 
-        return new CommonDepositProperties(builder.getConfiguration());
+        return new CommonDepositProperties(builder);
+    }
+
+    public void saveDepositProperties(CommonDepositProperties properties) throws ConfigurationException {
+        var builder = properties.getBuilder();
+        builder.save();
     }
 
     protected OriginalFilepaths getOriginalFilepaths(Path bagDir) throws IOException {

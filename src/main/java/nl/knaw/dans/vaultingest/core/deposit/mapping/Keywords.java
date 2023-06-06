@@ -60,7 +60,6 @@ public class Keywords {
             String.format("(@schemeURI = '%s' and @subjectScheme = '%s')", SCHEME_URI_AAT, SCHEME_AAT) +
             "]";
 
-
         // CIT014
         return XPathEvaluator.nodes(document, expr)
             .map(node -> Keyword.builder()
@@ -70,7 +69,6 @@ public class Keywords {
                 .build())
             .collect(Collectors.toList());
     }
-
 
     static List<Keyword> getLanguageKeywords(Document document) {
         return XPathEvaluator.strings(document,

@@ -34,7 +34,7 @@ public class Descriptions {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var description : descriptions) {
+        for (var description: descriptions) {
             var element = model.createResource();
             element.addProperty(DVCitation.dsDescriptionValue, description.getValue());
 

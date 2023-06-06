@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.domain.ids;
 
-import lombok.ToString;
-
 public class ORCID extends BaseId {
 
     public ORCID(String id) {

@@ -44,7 +44,7 @@ public class OaiOreSerializer {
 
     public String serializeAsRdf(OreResourceMap resourceMap) {
         var model = resourceMap.getModel();
-        var topLevelResources = new Resource[]{
+        var topLevelResources = new Resource[] {
             ORE.AggregatedResource,
             ORE.Aggregation,
             ORE.ResourceMap,
@@ -99,7 +99,8 @@ public class OaiOreSerializer {
     private String namespacesAsJsonObject(Map<String, String> namespaces) {
         try {
             return objectMapper.writeValueAsString(namespaces);
-        } catch (JsonProcessingException e) {
+        }
+        catch (JsonProcessingException e) {
             log.error("Error serializing namespaces to JSON", e);
             throw new RuntimeException(e);
         }

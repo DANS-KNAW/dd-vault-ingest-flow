@@ -25,6 +25,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,9 @@ public abstract class AbstractDepositValidator implements DepositValidator {
     }
 
     @Override
-    public void validate(Path bagDir) throws InvalidDepositException {
+    public void validate(Path depositDir) throws InvalidDepositException {
+        var bagDir = getBagDir(depositDir);
+
         var command = new ValidateCommand()
             .bagLocation(bagDir.toString())
             .packageType(getPackageType());
@@ -81,4 +84,15 @@ public abstract class AbstractDepositValidator implements DepositValidator {
     }
 
     protected abstract ValidateCommand.PackageTypeEnum getPackageType();
+
+    protected Path getBagDir(Path path) throws InvalidDepositException {
+        try (var list = Files.list(path)) {
+            return list.filter(Files::isDirectory)
+                .findFirst()
+                .orElseThrow();
+        }
+        catch (IOException e) {
+            throw new InvalidDepositException("Unable to find bag directory", e);
+        }
+    }
 }

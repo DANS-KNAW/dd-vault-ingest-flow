@@ -16,38 +16,38 @@
 package nl.knaw.dans.vaultingest.core.inbox;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
+import nl.knaw.dans.vaultingest.core.domain.Outbox;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
 public class AutoIngestArea {
     private final ExecutorService executorService;
-    // TODO extract interface and use that
-    private final ProcessDepositTaskFactory processDepositTaskFactory;
     private final IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher;
-    private final Path outboxPath;
+    private final DepositToBagProcess depositToBagProcess;
+    private final Outbox outbox;
 
-    public AutoIngestArea(ExecutorService executorService, ProcessDepositTaskFactory processDepositTaskFactory, IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher, Path outboxPath)
-        throws IOException {
+    public AutoIngestArea(
+        ExecutorService executorService,
+        IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher,
+        DepositToBagProcess depositToBagProcess,
+        Outbox outbox) {
         this.executorService = executorService;
-        this.processDepositTaskFactory = processDepositTaskFactory;
         this.ingestAreaDirectoryWatcher = ingestAreaDirectoryWatcher;
-        this.outboxPath = outboxPath.toAbsolutePath();
+        this.depositToBagProcess = depositToBagProcess;
+        this.outbox = outbox;
     }
 
     public void start() throws IOException {
-        log.info("Creating directories in outbox; path = {}", outboxPath);
-        Files.createDirectories(outboxPath);
-        Files.createDirectories(outboxPath.resolve("processed"));
-        Files.createDirectories(outboxPath.resolve("rejected"));
-        Files.createDirectories(outboxPath.resolve("failed"));
-
+        log.info("Creating directories in outbox; path = {}", outbox);
         ingestAreaDirectoryWatcher.start((path) -> {
             log.info("New item in inbox; path = {}", path);
-            executorService.submit(processDepositTaskFactory.createProcessDepositTask(path, outboxPath));
+
+            executorService.submit(() -> {
+                depositToBagProcess.process(path, outbox);
+            });
         });
     }
 

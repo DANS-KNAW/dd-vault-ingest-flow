@@ -35,7 +35,7 @@ public class Authors {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var author : authors) {
+        for (var author: authors) {
             var authorElement = model.createResource();
             authorElement.addProperty(DVCitation.authorName, author.getDisplayName());
 

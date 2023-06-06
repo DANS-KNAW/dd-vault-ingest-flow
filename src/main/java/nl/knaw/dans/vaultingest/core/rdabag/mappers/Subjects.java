@@ -33,7 +33,7 @@ public class Subjects {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var subject : subjects) {
+        for (var subject: subjects) {
             // TODO these are the values according to the Subject mapper, but according to the example
             // they should be the original values like D52000
             result.add(model.createStatement(

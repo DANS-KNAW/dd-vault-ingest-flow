@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag.converter;
+package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.PidMappings;
+import java.util.UUID;
 
-public class PidMappingConverter {
+public class IdMinter {
 
-    public PidMappings convert(Deposit deposit) {
-        var dataPath = "data/";
-        var mappings = new PidMappings();
+    private static final String nbnPrefix = "nl:ui:13-";
 
-        // does not include the "title of the deposit" as a mapping
-        mappings.addMapping(deposit.getId(), dataPath);
-
-        for (var file: deposit.getPayloadFiles()) {
-            mappings.addMapping("file:///" + file.getId(), dataPath + file.getPath().toString());
-        }
-
-        return mappings;
+    public String mintUrnNbn() {
+        return String.format("urn:nbn:%s%s", nbnPrefix, UUID.randomUUID());
     }
+
 }

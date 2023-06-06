@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.domain.ids;
 
-import lombok.ToString;
-
 public class ISNI extends BaseId {
     public ISNI(String value) {
         super(value);

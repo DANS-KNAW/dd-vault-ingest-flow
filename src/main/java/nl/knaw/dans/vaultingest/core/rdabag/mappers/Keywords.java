@@ -34,7 +34,7 @@ public class Keywords {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var keyword : keywords) {
+        for (var keyword: keywords) {
             var element = model.createResource();
             element.addProperty(DVCitation.keywordValue, keyword.getText());
 

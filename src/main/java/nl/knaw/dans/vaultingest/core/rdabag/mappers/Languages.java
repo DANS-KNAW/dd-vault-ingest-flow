@@ -33,7 +33,7 @@ public class Languages {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var language : languages) {
+        for (var language: languages) {
             result.add(model.createStatement(
                 resource,
                 DCTerms.language,

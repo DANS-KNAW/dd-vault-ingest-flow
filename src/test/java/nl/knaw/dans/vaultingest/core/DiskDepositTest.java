@@ -15,12 +15,13 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositManager;
+import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
-import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
+import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
+import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
 import org.junit.jupiter.api.Test;
@@ -35,15 +36,16 @@ class DiskDepositTest {
         var rdaBagWriter = new RdaBagWriter();
         var xmlReader = new XmlReaderImpl();
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
-        var depositValidator = Mockito.mock(CommonDepositValidator.class);
-        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (p) -> new StdoutBagOutputWriter(), vaultCatalogService);
+        var depositValidator = Mockito.mock(DepositValidator.class);
+        var depositManager = Mockito.mock(DepositManager.class);
+        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (p) -> new StdoutBagOutputWriter(), vaultCatalogService, depositManager, depositValidator, new IdMinter());
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a");
         assert s != null;
         var depositDir = Path.of(s.getPath());
 
-        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(depositDir);
+        var deposit = new CommonDepositManager(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(depositDir);
 
-        depositToBagProcess.process(deposit);
+        depositToBagProcess.processDeposit(deposit);
     }
 }

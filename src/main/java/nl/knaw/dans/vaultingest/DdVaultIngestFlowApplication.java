@@ -22,16 +22,17 @@ import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.IdMinter;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositManager;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositOutbox;
 import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetContact;
 import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
 import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
-import nl.knaw.dans.vaultingest.core.inbox.ProcessDepositTaskFactory;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
-import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.VoidDepositValidator;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogDeposit;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
@@ -70,12 +71,12 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             configuration.getIngestFlow().getLanguages().getIso6392()
         );
         var xmlReader = new XmlReaderImpl();
-        var depositValidator = new CommonDepositValidator(dansBagValidatorClient, configuration.getValidateDansBag().getBaseUrl());
-        var depositFactory = new CommonDepositFactory(
+        var depositValidator = new VoidDepositValidator();
+        //        var depositValidator = new CommonDepositValidator(dansBagValidatorClient, configuration.getValidateDansBag().getBaseUrl());
+        var depositFactory = new CommonDepositManager(
             xmlReader,
             userId -> DatasetContact.builder().name(userId).email(userId + "@test.com").build(),
-            languageResolver,
-            depositValidator
+            languageResolver
         );
 
         var rdaBagWriter = new RdaBagWriter();
@@ -95,26 +96,22 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
                 public Optional<VaultCatalogDeposit> findDeposit(String swordToken) {
                     return Optional.empty();
                 }
-            }
-        );
+            },
+            depositFactory, depositValidator, new IdMinter());
 
         var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);
-
-        var processDepositTaskFactory = new ProcessDepositTaskFactory(
-            depositFactory,
-            depositToBagProcess
-        );
 
         var ingestAreaDirectoryWatcher = new IngestAreaDirectoryWatcher(
             500,
             configuration.getIngestFlow().getAutoIngest().getInbox()
         );
 
+        var autoIngestOutbox = new CommonDepositOutbox(configuration.getIngestFlow().getAutoIngest().getOutbox());
         var inboxListener = new AutoIngestArea(
             taskQueue,
-            processDepositTaskFactory,
             ingestAreaDirectoryWatcher,
-            configuration.getIngestFlow().getAutoIngest().getOutbox()
+            depositToBagProcess,
+            autoIngestOutbox
         );
 
         inboxListener.start();

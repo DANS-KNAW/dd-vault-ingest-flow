@@ -26,10 +26,10 @@ public class Languages {
     public static List<String> getLanguages(Document document, LanguageResolver languageResolver) {
         // CIT018, ddm:language / @code
         return XPathEvaluator.strings(document,
-            "/ddm:DDM/ddm:dcmiMetadata/ddm:language[" +
-                "@encodingScheme='ISO639-1' or " +
-                "@encodingScheme='ISO639-2']/@code"
-        )
+                "/ddm:DDM/ddm:dcmiMetadata/ddm:language[" +
+                    "@encodingScheme='ISO639-1' or " +
+                    "@encodingScheme='ISO639-2']/@code"
+            )
             .map(languageResolver::resolve)
             .collect(Collectors.toList());
     }

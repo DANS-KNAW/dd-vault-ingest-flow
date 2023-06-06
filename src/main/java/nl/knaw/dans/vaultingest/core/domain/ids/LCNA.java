@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.domain.ids;
 
-import lombok.ToString;
-
 public class LCNA extends BaseId {
 
     public LCNA(String id) {

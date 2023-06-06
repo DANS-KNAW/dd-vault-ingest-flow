@@ -13,24 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag.converter;
+package nl.knaw.dans.vaultingest.core.deposit;
 
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.PidMappings;
+import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 
-public class PidMappingConverter {
+import java.nio.file.Path;
 
-    public PidMappings convert(Deposit deposit) {
-        var dataPath = "data/";
-        var mappings = new PidMappings();
+public interface DepositManager {
+    Deposit loadDeposit(Path path) throws InvalidDepositException;
 
-        // does not include the "title of the deposit" as a mapping
-        mappings.addMapping(deposit.getId(), dataPath);
+    void saveDeposit(Deposit deposit);
 
-        for (var file: deposit.getPayloadFiles()) {
-            mappings.addMapping("file:///" + file.getId(), dataPath + file.getPath().toString());
-        }
-
-        return mappings;
-    }
+    void updateDepositState(Path path, Deposit.State state, String message);
 }

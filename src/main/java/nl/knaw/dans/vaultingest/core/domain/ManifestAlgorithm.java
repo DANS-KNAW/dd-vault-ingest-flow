@@ -29,6 +29,18 @@ public enum ManifestAlgorithm {
         this.name = s;
     }
 
+    public static ManifestAlgorithm from(String messageDigestName) throws NoSuchAlgorithmException {
+        var sanitized = messageDigestName.replaceAll("-", "").toLowerCase();
+
+        for (ManifestAlgorithm algorithm: ManifestAlgorithm.values()) {
+            if (algorithm.getName().equals(sanitized)) {
+                return algorithm;
+            }
+        }
+
+        throw new NoSuchAlgorithmException("Unknown message digest algorithm: " + messageDigestName);
+    }
+
     public MessageDigest getMessageDigestInstance() {
         try {
             // MD5 is not required to be implemented
@@ -41,17 +53,5 @@ public enum ManifestAlgorithm {
 
     public String getName() {
         return name.replaceAll("-", "").toLowerCase();
-    }
-
-    public static ManifestAlgorithm from(String messageDigestName) throws NoSuchAlgorithmException {
-        var sanitized = messageDigestName.replaceAll("-", "").toLowerCase();
-
-        for (ManifestAlgorithm algorithm: ManifestAlgorithm.values()) {
-            if (algorithm.getName().equals(sanitized)) {
-                return algorithm;
-            }
-        }
-
-        throw new NoSuchAlgorithmException("Unknown message digest algorithm: " + messageDigestName);
     }
 }

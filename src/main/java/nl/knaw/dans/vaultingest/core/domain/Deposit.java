@@ -49,6 +49,8 @@ public interface Deposit {
 
     String getDepositorId();
 
+    State getState();
+
     void setState(State state, String message);
 
     Collection<String> getAlternativeTitles();
@@ -98,7 +100,10 @@ public interface Deposit {
     InputStream inputStreamForMetadataFile(Path path);
 
     enum State {
+        // TODO get all states
+        PUBLISHED,
         ACCEPTED,
         REJECTED,
+        FAILED,
     }
 }

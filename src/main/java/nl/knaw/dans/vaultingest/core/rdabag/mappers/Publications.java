@@ -15,9 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.domain.metadata.Keyword;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Publication;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.Datacite;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
@@ -37,7 +35,7 @@ public class Publications {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var publication : publications) {
+        for (var publication: publications) {
             var element = model.createResource();
             element.addProperty(Datacite.resourceIdentifier, publication.getIdNumber());
             element.addProperty(Datacite.resourceIdentifierScheme, publication.getIdType());

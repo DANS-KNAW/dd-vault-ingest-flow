@@ -22,6 +22,8 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
@@ -46,12 +48,26 @@ public class IngestAreaDirectoryWatcher {
         var monitor = new FileAlterationMonitor(pollingInterval);
         monitor.addObserver(observer);
 
+        log.debug("Processing existing items in {}", directory);
+        processExistingItems(callback);
+
         try {
             log.debug("Starting FileAlterationMonitor for directory {}", directory);
             monitor.start();
         }
         catch (Exception e) {
             throw new IllegalStateException(String.format("Could not start monitoring %s", directory), e);
+        }
+    }
+
+    private void processExistingItems(IngestAreaItemCreated callback) {
+        try {
+            try (var files = Files.list(directory)) {
+                files.filter(Files::isDirectory).forEach(dir -> callback.onItemCreated(dir.toAbsolutePath()));
+            }
+        }
+        catch (IOException e) {
+            throw new IllegalStateException(String.format("Could not list %s", directory), e);
         }
     }
 

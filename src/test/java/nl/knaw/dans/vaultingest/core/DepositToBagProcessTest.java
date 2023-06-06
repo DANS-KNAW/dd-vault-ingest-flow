@@ -15,7 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositManager;
+import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.TestDeposit;
 import nl.knaw.dans.vaultingest.core.domain.TestDepositFile;
@@ -28,7 +29,7 @@ import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
 import nl.knaw.dans.vaultingest.core.utilities.NullBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.StdoutBagOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.TestLanguageResolver;
-import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import nl.knaw.dans.vaultingest.core.xml.XmlReaderImpl;
@@ -51,9 +52,11 @@ class DepositToBagProcessTest {
     void process() throws Exception {
         var rdaBagWriter = new RdaBagWriter();
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+        var depositManager = Mockito.mock(DepositManager.class);
+        var depositValidator = Mockito.mock(DepositValidator.class);
         var depositToBagProcess = new DepositToBagProcess(rdaBagWriter,
             deposit -> new StdoutBagOutputWriter(),
-            vaultCatalogService);
+            vaultCatalogService, depositManager, depositValidator, new IdMinter());
 
         var s = getClass().getResource("/input/6a6632f1-91d2-49ba-8449-a8d2b539267a/valid-bag");
         assert s != null;
@@ -95,7 +98,7 @@ class DepositToBagProcessTest {
             ))
             .build();
 
-        depositToBagProcess.process(deposit);
+        depositToBagProcess.processDeposit(deposit);
 
         System.out.println(deposit);
     }
@@ -105,38 +108,39 @@ class DepositToBagProcessTest {
         var rdaBagWriter = new RdaBagWriter();
         var xmlReader = new XmlReaderImpl();
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+        var depositManager = Mockito.mock(DepositManager.class);
+        var depositValidator = Mockito.mock(DepositValidator.class);
         var depositToBagProcess = new DepositToBagProcess(rdaBagWriter,
             deposit -> new StdoutBagOutputWriter(),
-            vaultCatalogService);
-
-        var depositValidator = Mockito.mock(CommonDepositValidator.class);
+            vaultCatalogService, depositManager, depositValidator, new IdMinter());
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
         assert s != null;
 
         var bagDir = Path.of(s.getPath());
 
-        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(bagDir);
+        var deposit = new CommonDepositManager(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
 
-        depositToBagProcess.process(deposit);
+        depositToBagProcess.processDeposit(deposit);
     }
 
     @Test
     void process_with_originalFilePathMappings_to_zip() throws Exception {
         var xmlReader = new XmlReaderImpl();
         var rdaBagWriter = new RdaBagWriter();
-        var depositValidator = Mockito.mock(CommonDepositValidator.class);
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+        var depositManager = Mockito.mock(DepositManager.class);
+        var depositValidator = Mockito.mock(DepositValidator.class);
 
         var output = new ZipBagOutputWriter(Path.of("/tmp/bag123.zip"));
-        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (path) -> output, vaultCatalogService);
+        var depositToBagProcess = new DepositToBagProcess(rdaBagWriter, (path) -> output, vaultCatalogService, depositManager, depositValidator, new IdMinter());
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
         assert s != null;
 
         var bagDir = Path.of(s.getPath());
-        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(bagDir);
+        var deposit = new CommonDepositManager(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(bagDir);
 
-        depositToBagProcess.process(deposit);
+        depositToBagProcess.processDeposit(deposit);
     }
 
     @Test
@@ -154,14 +158,16 @@ class DepositToBagProcessTest {
 
         var rdaBagWriter = Mockito.mock(RdaBagWriter.class);
         var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+        var depositManager = Mockito.mock(DepositManager.class);
+        var depositValidator = Mockito.mock(DepositValidator.class);
 
         var depositToBagProcess = new DepositToBagProcess(
             rdaBagWriter,
             d -> new NullBagOutputWriter(),
-            vaultCatalogService
-        );
+            vaultCatalogService,
+            depositManager, depositValidator, new IdMinter());
 
-        depositToBagProcess.process(deposit);
+        depositToBagProcess.processDeposit(deposit);
 
         assertEquals(Deposit.State.ACCEPTED, deposit.getState());
     }
@@ -187,12 +193,15 @@ class DepositToBagProcessTest {
         Mockito.doReturn(Optional.empty())
             .when(vaultCatalogService).findDeposit(Mockito.any());
 
+        var depositManager = Mockito.mock(DepositManager.class);
+        var depositValidator = Mockito.mock(DepositValidator.class);
+
         var depositToBagProcess = new DepositToBagProcess(
             rdaBagWriter,
             d -> new NullBagOutputWriter(),
-            vaultCatalogService
-        );
+            vaultCatalogService,
+            depositManager, depositValidator, new IdMinter());
 
-        assertThrows(InvalidDepositException.class, () -> depositToBagProcess.process(deposit));
+        assertThrows(InvalidDepositException.class, () -> depositToBagProcess.processDeposit(deposit));
     }
 }

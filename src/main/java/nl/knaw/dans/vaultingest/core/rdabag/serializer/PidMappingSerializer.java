@@ -17,14 +17,12 @@ package nl.knaw.dans.vaultingest.core.rdabag.serializer;
 
 import nl.knaw.dans.vaultingest.core.domain.PidMappings;
 
-import java.io.IOException;
-
 public class PidMappingSerializer {
 
     public String serialize(PidMappings mappings) {
         var str = new StringBuilder();
 
-        for (var mapping : mappings.getPidMappings()) {
+        for (var mapping: mappings.getPidMappings()) {
             str.append(String.format("%s %s\n", mapping.getId(), mapping.getPath()));
         }
 

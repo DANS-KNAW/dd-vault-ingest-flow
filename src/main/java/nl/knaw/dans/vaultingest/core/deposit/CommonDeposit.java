@@ -70,6 +70,7 @@ class CommonDeposit implements Deposit {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
     private final List<DepositFile> depositFiles;
+    private final Path path;
 
     @Override
     public String getId() {
@@ -98,7 +99,9 @@ class CommonDeposit implements Deposit {
 
     @Override
     public boolean isUpdate() {
-        return bag.getMetadataValue("Is-Version-Of").size() > 0;
+        return false;
+        // TODO remove false and uncomment the following line when the vault catalog integration is done
+        //        return bag.getMetadataValue("Is-Version-Of").size() > 0;
     }
 
     @Override
@@ -109,6 +112,11 @@ class CommonDeposit implements Deposit {
     @Override
     public String getDepositorId() {
         return null;
+    }
+
+    @Override
+    public State getState() {
+        return this.getProperty("state.label") != null ? State.valueOf(this.getProperty("state.label")) : null;
     }
 
     @Override
@@ -253,5 +261,13 @@ class CommonDeposit implements Deposit {
 
     protected void setProperty(String name, String value) {
         this.properties.setProperty(name, value);
+    }
+
+    Path getPath() {
+        return path;
+    }
+
+    CommonDepositProperties getProperties() {
+        return properties;
     }
 }

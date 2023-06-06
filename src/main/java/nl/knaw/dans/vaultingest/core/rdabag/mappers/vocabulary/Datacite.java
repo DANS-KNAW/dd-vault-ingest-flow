@@ -29,6 +29,7 @@ public class Datacite {
 
     public static final Property resourceIdentifier = m.createProperty(NS, "ResourceIdentifier");
     public static final Property resourceIdentifierScheme = m.createProperty(NS, "ResourceIdentifierScheme");
+
     public static String getURI() {
         return NS;
     }

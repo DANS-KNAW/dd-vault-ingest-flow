@@ -16,8 +16,7 @@
 package nl.knaw.dans.vaultingest.core.rdabag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
-import nl.knaw.dans.vaultingest.core.validator.CommonDepositValidator;
+import nl.knaw.dans.vaultingest.core.deposit.CommonDepositManager;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.utilities.EchoDatasetContactResolver;
@@ -43,12 +42,11 @@ class OaiOreConverterIntegrationTest {
 
         var depositDir = Path.of(s.toURI());
         var toMockPath = depositDir.resolve("valid-bag/metadata/dataset.xml");
-        var depositValidator = Mockito.mock(CommonDepositValidator.class);
 
         // insert a different dataset.xml into the deposit
         Mockito.doReturn(testXml).when(xmlReader).readXmlFile(toMockPath);
 
-        var deposit = new CommonDepositFactory(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver(), depositValidator).loadDeposit(depositDir);
+        var deposit = new CommonDepositManager(xmlReader, new EchoDatasetContactResolver(), new TestLanguageResolver()).loadDeposit(depositDir);
         var converter = new OaiOreConverter();
         var output = converter.convert(deposit);
         var serializer = new OaiOreSerializer(new ObjectMapper());

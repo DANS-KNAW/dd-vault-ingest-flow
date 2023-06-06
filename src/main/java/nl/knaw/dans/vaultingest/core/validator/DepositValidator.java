@@ -15,8 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.validator;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
-
 import java.nio.file.Path;
 
 public interface DepositValidator {

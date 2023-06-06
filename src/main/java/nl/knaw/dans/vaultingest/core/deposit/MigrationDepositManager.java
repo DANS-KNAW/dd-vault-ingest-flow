@@ -37,12 +37,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class MigrationDepositFactory extends AbstractDepositFactory {
+public class MigrationDepositManager extends AbstractDepositManager {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
     private final DepositValidator depositValidator;
 
-    public MigrationDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
+    public MigrationDepositManager(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
         super(xmlReader);
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
@@ -87,6 +87,16 @@ public class MigrationDepositFactory extends AbstractDepositFactory {
             log.error("Error loading deposit from disk: path={}", path, e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void saveDeposit(Deposit deposit) {
+
+    }
+
+    @Override
+    public void updateDepositState(Path path, Deposit.State state, String message) {
+
     }
 
     Document readOptionalXmlFile(Path path) throws IOException, SAXException, ParserConfigurationException {

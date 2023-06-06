@@ -15,7 +15,11 @@
  */
 package nl.knaw.dans.vaultingest.core.domain;
 
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.*;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCitation;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCore;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DansRel;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.Datacite;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.ORE;
 import org.apache.jena.sparql.vocabulary.FOAF;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.jena.vocabulary.DC_11;

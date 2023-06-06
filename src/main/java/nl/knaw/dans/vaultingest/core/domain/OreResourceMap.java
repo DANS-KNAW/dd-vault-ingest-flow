@@ -35,7 +35,7 @@ public class OreResourceMap {
         // and that it is stable
         var namespaces = this.getUsedNamespaces();
 
-        for (var namespace : namespaces.entrySet()) {
+        for (var namespace: namespaces.entrySet()) {
             model.setNsPrefix(namespace.getKey(), namespace.getValue());
         }
 
@@ -55,6 +55,5 @@ public class OreResourceMap {
             .stream().filter(entry -> predicateNamespaces.contains(entry.getValue()))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
-
 
 }

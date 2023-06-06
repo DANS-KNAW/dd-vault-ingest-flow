@@ -16,12 +16,17 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import org.apache.commons.configuration2.Configuration;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 
 class CommonDepositProperties {
     private final Configuration configuration;
+    private final FileBasedConfigurationBuilder<FileBasedConfiguration> builder;
 
-    public CommonDepositProperties(Configuration configuration) {
-        this.configuration = configuration;
+    public CommonDepositProperties(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
+        this.configuration = builder.getConfiguration();
+        this.builder = builder;
     }
 
     public <T> T getProperty(Class<T> cls, String name) {
@@ -30,5 +35,9 @@ class CommonDepositProperties {
 
     public void setProperty(String name, Object value) {
         configuration.setProperty(name, value);
+    }
+
+    public FileBasedConfigurationBuilder<FileBasedConfiguration> getBuilder() {
+        return builder;
     }
 }

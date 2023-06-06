@@ -35,7 +35,7 @@ public class Contributors {
         var model = resource.getModel();
         var result = new ArrayList<Statement>();
 
-        for (var contributor : contributors) {
+        for (var contributor: contributors) {
             var element = model.createResource();
 
             if (contributor.getType() != null) {

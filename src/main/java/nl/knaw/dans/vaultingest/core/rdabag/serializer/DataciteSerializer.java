@@ -19,7 +19,6 @@ import nl.knaw.dans.vaultingest.domain.Resource;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
-import java.io.IOException;
 import java.io.StringWriter;
 
 public class DataciteSerializer {
@@ -32,7 +31,8 @@ public class DataciteSerializer {
             var writer = new StringWriter();
             marshaller.marshal(resource, writer);
             return writer.toString();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
     }

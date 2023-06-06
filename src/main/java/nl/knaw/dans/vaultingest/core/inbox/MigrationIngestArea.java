@@ -17,30 +17,28 @@ package nl.knaw.dans.vaultingest.core.inbox;
 
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
-import nl.knaw.dans.vaultingest.core.deposit.CommonDepositFactory;
+import nl.knaw.dans.vaultingest.core.domain.Outbox;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
 public class MigrationIngestArea {
     private final ExecutorService executorService;
-    private final CommonDepositFactory depositFactory;
     private final DepositToBagProcess depositToBagProcess;
     private final Path inboxPath;
-    private final Path outboxPath;
+    private final Outbox outbox;
 
-    public MigrationIngestArea(ExecutorService executorService, CommonDepositFactory depositFactory, DepositToBagProcess depositToBagProcess, Path inboxPath, Path outboxPath)
-        throws IOException {
+    public MigrationIngestArea(
+        ExecutorService executorService,
+        DepositToBagProcess depositToBagProcess,
+        Path inboxPath,
+        Outbox outbox
+    ) {
         this.executorService = executorService;
-        this.depositFactory = depositFactory;
         this.depositToBagProcess = depositToBagProcess;
         this.inboxPath = inboxPath.toAbsolutePath();
-        this.outboxPath = outboxPath.toAbsolutePath();
-
-        this.start();
+        this.outbox = outbox;
     }
 
     public void ingest(Path depositPath) {
@@ -53,15 +51,9 @@ public class MigrationIngestArea {
         }
 
         log.info("Deposit found in inbox; path = {}", depositPath);
-        var task = new ProcessDepositTask(depositFactory, depositToBagProcess, depositPath, outboxPath);
-        executorService.execute(task);
-    }
 
-    void start() throws IOException {
-        log.info("Creating directories in outbox; path = {}", outboxPath);
-        Files.createDirectories(outboxPath);
-        Files.createDirectories(outboxPath.resolve("processed"));
-        Files.createDirectories(outboxPath.resolve("rejected"));
-        Files.createDirectories(outboxPath.resolve("failed"));
+        executorService.execute(() -> {
+            depositToBagProcess.process(depositPath, outbox);
+        });
     }
 }

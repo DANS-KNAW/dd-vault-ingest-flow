@@ -26,16 +26,14 @@ import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CommonDepositFactoryIntegrationTest {
+class CommonDepositManagerIntegrationTest {
 
     @Test
     void loadDeposit() throws Exception {
-        var validator = Mockito.mock(DepositValidator.class);
-        var factory = new CommonDepositFactory(
+        var factory = new CommonDepositManager(
             new XmlReaderImpl(),
             new EchoDatasetContactResolver(),
-            new TestLanguageResolver(),
-            validator
+            new TestLanguageResolver()
         );
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");

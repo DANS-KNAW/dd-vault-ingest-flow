@@ -18,7 +18,18 @@ package nl.knaw.dans.vaultingest.core.rdabag.converter;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OreResourceMap;
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.*;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.AlternativeTitles;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Authors;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Contributors;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.DatasetContacts;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Descriptions;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Keywords;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Languages;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.OtherIds;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.ProductionDates;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Publications;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Subjects;
+import nl.knaw.dans.vaultingest.core.rdabag.mappers.Title;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DVCore;
 import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.ORE;
 import org.apache.jena.rdf.model.Model;
@@ -63,7 +74,6 @@ public class OaiOreConverter {
             ORE.describes,
             resource
         ));
-
 
         return new OreResourceMap(model);
     }
@@ -129,7 +139,7 @@ public class OaiOreConverter {
 
         model.add(type);
 
-        for (var file : deposit.getPayloadFiles()) {
+        for (var file: deposit.getPayloadFiles()) {
             var fileResource = createAggregatedResource(model, file);
 
             model.add(model.createStatement(

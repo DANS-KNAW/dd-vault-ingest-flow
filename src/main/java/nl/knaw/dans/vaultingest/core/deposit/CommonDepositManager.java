@@ -21,10 +21,10 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
-import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
+import org.apache.commons.configuration2.ex.ConfigurationException;
 import org.w3c.dom.Document;
 
 import java.nio.file.Path;
@@ -33,25 +33,20 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class CommonDepositFactory extends AbstractDepositFactory {
+public class CommonDepositManager extends AbstractDepositManager {
     private final DatasetContactResolver datasetContactResolver;
     private final LanguageResolver languageResolver;
 
-    private final DepositValidator depositValidator;
-
-    public CommonDepositFactory(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver, DepositValidator depositValidator) {
+    public CommonDepositManager(XmlReader xmlReader, DatasetContactResolver datasetContactResolver, LanguageResolver languageResolver) {
         super(xmlReader);
         this.datasetContactResolver = datasetContactResolver;
         this.languageResolver = languageResolver;
-        this.depositValidator = depositValidator;
     }
 
+    @Override
     public Deposit loadDeposit(Path path) throws InvalidDepositException {
         try {
             var bagDir = getBagDir(path);
-
-            log.info("Validating deposit on path {}", path);
-            depositValidator.validate(bagDir);
 
             log.info("Reading bag from path {}", bagDir);
             var bag = new BagReader().read(bagDir);
@@ -73,6 +68,7 @@ public class CommonDepositFactory extends AbstractDepositFactory {
 
             return CommonDeposit.builder()
                 .id(path.getFileName().toString())
+                .path(path)
                 .ddm(ddm)
                 .bag(new CommonDepositBag(bag))
                 .filesXml(filesXml)
@@ -87,6 +83,40 @@ public class CommonDepositFactory extends AbstractDepositFactory {
             log.error("Error loading deposit from disk: path={}", path, e);
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void saveDeposit(Deposit deposit) {
+        if (!(deposit instanceof CommonDeposit)) {
+            throw new IllegalArgumentException("Deposit is not a CommonDeposit");
+        }
+
+        var commonDeposit = (CommonDeposit) deposit;
+        var properties = commonDeposit.getProperties();
+
+        try {
+            properties.getBuilder().save();
+        }
+        catch (ConfigurationException e) {
+            log.error("Error saving deposit properties: depositId={}", deposit.getId(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void updateDepositState(Path path, Deposit.State state, String message) {
+        try {
+            var depositProperties = getDepositProperties(path);
+            depositProperties.setProperty("state.label", state.name());
+            depositProperties.setProperty("state.message", message);
+
+            saveDepositProperties(depositProperties);
+        }
+        catch (ConfigurationException e) {
+            log.error("Error updating deposit state: path={}, state={}, message={}", path, state, message, e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     List<DepositFile> getDepositFiles(Path bagDir, Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {

@@ -13,24 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag.converter;
+package nl.knaw.dans.vaultingest.core.validator;
 
-import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.PidMappings;
+import lombok.extern.slf4j.Slf4j;
 
-public class PidMappingConverter {
+import java.nio.file.Path;
 
-    public PidMappings convert(Deposit deposit) {
-        var dataPath = "data/";
-        var mappings = new PidMappings();
-
-        // does not include the "title of the deposit" as a mapping
-        mappings.addMapping(deposit.getId(), dataPath);
-
-        for (var file: deposit.getPayloadFiles()) {
-            mappings.addMapping("file:///" + file.getId(), dataPath + file.getPath().toString());
-        }
-
-        return mappings;
+@Slf4j
+public class VoidDepositValidator implements DepositValidator {
+    @Override
+    public void validate(Path bagDir) throws InvalidDepositException {
+        log.info("Validating deposit on path {}, and it will succeed", bagDir);
     }
 }

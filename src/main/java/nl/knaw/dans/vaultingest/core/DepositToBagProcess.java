@@ -16,36 +16,81 @@
 package nl.knaw.dans.vaultingest.core;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.domain.Outbox;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
+import nl.knaw.dans.vaultingest.core.validator.DepositValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogService;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.UUID;
+import java.io.IOException;
+import java.nio.file.Path;
 
 @Slf4j
 public class DepositToBagProcess {
 
-    // TODO extract to new class
-    private static final String nbnPrefix = "nl:ui:13-";
     private final RdaBagWriter rdaBagWriter;
     private final BagOutputWriterFactory bagOutputWriterFactory;
     private final VaultCatalogService vaultCatalogService;
+    private final DepositManager depositManager;
+    private final DepositValidator depositValidator;
+    private final IdMinter idMinter;
 
-    public DepositToBagProcess(RdaBagWriter rdaBagWriter, BagOutputWriterFactory bagOutputWriterFactory, VaultCatalogService vaultCatalogService) {
+    public DepositToBagProcess(
+        RdaBagWriter rdaBagWriter,
+        BagOutputWriterFactory bagOutputWriterFactory,
+        VaultCatalogService vaultCatalogService,
+        DepositManager depositManager,
+        DepositValidator depositValidator,
+        IdMinter idMinter) {
         this.rdaBagWriter = rdaBagWriter;
         this.bagOutputWriterFactory = bagOutputWriterFactory;
         this.vaultCatalogService = vaultCatalogService;
+        this.depositManager = depositManager;
+        this.depositValidator = depositValidator;
+        this.idMinter = idMinter;
     }
 
-    public void process(Deposit deposit) throws InvalidDepositException {
+    public void process(Path path, Outbox outbox) {
+        try {
+            log.info("Validating deposit on path {}", path);
+            depositValidator.validate(path);
 
-        // TODO
-        // - deposit loading and processing is separated here, but how do we update the deposit if it failed to load?
-        // - think about where the state should be set
-        // - think about how to handle the deposit state in case of failure
+            log.info("Loading deposit on path {}", path);
+            var deposit = depositManager.loadDeposit(path);
+            processDeposit(deposit);
+
+            log.info("Deposit {} processed successfully", deposit.getId());
+            depositManager.saveDeposit(deposit);
+
+            log.info("Moving deposit to outbox");
+            outbox.moveDeposit(deposit);
+        }
+        catch (InvalidDepositException e) {
+            handleFailedDeposit(path, outbox, Deposit.State.REJECTED, e);
+        }
+        catch (Throwable e) {
+            handleFailedDeposit(path, outbox, Deposit.State.FAILED, e);
+        }
+    }
+
+    void handleFailedDeposit(Path path, Outbox outbox, Deposit.State state, Throwable error) {
+        log.error("Deposit on path {} failed with state {}", path, state, error);
+
+        try {
+            depositManager.updateDepositState(path, state, error.getMessage());
+            outbox.move(path, state);
+        }
+        catch (IOException e) {
+            log.error("Failed to move deposit to outbox", e);
+        }
+    }
+
+    void processDeposit(Deposit deposit) throws InvalidDepositException {
+
         if (deposit.isUpdate()) {
             // check if deposit exists in vault catalog
             var catalogDeposit = vaultCatalogService.findDeposit(deposit.getSwordToken())
@@ -62,7 +107,7 @@ public class DepositToBagProcess {
         }
         else {
             // generate nbn for new deposit
-            deposit.setNbn(mintUrnNbn());
+            deposit.setNbn(idMinter.mintUrnNbn());
         }
 
         // send rda bag to vault
@@ -80,11 +125,6 @@ public class DepositToBagProcess {
         }
 
         vaultCatalogService.registerDeposit(deposit);
-
-    }
-
-    String mintUrnNbn() {
-        return String.format("urn:nbn:%s%s", nbnPrefix, UUID.randomUUID());
     }
 
 }

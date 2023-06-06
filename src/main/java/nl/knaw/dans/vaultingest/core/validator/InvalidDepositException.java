@@ -20,4 +20,8 @@ public class InvalidDepositException extends Exception {
     public InvalidDepositException(String msg) {
         super(msg);
     }
+
+    public InvalidDepositException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

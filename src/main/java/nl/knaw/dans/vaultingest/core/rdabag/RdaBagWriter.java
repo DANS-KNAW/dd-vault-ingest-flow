@@ -126,11 +126,15 @@ public class RdaBagWriter {
 
     private void writeTagManifest(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
         // get the metadata, which is everything EXCEPT the data/** and tagmanifest-* files
-        // but the deposit or the rdabag does not know about these files, only this class knows
+        // but the deposit does not know about these files, only this class knows
         for (var algorithm: requiredAlgorithms) {
             var outputString = new StringBuilder();
 
             for (var entry: checksums.entrySet()) {
+                if (entry.getKey().startsWith("data/") || entry.getKey().startsWith("tagmanifest-")) {
+                    continue;
+                }
+
                 var path = entry.getKey();
                 var checksum = entry.getValue().get(algorithm);
 
@@ -140,6 +144,7 @@ public class RdaBagWriter {
             var outputFile = String.format("tagmanifest-%s.txt", algorithm.getName());
             outputWriter.writeBagItem(new ByteArrayInputStream(outputString.toString().getBytes()), Path.of(outputFile));
         }
+
     }
 
     private void writeManifests(Deposit deposit, Path dataPath, BagOutputWriter outputWriter) throws IOException {
