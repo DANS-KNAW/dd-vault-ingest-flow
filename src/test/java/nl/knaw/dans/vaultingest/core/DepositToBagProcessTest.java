@@ -18,6 +18,7 @@ package nl.knaw.dans.vaultingest.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
+import nl.knaw.dans.vaultingest.core.domain.Outbox;
 import nl.knaw.dans.vaultingest.core.domain.ids.DAI;
 import nl.knaw.dans.vaultingest.core.domain.metadata.DatasetAuthor;
 import nl.knaw.dans.vaultingest.core.domain.metadata.Description;
@@ -176,5 +177,41 @@ class DepositToBagProcessTest {
             depositManager, depositValidator, new IdMinter());
 
         assertThrows(InvalidDepositException.class, () -> depositToBagProcess.processDeposit(deposit));
+    }
+
+
+    @Test
+    void process_should_fail_if_no_DOI_is_set() throws Exception {
+        // note this does not have a DOI
+        var deposit = TestDeposit.builder()
+            .id(UUID.randomUUID().toString())
+            .state(Deposit.State.SUBMITTED)
+            .payloadFiles(List.of(
+                TestDepositFile.builder()
+                    .path(Path.of("data/file1.txt"))
+                    .checksums(Map.of())
+                    .id(UUID.randomUUID().toString())
+                    .build()
+            ))
+            .build();
+
+        var rdaBagWriter = new DefaultRdaBagWriterFactory(new ObjectMapper()).createRdaBagWriter();
+        var vaultCatalogService = Mockito.mock(VaultCatalogService.class);
+        var depositManager = Mockito.mock(DepositManager.class);
+        Mockito.doReturn(deposit).when(depositManager).loadDeposit(Mockito.any());
+
+        var depositValidator = Mockito.mock(DepositValidator.class);
+
+        var depositToBagProcess = new DepositToBagProcess(
+            () -> rdaBagWriter,
+            d -> new NullBagOutputWriter(),
+            vaultCatalogService,
+            depositManager, depositValidator, new IdMinter());
+
+        var outbox = Mockito.mock(Outbox.class);
+
+        depositToBagProcess.process(Path.of("path"), outbox);
+
+        Mockito.verify(outbox).move(Mockito.any(), Mockito.eq(Deposit.State.REJECTED));
     }
 }
