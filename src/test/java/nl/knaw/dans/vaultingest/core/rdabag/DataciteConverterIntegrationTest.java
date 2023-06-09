@@ -36,7 +36,7 @@ class DataciteConverterIntegrationTest {
 
         assertThat(XPathEvaluator.strings(doc, "//datacite:identifier")
             .collect(Collectors.toList()))
-            .containsOnly("10.5072/DAR/A7AXZP");
+            .containsOnly("10.17026/dans-z6y-5y2e");
     }
 
     @Test

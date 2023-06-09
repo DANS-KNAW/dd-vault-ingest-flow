@@ -402,6 +402,7 @@ public class OaiOreConverterIntegrationTest {
         var depositManager = new SimpleCommonDepositManager();
         var deposit = depositManager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"));
 
+        deposit.setNbn("urn:nbn:nl:ui:13-4c-1a2b");
         var model = new OaiOreConverter().convert(deposit).getModel();
 
         return ModelObject.builder()

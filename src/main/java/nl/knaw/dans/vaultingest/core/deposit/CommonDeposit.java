@@ -21,6 +21,8 @@ import nl.knaw.dans.vaultingest.core.deposit.mapping.*;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
 import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.metadata.*;
+import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
+import nl.knaw.dans.vaultingest.core.xml.XmlNamespaces;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @SuperBuilder
 @ToString
@@ -52,7 +55,13 @@ class CommonDeposit implements Deposit {
 
     @Override
     public String getDoi() {
-        return this.properties.getIdentifierDoi();
+        var prefix = ddm.lookupPrefix(XmlNamespaces.NAMESPACE_ID_TYPE);
+        var expr = String.format("/ddm:DDM/ddm:dcmiMetadata/dcterms:identifier[@xsi:type='%s:DOI']", prefix);
+        List<String> dois = XPathEvaluator.strings(ddm, expr).collect(Collectors.toList());
+        if (dois.size() != 1) {
+            throw new IllegalStateException("There should be exactly one DOI in the DDM, but found " + dois.size() + " DOIs");
+        }
+        return dois.get(0);
     }
 
     @Override
@@ -198,7 +207,7 @@ class CommonDeposit implements Deposit {
     @Override
     public DatasetContact getContact() {
         return datasetContactResolver.resolve(
-            this.properties.getDepositorId()
+                this.properties.getDepositorId()
         );
     }
 

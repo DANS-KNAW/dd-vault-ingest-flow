@@ -319,5 +319,6 @@
         <!-- TRM005 and TRM006 -->
         <dcterms:accessRights>Restricted files accessible under the following conditions: ...</dcterms:accessRights>
 
+        <dcterms:identifier xsi:type="id-type:DOI">10.17026/dans-z6y-5y2e</dcterms:identifier>
     </ddm:dcmiMetadata>
 </ddm:DDM>
