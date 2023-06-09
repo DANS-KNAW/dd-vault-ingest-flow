@@ -69,8 +69,7 @@ class CommonDepositManagerIntegrationTest {
                 "data/random images/image01.png",
                 "data/random images/image02.jpeg",
                 "data/random images/image03.jpeg",
-                "data/a/deeper/path/With some file.txt",
-                "original-metadata.zip"
+                "data/a/deeper/path/With some file.txt"
             );
 
         // check that the files are actually readable

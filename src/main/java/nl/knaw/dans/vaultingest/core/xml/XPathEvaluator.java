@@ -99,6 +99,7 @@ public final class XPathEvaluator implements XmlNamespaces {
     }
 
     private static synchronized Object evaluateXpath(Node node, String expr) throws XPathExpressionException {
+//        getXpath().
         return getXpath().compile(expr).evaluate(node, XPathConstants.NODESET);
     }
 

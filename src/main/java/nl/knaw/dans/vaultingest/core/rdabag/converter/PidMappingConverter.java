@@ -25,7 +25,7 @@ public class PidMappingConverter {
         var mappings = new PidMappings();
 
         // does not include the "title of the deposit" as a mapping
-        mappings.addMapping(deposit.getId(), dataPath);
+        mappings.addMapping(deposit.getDoi(), dataPath);
 
         for (var file : deposit.getPayloadFiles()) {
             var path = file.getPath().toString();

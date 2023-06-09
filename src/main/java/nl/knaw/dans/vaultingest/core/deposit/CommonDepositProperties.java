@@ -24,7 +24,6 @@ class CommonDepositProperties {
     private final String STATE_LABEL = "state.label";
     private final String STATE_DESCRIPTION = "state.description";
     private final String IDENTIFIER_DOI = "identifier.doi";
-    private final String IDENTIFIER_URN = "identifier.urn";
     private final String DEPOSITOR_ID = "depositor.userId";
     private final Configuration configuration;
     private final FileBasedConfigurationBuilder<FileBasedConfiguration> builder;
@@ -32,18 +31,6 @@ class CommonDepositProperties {
     public CommonDepositProperties(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
         this.configuration = builder.getConfiguration();
         this.builder = builder;
-    }
-
-    public <T> T getProperty(Class<T> cls, String name) {
-        return configuration.get(cls, name);
-    }
-
-    public void setProperty(String name, Object value) {
-        configuration.setProperty(name, value);
-    }
-
-    public FileBasedConfigurationBuilder<FileBasedConfiguration> getBuilder() {
-        return builder;
     }
 
     public String getStateLabel() {
@@ -68,14 +55,6 @@ class CommonDepositProperties {
 
     public void setIdentifierDoi(String identifierDoi) {
         configuration.setProperty(IDENTIFIER_DOI, identifierDoi);
-    }
-
-    public String getIdentifierUrn() {
-        return configuration.getString(IDENTIFIER_URN);
-    }
-
-    public void setIdentifierUrn(String identifierUrn) {
-        configuration.setProperty(IDENTIFIER_URN, identifierUrn);
     }
 
     public String getDepositorId() {

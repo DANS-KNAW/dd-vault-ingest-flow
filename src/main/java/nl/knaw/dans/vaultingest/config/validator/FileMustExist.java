@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.config;
+package nl.knaw.dans.vaultingest.config.validator;
 
-import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.validator.FileMustExist;
+import javax.validation.Constraint;
+import javax.validation.Payload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import javax.validation.constraints.NotNull;
-import java.nio.file.Path;
+@Target({ElementType.FIELD})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = FileMustExistValidator.class)
+public @interface FileMustExist {
 
-@Getter
-public class LanguageConfig {
-    @NotNull
-    @FileMustExist
-    private Path iso6391;
+    String message() default "File '{path}' does not exist but is required";
 
-    @NotNull
-    @FileMustExist
-    private Path iso6392;
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

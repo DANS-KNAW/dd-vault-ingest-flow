@@ -15,22 +15,14 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.reader.BagReader;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.domain.Deposit;
-import nl.knaw.dans.vaultingest.core.domain.DepositFile;
-import nl.knaw.dans.vaultingest.core.domain.OriginalFilepaths;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
-import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.apache.commons.configuration2.ex.ConfigurationException;
-import org.w3c.dom.Document;
 
 import java.nio.file.Path;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class CommonDepositManager extends AbstractDepositManager {
@@ -95,7 +87,7 @@ public class CommonDepositManager extends AbstractDepositManager {
         var properties = commonDeposit.getProperties();
 
         try {
-            saveDepositProperties(properties);
+            properties.save();
         }
         catch (ConfigurationException e) {
             log.error("Error saving deposit properties: depositId={}", deposit.getId(), e);
@@ -107,10 +99,10 @@ public class CommonDepositManager extends AbstractDepositManager {
     public void updateDepositState(Path path, Deposit.State state, String message) {
         try {
             var depositProperties = getDepositProperties(path);
-            depositProperties.setProperty("state.label", state.name());
-            depositProperties.setProperty("state.description", message);
+            depositProperties.setStateLabel(state.name());
+            depositProperties.setStateDescription(message);
 
-            saveDepositProperties(depositProperties);
+            depositProperties.save();
         }
         catch (ConfigurationException e) {
             log.error("Error updating deposit state: path={}, state={}, message={}", path, state, message, e);

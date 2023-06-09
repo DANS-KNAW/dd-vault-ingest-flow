@@ -19,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -29,13 +30,14 @@ public class CsvLanguageResolver implements LanguageResolver {
     private final Map<String, String> iso6391;
     private final Map<String, String> iso6392;
 
-    public CsvLanguageResolver(Path iso6391, Path iso6392) {
+    public CsvLanguageResolver(Path iso6391, Path iso6392) throws IOException {
         this.iso6391 = readLanguageCsv(iso6391, "ISO639-1");
         this.iso6392 = readLanguageCsv(iso6392, "ISO639-2");
     }
 
     @Override
     public String resolve(String language) {
+        // TODO what should it do in case of null input and output?
         if (language == null) {
             return null;
         }
@@ -50,12 +52,12 @@ public class CsvLanguageResolver implements LanguageResolver {
         return null;
     }
 
-    private Map<String, String> readLanguageCsv(Path path, String keyColumn) {
+    private Map<String, String> readLanguageCsv(Path path, String keyColumn) throws IOException {
         try {
             try (var parser = CSVParser.parse(path, StandardCharsets.UTF_8, CSVFormat.RFC4180.withFirstRecordAsHeader())) {
                 var result = new HashMap<String, String>();
 
-                for (var record: parser) {
+                for (var record : parser) {
                     result.put(record.get(keyColumn), record.get("Dataverse-language"));
                 }
 
@@ -63,8 +65,8 @@ public class CsvLanguageResolver implements LanguageResolver {
             }
         }
         catch (Exception e) {
-            log.error("Could not load csv", e);
-            return Map.of();
+            log.error("Unable to load csv file from path {}", path);
+            throw new IOException("Unable to load csv file from path " + path, e);
         }
     }
 }

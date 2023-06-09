@@ -63,7 +63,6 @@ public class DepositToBagProcess {
 
             log.info("Loading deposit on path {}", path);
             var deposit = depositManager.loadDeposit(path);
-            validateDeposit(deposit);
             processDeposit(deposit);
 
             log.info("Deposit {} processed successfully", deposit.getId());
@@ -77,14 +76,6 @@ public class DepositToBagProcess {
         }
         catch (Throwable e) {
             handleFailedDeposit(path, outbox, Deposit.State.FAILED, e);
-        }
-    }
-
-    // TODO move this to the DepositValidator
-    private void validateDeposit(Deposit deposit) throws InvalidDepositException {
-        // basic assertions
-        if (StringUtils.isBlank(deposit.getDoi())) {
-            throw new InvalidDepositException("DOI is missing");
         }
     }
 

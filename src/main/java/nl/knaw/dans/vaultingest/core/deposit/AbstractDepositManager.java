@@ -73,11 +73,6 @@ public abstract class AbstractDepositManager implements DepositManager {
         return new CommonDepositProperties(builder);
     }
 
-    public void saveDepositProperties(CommonDepositProperties properties) throws ConfigurationException {
-        var builder = properties.getBuilder();
-        builder.save();
-    }
-
     protected OriginalFilepaths getOriginalFilepaths(Path bagDir) throws IOException {
         var originalFilepathsFile = bagDir.resolve("original-filepaths.txt");
         var result = new OriginalFilepaths();
@@ -122,7 +117,7 @@ public abstract class AbstractDepositManager implements DepositManager {
     protected List<DepositFile> getDepositFiles(Path bagDir, Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
         var manifests = getPrecomputedChecksums(bagDir, bag);
 
-        var files = XPathEvaluator.nodes(filesXml, "/files:files/files:file")
+        return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
             .map(node -> {
                 var filePath = node.getAttributes().getNamedItem("filepath").getTextContent();
                 var physicalPath = bagDir.resolve(originalFilepaths.getPhysicalPath(Path.of(filePath)));
@@ -138,14 +133,6 @@ public abstract class AbstractDepositManager implements DepositManager {
             })
             .map(m -> (DepositFile) m)
             .collect(Collectors.toList());
-
-        files.add(OriginalMetadataDepositFile.builder()
-            .id(UUID.randomUUID().toString())
-            .bagDir(bagDir)
-            .build()
-        );
-
-        return files;
     }
 
 }

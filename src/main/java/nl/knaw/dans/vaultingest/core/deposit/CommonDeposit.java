@@ -23,6 +23,7 @@ import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.metadata.*;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlNamespaces;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 import java.io.IOException;
@@ -47,6 +48,7 @@ class CommonDeposit implements Deposit {
     private final LanguageResolver languageResolver;
     private final List<DepositFile> depositFiles;
     private final Path path;
+    private String nbn;
 
     @Override
     public String getId() {
@@ -57,21 +59,29 @@ class CommonDeposit implements Deposit {
     public String getDoi() {
         var prefix = ddm.lookupPrefix(XmlNamespaces.NAMESPACE_ID_TYPE);
         var expr = String.format("/ddm:DDM/ddm:dcmiMetadata/dcterms:identifier[@xsi:type='%s:DOI']", prefix);
-        List<String> dois = XPathEvaluator.strings(ddm, expr).collect(Collectors.toList());
+        var dois = XPathEvaluator.strings(ddm, expr).collect(Collectors.toList());
+
         if (dois.size() != 1) {
             throw new IllegalStateException("There should be exactly one DOI in the DDM, but found " + dois.size() + " DOIs");
         }
-        return dois.get(0);
+
+        var doi = dois.get(0);
+
+        if (StringUtils.isBlank(doi)) {
+            throw new IllegalStateException("DOI is blank in the DDM");
+        }
+
+        return doi;
     }
 
     @Override
     public String getNbn() {
-        return this.properties.getIdentifierUrn();
+        return this.nbn;
     }
 
     @Override
     public void setNbn(String nbn) {
-        this.properties.setIdentifierUrn(nbn);
+        this.nbn = nbn;
     }
 
     @Override
@@ -207,7 +217,7 @@ class CommonDeposit implements Deposit {
     @Override
     public DatasetContact getContact() {
         return datasetContactResolver.resolve(
-                this.properties.getDepositorId()
+            this.properties.getDepositorId()
         );
     }
 
