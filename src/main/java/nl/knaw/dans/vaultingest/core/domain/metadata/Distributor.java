@@ -15,7 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core.domain.metadata;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Value;
 
 @Value
 @Builder

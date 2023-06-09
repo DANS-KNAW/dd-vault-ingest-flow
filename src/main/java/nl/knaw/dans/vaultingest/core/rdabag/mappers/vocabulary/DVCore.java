@@ -23,15 +23,10 @@ import org.apache.jena.rdf.model.Resource;
 public class DVCore {
     public static final String NS = "https://dataverse.org/schema/core#";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property fileTermsOfAccess = m.createProperty(NS, "fileTermsOfAccess");
     public static final Property fileRequestAccess = m.createProperty(NS, "fileRequestAccess");
     public static final Property termsOfAccess = m.createProperty(NS, "termsOfAccess");
     public static final Property restricted = m.createProperty(NS, "restricted");
     public static final Property checksum = m.createProperty(NS, "checksum");
     public static final Property directoryLabel = m.createProperty(NS, "directoryLabel");
-
-    public static String getURI() {
-        return NS;
-    }
 }

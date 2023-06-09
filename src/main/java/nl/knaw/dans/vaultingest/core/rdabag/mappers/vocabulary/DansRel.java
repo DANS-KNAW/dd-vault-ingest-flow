@@ -23,15 +23,10 @@ import org.apache.jena.rdf.model.Resource;
 public class DansRel {
     public static final String NS = "https://dar.dans.knaw.nl/schema/2023.04/dansRelationMetadata#";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property dansAudience = m.createProperty(NS, "dansAudience");
     public static final Property dansCollection = m.createProperty(NS, "dansCollection");
     public static final Property dansRelation = m.createProperty(NS, "dansRelation");
     public static final Property dansRelationType = m.createProperty(NS, "dansRelationType");
     public static final Property dansRelationURI = m.createProperty(NS, "dansRelationURI");
     public static final Property dansRelationText = m.createProperty(NS, "dansRelationText");
-
-    public static String getURI() {
-        return NS;
-    }
 }

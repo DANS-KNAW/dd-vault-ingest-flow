@@ -65,12 +65,12 @@ class CommonDepositTest {
         var deposit = this.loadDeposit();
 
         assertThat(deposit.getOtherIds())
-            .extracting("fullName")
+            .extracting("value")
             .containsOnly(
                 "DCTERMS_ID001",
                 "DCTERMS_ID002",
                 "DCTERMS_ID003",
-                "DANS:12345"
+                "12345"
             );
     }
 

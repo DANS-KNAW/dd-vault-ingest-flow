@@ -21,7 +21,6 @@ import nl.knaw.dans.vaultingest.core.domain.DepositFile;
 import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Map;
@@ -38,11 +37,6 @@ public class TestDepositFile implements DepositFile {
     @Override
     public Path getDirectoryLabel() {
         return path.getParent();
-    }
-
-    @Override
-    public Path getFilename() {
-        return path.getFileName();
     }
 
     @Override

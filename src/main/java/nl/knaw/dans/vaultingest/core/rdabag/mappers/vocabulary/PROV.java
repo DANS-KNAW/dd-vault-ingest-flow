@@ -23,9 +23,5 @@ import org.apache.jena.rdf.model.Resource;
 public class PROV {
     public static final String NS = "https://www.w3.org/prov-o/#";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property wasDerivedFrom = m.createProperty(NS, "wasDerivedFrom");
-    public static String getURI() {
-        return NS;
-    }
 }

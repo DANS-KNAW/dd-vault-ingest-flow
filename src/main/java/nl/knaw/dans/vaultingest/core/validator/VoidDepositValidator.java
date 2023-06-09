@@ -22,7 +22,7 @@ import java.nio.file.Path;
 @Slf4j
 public class VoidDepositValidator implements DepositValidator {
     @Override
-    public void validate(Path depositDir) throws InvalidDepositException {
+    public void validate(Path depositDir) {
         log.info("Validating bag on path {}, and it will succeed", depositDir);
     }
 }

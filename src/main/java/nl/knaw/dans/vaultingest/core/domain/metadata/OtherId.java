@@ -23,11 +23,4 @@ import lombok.Value;
 public class OtherId {
     String agency;
     String value;
-
-    public String getFullName() {
-        if (agency == null) {
-            return value;
-        }
-        return agency + ":" + value;
-    }
 }

@@ -23,7 +23,6 @@ import org.apache.jena.rdf.model.Resource;
 public class DVCitation {
     public static final String NS = "https://dataverse.org/schema/citation/";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property author = m.createProperty(NS, "author");
     public static final Property authorName = m.createProperty(NS, "authorName");
     public static final Property authorAffiliation = m.createProperty(NS, "authorAffiliation");
@@ -57,8 +56,4 @@ public class DVCitation {
     public static final Property series = m.createProperty(NS, "series");
     public static final Property seriesName = m.createProperty(NS, "seriesName");
     public static final Property seriesInformation = m.createProperty(NS, "seriesInformation");
-
-    public static String getURI() {
-        return NS;
-    }
 }

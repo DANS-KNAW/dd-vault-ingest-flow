@@ -28,8 +28,6 @@ public interface DepositFile {
 
     Path getDirectoryLabel();
 
-    Path getFilename();
-
     Path getPath();
 
     String getDescription();

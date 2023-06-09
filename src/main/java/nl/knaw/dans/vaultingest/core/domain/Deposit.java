@@ -39,8 +39,6 @@ public interface Deposit {
 
     String getDepositorId();
 
-    State getState();
-
     void setState(State state, String message);
 
     Collection<String> getAlternativeTitles();

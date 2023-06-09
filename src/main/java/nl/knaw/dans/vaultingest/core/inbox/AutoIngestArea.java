@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.domain.Outbox;
 
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
@@ -41,13 +40,11 @@ public class AutoIngestArea {
         this.outbox = outbox;
     }
 
-    public void start() throws IOException {
+    public void start() {
         ingestAreaDirectoryWatcher.start((path) -> {
             log.info("New item in inbox; path = {}", path);
 
-            executorService.submit(() -> {
-                depositToBagProcess.process(path, outbox);
-            });
+            executorService.submit(() -> depositToBagProcess.process(path, outbox));
         });
     }
 

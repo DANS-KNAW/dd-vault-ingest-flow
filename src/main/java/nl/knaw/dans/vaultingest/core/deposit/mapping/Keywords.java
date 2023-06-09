@@ -20,9 +20,7 @@ import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.w3c.dom.Document;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Keywords {

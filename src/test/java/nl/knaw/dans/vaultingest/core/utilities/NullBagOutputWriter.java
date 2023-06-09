@@ -37,7 +37,7 @@ public class NullBagOutputWriter implements BagOutputWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // noop
     }
 }

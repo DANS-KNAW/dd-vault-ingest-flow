@@ -101,17 +101,6 @@ public class RdaBagWriter {
         writeTagManifest(deposit, outputWriter);
     }
 
-    Map<DepositFile, Path> buildPayloadFileMap(Deposit deposit) {
-        var result = new HashMap<DepositFile, Path>();
-
-        for (var file : deposit.getPayloadFiles()) {
-            log.trace("Deposit file with name {} will be written to {}", file.getPath());
-            result.put(file, file.getPath());
-        }
-
-        return result;
-    }
-
     private void writePayloadFiles(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
         for (var file : deposit.getPayloadFiles()) {
             var targetPath = file.getPath();

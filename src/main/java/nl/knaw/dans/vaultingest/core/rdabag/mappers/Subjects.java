@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag.mappers;
 
-import nl.knaw.dans.vaultingest.core.rdabag.mappers.vocabulary.DansRel;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.vocabulary.DCTerms;

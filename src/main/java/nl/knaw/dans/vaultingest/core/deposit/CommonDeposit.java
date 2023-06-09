@@ -106,7 +106,6 @@ class CommonDeposit implements Deposit {
         return this.properties.getDepositorId();
     }
 
-    @Override
     public State getState() {
         var label = this.properties.getStateLabel();
         return label != null ? State.valueOf(label) : null;

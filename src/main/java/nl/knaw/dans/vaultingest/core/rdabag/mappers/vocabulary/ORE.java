@@ -23,14 +23,9 @@ import org.apache.jena.rdf.model.Resource;
 public class ORE {
     public static final String NS = "http://www.openarchives.org/ore/terms/";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property describes = m.createProperty(NS, "describes");
     public static final Resource AggregatedResource = m.createProperty(NS, "AggregatedResource");
     public static final Resource Aggregation = m.createProperty(NS, "Aggregation");
     public static final Resource ResourceMap = m.createProperty(NS, "ResourceMap");
     public static final Property aggregates = m.createProperty(NS, "aggregates");
-
-    public static String getURI() {
-        return NS;
-    }
 }

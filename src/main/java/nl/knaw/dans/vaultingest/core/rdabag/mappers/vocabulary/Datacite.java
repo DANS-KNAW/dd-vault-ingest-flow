@@ -23,14 +23,10 @@ import org.apache.jena.rdf.model.Resource;
 public class Datacite {
     public static final String NS = "http://purl.org/spar/datacite/";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property agentIdentifier = m.createProperty(NS, "AgentIdentifier");
     public static final Property agentIdentifierScheme = m.createProperty(NS, "AgentIdentifierScheme");
 
     public static final Property resourceIdentifier = m.createProperty(NS, "ResourceIdentifier");
     public static final Property resourceIdentifierScheme = m.createProperty(NS, "ResourceIdentifierScheme");
 
-    public static String getURI() {
-        return NS;
-    }
 }

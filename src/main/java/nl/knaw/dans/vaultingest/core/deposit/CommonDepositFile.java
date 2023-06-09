@@ -24,10 +24,10 @@ import nl.knaw.dans.vaultingest.core.domain.ManifestAlgorithm;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.w3c.dom.Node;
 
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -94,7 +94,6 @@ class CommonDepositFile implements DepositFile {
         return null;
     }
 
-    @Override
     public Path getFilename() {
         var filename = getFilePath().getFileName().toString();
         var sanitized = filenameForbidden.matcher(filename).replaceAll("_");

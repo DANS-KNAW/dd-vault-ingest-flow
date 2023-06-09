@@ -40,7 +40,7 @@ class OaiOreConverterTest {
 
     @Test
         // TODO this was just for checking output, see if it can be reused
-    void convert() throws Exception {
+    void convert() {
         var deposit = TestDeposit.builder()
             .id(UUID.randomUUID().toString())
             .doi("doi:10.17026/dans-12345")

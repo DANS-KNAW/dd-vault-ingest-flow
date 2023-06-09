@@ -52,8 +52,6 @@ public class MigrationIngestArea {
 
         log.info("Deposit found in inbox; path = {}", depositPath);
 
-        executorService.execute(() -> {
-            depositToBagProcess.process(depositPath, outbox);
-        });
+        executorService.execute(() -> depositToBagProcess.process(depositPath, outbox));
     }
 }

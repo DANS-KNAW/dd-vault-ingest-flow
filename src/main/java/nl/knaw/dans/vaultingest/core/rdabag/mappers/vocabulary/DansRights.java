@@ -23,11 +23,7 @@ import org.apache.jena.rdf.model.Resource;
 public class DansRights {
     public static final String NS = "https://dar.dans.knaw.nl/schema/2023.04/dansRights#";
     private static final Model m = ModelFactory.createDefaultModel();
-    public static final Resource NAMESPACE = m.createResource(NS);
     public static final Property dansRightsHolder = m.createProperty(NS, "dansRightsHolder");
     public static final Property dansPersonalDataPresent = m.createProperty(NS, "dansPersonalDataPresent");
     public static final Property dansMetadataLanguage = m.createProperty(NS, "dansMetadataLanguage");
-    public static String getURI() {
-        return NS;
-    }
 }

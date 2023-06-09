@@ -17,7 +17,6 @@ package nl.knaw.dans.vaultingest.core.utilities;
 
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriter;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 
@@ -43,7 +42,7 @@ public class StdoutBagOutputWriter implements BagOutputWriter {
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         // noop
     }
 }

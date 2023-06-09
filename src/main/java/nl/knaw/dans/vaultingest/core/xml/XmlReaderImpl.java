@@ -37,7 +37,6 @@ public class XmlReaderImpl implements XmlReader {
             .parse(path.toFile());
     }
 
-    @Override
     public Document readXmlString(String str) throws ParserConfigurationException, IOException, SAXException {
         var factory = getFactory();
 

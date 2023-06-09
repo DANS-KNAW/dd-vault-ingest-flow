@@ -145,7 +145,7 @@ class DepositToBagProcessTest {
     }
 
     @Test
-    void process_should_fail_if_update_cannot_be_found() throws Exception {
+    void process_should_fail_if_update_cannot_be_found() {
         var deposit = TestDeposit.builder()
             .id(UUID.randomUUID().toString())
             .update(true)
