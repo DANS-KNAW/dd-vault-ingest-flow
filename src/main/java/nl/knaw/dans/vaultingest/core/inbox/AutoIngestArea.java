@@ -24,27 +24,29 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 public class AutoIngestArea {
     private final ExecutorService executorService;
-    private final IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher;
+    private final IngestAreaWatcher ingestAreaWatcher;
     private final DepositToBagProcess depositToBagProcess;
     private final Outbox outbox;
 
     public AutoIngestArea(
         ExecutorService executorService,
-        IngestAreaDirectoryWatcher ingestAreaDirectoryWatcher,
+        IngestAreaWatcher ingestAreaWatcher,
         DepositToBagProcess depositToBagProcess,
         Outbox outbox
     ) {
         this.executorService = executorService;
-        this.ingestAreaDirectoryWatcher = ingestAreaDirectoryWatcher;
+        this.ingestAreaWatcher = ingestAreaWatcher;
         this.depositToBagProcess = depositToBagProcess;
         this.outbox = outbox;
     }
 
     public void start() {
-        ingestAreaDirectoryWatcher.start((path) -> {
+        ingestAreaWatcher.start((path) -> {
             log.info("New item in inbox; path = {}", path);
 
-            executorService.submit(() -> depositToBagProcess.process(path, outbox));
+            executorService.submit(() -> {
+                depositToBagProcess.process(path, outbox);
+            });
         });
     }
 

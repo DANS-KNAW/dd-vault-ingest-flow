@@ -27,7 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
-public class IngestAreaDirectoryWatcher {
+public class IngestAreaDirectoryWatcher implements IngestAreaWatcher {
     private final long pollingInterval;
     private final Path directory;
 
@@ -36,11 +36,12 @@ public class IngestAreaDirectoryWatcher {
         this.directory = directory;
     }
 
-    void start(IngestAreaItemCreated callback) {
+    @Override
+    public void start(IngestAreaItemCreated callback) {
         log.debug("Starting listener; path = {}", directory);
         var filter = FileFilterUtils.and(
-                FileFilterUtils.directoryFileFilter(),
-                FileFilterUtils.asFileFilter(f -> f.getParentFile().equals(directory.toFile()))
+            FileFilterUtils.directoryFileFilter(),
+            FileFilterUtils.asFileFilter(f -> f.getParentFile().equals(directory.toFile()))
         );
 
         var observer = new FileAlterationObserver(directory.toFile(), filter);

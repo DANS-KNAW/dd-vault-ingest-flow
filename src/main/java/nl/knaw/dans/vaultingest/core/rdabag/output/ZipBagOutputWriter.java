@@ -34,6 +34,7 @@ public class ZipBagOutputWriter implements BagOutputWriter {
 
     public ZipBagOutputWriter(Path output) throws IOException {
         this.workingPath = output.getParent().resolve(output.getFileName().toString() + ".tmp");
+        // TODO should we really delete working files if they exist?
         removeFileIfExists(workingPath);
         // ZipOutputStream closes the underlying stream when closing, so does the BufferedOutputStream
         // so no need to individually close the streams
@@ -53,6 +54,7 @@ public class ZipBagOutputWriter implements BagOutputWriter {
     public void close() throws IOException {
         outputStream.close();
 
+        // TODO should we really the resulting zip if it exists?
         removeFileIfExists(outputPath);
 
         log.debug("Moving file {} to {}", workingPath, outputPath);

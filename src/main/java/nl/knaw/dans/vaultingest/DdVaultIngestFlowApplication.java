@@ -40,6 +40,7 @@ import nl.knaw.dans.vaultingest.health.DansBagValidatorHealthCheck;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Optional;
 
 @Slf4j
@@ -61,6 +62,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
 
     @Override
     public void run(final DdVaultIngestFlowConfiguration configuration, final Environment environment) throws IOException {
+        createDirectories(configuration);
 
         var dansBagValidatorClient = new JerseyClientBuilder(environment)
             .withProvider(MultiPartFeature.class)
@@ -126,5 +128,13 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
                 dansBagValidatorClient, configuration.getValidateDansBag().getPingUrl()
             )
         );
+    }
+
+    void createDirectories(DdVaultIngestFlowConfiguration config) throws IOException {
+        Files.createDirectories(config.getIngestFlow().getAutoIngest().getInbox());
+        Files.createDirectories(config.getIngestFlow().getAutoIngest().getOutbox());
+        Files.createDirectories(config.getIngestFlow().getMigration().getInbox());
+        Files.createDirectories(config.getIngestFlow().getMigration().getOutbox());
+        Files.createDirectories(config.getIngestFlow().getRdaBagOutputDir());
     }
 }
