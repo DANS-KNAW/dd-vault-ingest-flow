@@ -16,15 +16,11 @@
 package nl.knaw.dans.vaultingest.core.vaultcatalog;
 
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.Value;
 
-@Getter
+@Value
 @Builder
-@ToString
-@EqualsAndHashCode
 public class VaultCatalogDeposit {
-    private String dataSupplier;
-    private String nbn;
+    String dataSupplier;
+    String nbn;
 }
