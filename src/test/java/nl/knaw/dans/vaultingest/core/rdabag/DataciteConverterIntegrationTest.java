@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag;
 
+import nl.knaw.dans.vaultingest.core.deposit.CountryResolver;
+import nl.knaw.dans.vaultingest.core.deposit.FileCountryResolver;
 import nl.knaw.dans.vaultingest.core.deposit.SimpleCommonDepositManager;
 import nl.knaw.dans.vaultingest.core.rdabag.converter.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.rdabag.serializer.DataciteSerializer;
@@ -129,7 +131,11 @@ class DataciteConverterIntegrationTest {
 
     // serialize to XML, then convert to Node, so we can use XPath to test the output
     private Document loadResource() throws Exception {
-        var depositManager = new SimpleCommonDepositManager();
+        var countryResolver = new FileCountryResolver(
+            Path.of(getClass().getResource("/debug-etc/spatial-coverage-country-terms.txt").getPath())
+        );
+
+        var depositManager = new SimpleCommonDepositManager(countryResolver);
         var deposit = depositManager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"));
 
         var resource = new DataciteConverter().convert(deposit);
