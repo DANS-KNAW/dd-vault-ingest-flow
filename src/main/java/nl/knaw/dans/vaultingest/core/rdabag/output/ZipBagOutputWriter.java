@@ -54,7 +54,7 @@ public class ZipBagOutputWriter implements BagOutputWriter {
     public void close() throws IOException {
         outputStream.close();
 
-        // TODO should we really the resulting zip if it exists?
+        // TODO should we really remove the existing file if it exists?
         removeFileIfExists(outputPath);
 
         log.debug("Moving file {} to {}", workingPath, outputPath);

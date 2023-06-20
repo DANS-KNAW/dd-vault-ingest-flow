@@ -36,7 +36,7 @@ public class SimpleCommonDepositManager extends CommonDepositManager {
     }
 
     @Override
-    public Deposit loadDeposit(Path inputPath) throws InvalidDepositException {
+    public Deposit loadDeposit(Path inputPath) {
         try {
             var resource = getClass().getResource(inputPath.toString());
             assert resource != null;
@@ -46,7 +46,7 @@ public class SimpleCommonDepositManager extends CommonDepositManager {
             return super.loadDeposit(path);
         }
         catch (Exception e) {
-            throw new InvalidDepositException("Error loading deposit", e);
+            throw new RuntimeException("Error loading deposit", e);
         }
     }
 

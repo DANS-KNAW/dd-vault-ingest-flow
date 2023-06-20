@@ -21,25 +21,17 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.Path;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
 class AutoIngestAreaTest {
 
     @Test
-    void watcher_should_call_callback() throws Exception {
-        final Thread[] thread = {null};
-
-        var executorService = Executors.newSingleThreadExecutor(r -> {
-            thread[0] = new Thread(r);
-            return thread[0];
-        });
-
+    void watcher_should_call_callback() {
         var process = Mockito.mock(DepositToBagProcess.class);
         var outbox = Mockito.mock(Outbox.class);
 
         var area = new AutoIngestArea(
-            executorService,
+            // just run it in the current thread for testing purposes
+            Runnable::run,
             callback -> callback.onItemCreated(Path.of("fake/path")),
             process,
             outbox
@@ -47,21 +39,6 @@ class AutoIngestAreaTest {
 
         area.start();
 
-        // wait for thread to finish
-        while (true) {
-            try {
-                thread[0].join(10);
-                break;
-            }
-            catch (InterruptedException e) {
-                // noop
-            }
-
-            Thread.sleep(10);
-        }
-
         Mockito.verify(process).process(Path.of("fake/path"), outbox);
-
     }
-
 }

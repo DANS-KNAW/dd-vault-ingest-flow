@@ -36,7 +36,7 @@ public class CommonDepositManager extends AbstractDepositManager {
     }
 
     @Override
-    public Deposit loadDeposit(Path path) throws InvalidDepositException {
+    public Deposit loadDeposit(Path path) {
         try {
             var bagDir = getBagDir(path);
 

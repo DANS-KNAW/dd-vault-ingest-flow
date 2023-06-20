@@ -26,6 +26,10 @@ public class Title {
 
     // CIT001
     public static List<Statement> toTitle(Resource resource, String title) {
+        if (title == null) {
+            return List.of();
+        }
+
         var model = resource.getModel();
         var literal = model.createLiteral(title);
 

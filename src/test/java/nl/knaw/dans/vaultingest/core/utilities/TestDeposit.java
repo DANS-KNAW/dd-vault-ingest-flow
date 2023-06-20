@@ -107,8 +107,6 @@ public class TestDeposit implements Deposit {
     @Override
     public Collection<Path> getMetadataFiles() {
         return List.of(
-            Path.of("bag-info.txt"),
-            Path.of("bagit.txt"),
             Path.of("metadata/files.xml"),
             Path.of("metadata/dataset.xml")
         );
