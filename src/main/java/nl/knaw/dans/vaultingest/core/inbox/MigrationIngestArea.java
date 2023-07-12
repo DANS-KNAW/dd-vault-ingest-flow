@@ -19,8 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Slf4j
 public class MigrationIngestArea {
@@ -41,17 +46,89 @@ public class MigrationIngestArea {
         this.outbox = outbox;
     }
 
-    public void ingest(Path depositPath) {
-        var path = depositPath.toAbsolutePath();
+    // TODO add continuePrevious to do partial batches
+    public void ingest(Path inputPath, boolean isBatch, boolean continuePrevious) {
+        var path = getAbsolutePath(inputPath);
 
-        // FIXME the current ingestflow has support for batches too, this is not currently implemented
         if (!path.startsWith(inboxPath)) {
             throw new IllegalArgumentException(
                 String.format("Input directory must be subdirectory of %s. Provide correct absolute path or a path relative to this directory.", inboxPath));
         }
 
-        log.info("Deposit found in inbox; path = {}", depositPath);
+        if (isBatch) {
+            log.info("Deposits found in inbox; path = {}", inputPath);
+            validateBatchDirectory(path);
+        }
+        else {
+            log.info("Deposit found in inbox; path = {}", inputPath);
+            validateDepositDirectory(path);
+        }
 
-        executorService.execute(() -> depositToBagProcess.process(depositPath, outbox));
+        try {
+            var input = getDeposits(isBatch, path);
+            var output = getOutboxPath(isBatch, path);
+
+            for (var in : input) {
+                executorService.execute(() -> depositToBagProcess.process(in, output));
+            }
+        }
+        catch (IOException e) {
+            log.error("Error while processing deposit", e);
+        }
+    }
+
+    Path getAbsolutePath(Path input) {
+        if (input.isAbsolute()) {
+            return input;
+        }
+
+        return inboxPath.resolve(input);
+    }
+
+    List<Path> getDeposits(boolean isBatch, Path path) {
+        if (!isBatch) {
+            return List.of(path);
+        }
+
+        try (var subPaths = Files.list(path).filter(Files::isDirectory)) {
+            return subPaths.collect(Collectors.toList());
+        }
+        catch (IOException e) {
+            throw new IllegalArgumentException(String.format("Cannot read %s", path));
+        }
+    }
+
+    Outbox getOutboxPath(boolean isBatch, Path path) throws IOException {
+        if (isBatch) {
+            return outbox.withBatchDirectory(path.getFileName());
+        }
+
+        return outbox;
+    }
+
+    void validateBatchDirectory(Path input) {
+        if (Files.isDirectory(input)) {
+            try (Stream<Path> subPaths = Files.list(input)) {
+                List<Path> paths = subPaths.collect(Collectors.toList());
+                for (Path f : paths) {
+                    validateDepositDirectory(f);
+                }
+            }
+            catch (IOException e) {
+                throw new IllegalArgumentException(String.format("Cannot read %s", input));
+            }
+            catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(String.format("Invalid batch: %s. At least one non-deposit: %s", input, e.getMessage()));
+            }
+        }
+        else {
+            throw new IllegalArgumentException(String.format("File %s is not a directory. Cannot be a batch.", input));
+        }
+    }
+
+    void validateDepositDirectory(Path input) {
+        if (!Files.isRegularFile(input.resolve("deposit.properties"))) {
+            throw new IllegalArgumentException(String.format("Directory %s does not contain file deposit.properties. Not a valid deposit directory", input));
+        }
     }
 }

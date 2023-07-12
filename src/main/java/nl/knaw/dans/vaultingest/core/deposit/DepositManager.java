@@ -68,21 +68,28 @@ public class DepositManager {
             log.info("Generating payload file list on path {}", path);
             var depositFiles = getDepositFiles(bagDir, bag, ddm, filesXml, originalFilePaths);
 
-            return Deposit.builder()
+            var builder = Deposit.builder()
                 .id(path.getFileName().toString())
                 .path(path)
                 .ddm(ddm)
                 .bag(new DepositBag(bag))
                 .filesXml(filesXml)
                 .depositFiles(depositFiles)
-                .properties(depositProperties)
-                .build();
+                .properties(depositProperties);
+
+            builder = customizeDeposit(builder, depositProperties);
+
+            return builder.build();
 
         }
         catch (Exception e) {
             log.error("Error loading deposit from disk: path={}", path, e);
             throw new RuntimeException(e);
         }
+    }
+
+    Deposit.DepositBuilder customizeDeposit(Deposit.DepositBuilder builder, DepositProperties depositProperties) {
+        return builder;
     }
 
     public void saveDeposit(Deposit deposit) {
@@ -194,7 +201,6 @@ public class DepositManager {
                     .checksums(checksums)
                     .build();
             })
-            .map(m -> m)
             .collect(Collectors.toList());
     }
 

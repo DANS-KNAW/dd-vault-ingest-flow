@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
+import lombok.Builder;
 import lombok.ToString;
-import lombok.experimental.SuperBuilder;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlNamespaces;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@SuperBuilder
+@Builder
 @ToString
 public class Deposit {
     private final String id;

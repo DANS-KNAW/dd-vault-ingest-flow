@@ -15,14 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import java.io.IOException;
-import java.nio.file.Path;
+import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 
-public interface Outbox {
+public class MigrationDepositManager extends DepositManager {
+    public MigrationDepositManager(XmlReader xmlReader) {
+        super(xmlReader);
+    }
 
-    void moveDeposit(Deposit deposit) throws IOException;
-
-    void move(Path path, Deposit.State state) throws IOException;
-
-    Outbox withBatchDirectory(Path subPath) throws IOException;
+    @Override
+    Deposit.DepositBuilder customizeDeposit(Deposit.DepositBuilder builder, DepositProperties depositProperties) {
+        return builder.
+            nbn(depositProperties.getDataverseNbn())
+            .migration(true);
+    }
 }

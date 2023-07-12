@@ -36,24 +36,23 @@ public class DepositToBagProcess {
     private final RdaBagWriter rdaBagWriter;
     private final BagOutputWriterFactory bagOutputWriterFactory;
     private final VaultCatalogRepository vaultCatalogService;
-    private final DepositManager depositManager;
     private final DepositValidator depositValidator;
     private final IdMinter idMinter;
+    private final DepositManager depositManager;
 
     public DepositToBagProcess(
         RdaBagWriterFactory rdaBagWriterFactory,
         BagOutputWriterFactory bagOutputWriterFactory,
         VaultCatalogRepository vaultCatalogService,
-        DepositManager depositManager,
         DepositValidator depositValidator,
-        IdMinter idMinter
-    ) {
+        IdMinter idMinter,
+        DepositManager depositManager) {
         this.rdaBagWriter = rdaBagWriterFactory.createRdaBagWriter();
         this.bagOutputWriterFactory = bagOutputWriterFactory;
         this.vaultCatalogService = vaultCatalogService;
-        this.depositManager = depositManager;
         this.depositValidator = depositValidator;
         this.idMinter = idMinter;
+        this.depositManager = depositManager;
     }
 
     public void process(Path path, Outbox outbox) {
@@ -119,13 +118,14 @@ public class DepositToBagProcess {
 
         try {
             depositManager.updateDepositState(path, state, error.getMessage());
+            log.info("Moving deposit to outbox: {}", path);
             outbox.move(path, state);
         }
         catch (Throwable e) {
             log.error("Failed to update deposit state and move deposit to outbox", e);
 
             try {
-                log.info("Just moving deposit to outbox");
+                log.info("Just moving deposit to outbox: {}", path);
                 outbox.move(path, Deposit.State.FAILED);
             }
             catch (IOException ioException) {

@@ -58,9 +58,7 @@ class IngestAreaDirectoryWatcherTest {
     void start_should_throw_IllegalStateException_if_initial_directory_does_not_exist() {
         var watcher = new IngestAreaDirectoryWatcher(10, PATH.resolve("does-not-exist"));
 
-        assertThrows(IllegalStateException.class, () -> {
-            watcher.start(p -> {
-            });
-        });
+        assertThrows(IllegalStateException.class, () -> watcher.start(p -> {
+        }));
     }
 }

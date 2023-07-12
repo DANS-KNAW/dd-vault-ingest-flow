@@ -45,6 +45,11 @@ public class DepositOutbox implements Outbox {
         moveDepositPath(path, state);
     }
 
+    @Override
+    public Outbox withBatchDirectory(Path subPath) throws IOException {
+        return new DepositOutbox(outboxPath.resolve(subPath));
+    }
+
     void moveDepositPath(Path path, Deposit.State state) throws IOException {
         switch (state) {
             case FAILED:

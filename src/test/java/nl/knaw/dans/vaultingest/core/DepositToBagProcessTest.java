@@ -57,10 +57,9 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             value -> output,
             vaultCatalogService,
-            depositManager,
             depositValidator,
-            new IdMinter()
-        );
+            new IdMinter(),
+            depositManager);
 
         var outbox = Mockito.mock(Outbox.class);
 
@@ -87,10 +86,9 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             value -> output,
             vaultCatalogService,
-            depositManager,
             depositValidator,
-            new IdMinter()
-        );
+            new IdMinter(),
+            depositManager);
 
         var outbox = Mockito.mock(Outbox.class);
 
@@ -117,10 +115,9 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             value -> output,
             vaultCatalogService,
-            depositManager,
             depositValidator,
-            new IdMinter()
-        );
+            new IdMinter(),
+            depositManager);
 
         var outbox = Mockito.mock(Outbox.class);
 
@@ -147,10 +144,9 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             value -> output,
             vaultCatalogService,
-            depositManager,
             depositValidator,
-            new IdMinter()
-        );
+            new IdMinter(),
+            depositManager);
 
         var outbox = Mockito.mock(Outbox.class);
 
@@ -171,10 +167,9 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             deposit -> output,
             vaultCatalogService,
-            depositManager,
             depositValidator,
-            new IdMinter()
-        );
+            new IdMinter(),
+            depositManager);
 
         var deposit = getBasicDeposit();
         depositToBagProcess.processDeposit(deposit);
@@ -215,7 +210,7 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             d -> new NullBagOutputWriter(),
             vaultCatalogService,
-            depositManager, depositValidator, new IdMinter());
+            depositValidator, new IdMinter(), depositManager);
 
         depositToBagProcess.processDeposit(deposit);
 
@@ -238,7 +233,7 @@ class DepositToBagProcessTest {
             () -> rdaBagWriter,
             d -> new NullBagOutputWriter(),
             vaultCatalogService,
-            depositManager, depositValidator, new IdMinter());
+            depositValidator, new IdMinter(), depositManager);
 
         assertThrows(InvalidDepositException.class, () -> depositToBagProcess.processDeposit(deposit));
     }

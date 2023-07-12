@@ -32,8 +32,7 @@ public class AutoIngestArea {
         Executor executor,
         IngestAreaWatcher ingestAreaWatcher,
         DepositToBagProcess depositToBagProcess,
-        Outbox outbox
-    ) {
+        Outbox outbox) {
         this.executor = executor;
         this.ingestAreaWatcher = ingestAreaWatcher;
         this.depositToBagProcess = depositToBagProcess;
@@ -44,9 +43,7 @@ public class AutoIngestArea {
         ingestAreaWatcher.start((path) -> {
             log.info("New item in inbox; path = {}", path);
 
-            executor.execute(() -> {
-                depositToBagProcess.process(path, outbox);
-            });
+            executor.execute(() -> depositToBagProcess.process(path, outbox));
         });
     }
 
