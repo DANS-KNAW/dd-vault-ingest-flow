@@ -27,7 +27,7 @@ import nl.knaw.dans.vaultingest.client.BagValidator;
 import nl.knaw.dans.vaultingest.client.MigrationBagValidator;
 import nl.knaw.dans.vaultingest.client.VaultCatalogClient;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
-import nl.knaw.dans.vaultingest.core.IdMinter;
+import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.deposit.DepositOutbox;

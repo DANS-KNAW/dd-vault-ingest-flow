@@ -21,10 +21,13 @@ import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
 import nl.knaw.dans.vaultingest.core.validator.BagValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.glassfish.jersey.media.multipart.MultiPart;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -41,7 +44,7 @@ public abstract class AbstractBagValidator implements BagValidator {
     }
 
     @Override
-    public void validate(Path bagDir) throws InvalidDepositException {
+    public void validate(Path bagDir) throws InvalidDepositException, IOException {
         if (bagDir == null) {
             throw new InvalidDepositException("Bag directory cannot be null");
         }
@@ -55,30 +58,60 @@ public abstract class AbstractBagValidator implements BagValidator {
         try (var multipart = new FormDataMultiPart()
             .field("command", command, MediaType.APPLICATION_JSON_TYPE)) {
 
-            try (var response = httpClient.target(serviceUri)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()))) {
+            var response = validateMultipartObject(multipart);
 
-                log.debug("Validate bag response: {}", response);
-                if (response.getStatus() == 200) {
-                    throw formatValidationError(response.readEntity(ValidateOkDto.class));
-                }
+            if (Boolean.FALSE.equals(response.getIsCompliant())) {
+                throw formatValidationError(response);
             }
         }
         catch (IOException e) {
-            log.error("Unable to create multipart form data object", e);
+            log.error("Unexpected error while communicating with bag validator on url {}", serviceUri, e);
+            throw e;
         }
     }
 
     private InvalidDepositException formatValidationError(ValidateOkDto result) {
+        if (result.getRuleViolations() == null) {
+            return new InvalidDepositException("Bag was not valid according to Profile Version " + result.getProfileVersion() + ", but no violations were reported");
+        }
+
         var violations = result.getRuleViolations().stream()
             .map(r -> String.format("- [%s] %s", r.getRule(), r.getViolation()))
             .collect(Collectors.joining("\n"));
 
         return new InvalidDepositException(String.format(
-            "Bag was not valid according to Profile Version %s. Violations: %s",
+            "Bag was not valid according to Profile Version %s. Violations: \n%s",
             result.getProfileVersion(), violations)
         );
+    }
+
+    ValidateOkDto validateMultipartObject(MultiPart multipart) throws IOException {
+        try (var response = makeRequest(multipart)) {
+            log.debug("Validate bag response: {}", response);
+
+            if (response.getStatus() != 200) {
+                throw new IOException(String.format(
+                    "Unexpected response from bag validator service: %s %s",
+                    response.getStatus(), response.getStatusInfo().getReasonPhrase())
+                );
+            }
+
+            return response.readEntity(ValidateOkDto.class);
+        }
+    }
+
+    Response makeRequest(MultiPart multipart) throws IOException {
+        try {
+            var response = httpClient.target(serviceUri)
+                .request()
+                .post(Entity.entity(multipart, multipart.getMediaType()));
+
+            log.debug("Validate bag response: {}", response);
+            return response;
+        }
+        catch (ProcessingException e) {
+            throw new IOException("Unexpected response from bag validator service", e);
+        }
     }
 
     protected abstract ValidateCommandDto.PackageTypeEnum getPackageType();

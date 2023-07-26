@@ -59,7 +59,7 @@ class RdaBagWriterTest {
     }
 
     @Test
-    void write_should_handle_not_write_md5_if_sha1_is_present() throws Exception {
+    void write_should_not_write_md5_if_sha1_is_present() throws Exception {
         var writer = new RdaBagWriter(
             new DataciteSerializer(),
             new PidMappingSerializer(),

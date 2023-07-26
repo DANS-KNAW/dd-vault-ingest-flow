@@ -53,7 +53,9 @@ public class RdaBagWriter {
     private final OaiOreConverter oaiOreConverter;
 
     private final Map<Path, Map<SupportedAlgorithm, String>> checksums;
+    private final ManifestConverter manifestConverter;
     private Set<SupportedAlgorithm> requiredAlgorithms;
+    private final Path basePath;
 
     RdaBagWriter(
         DataciteSerializer dataciteSerializer,
@@ -69,8 +71,10 @@ public class RdaBagWriter {
         this.dataciteConverter = dataciteConverter;
         this.pidMappingConverter = pidMappingConverter;
         this.oaiOreConverter = oaiOreConverter;
+        this.manifestConverter = new ManifestConverter();
 
         this.checksums = new HashMap<>();
+        this.basePath = Path.of("");
     }
 
     public void write(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
@@ -141,22 +145,23 @@ public class RdaBagWriter {
         var algorithms = getAlgorithms(deposit);
 
         for (var algorithm : algorithms) {
-            var outputString = new StringBuilder();
+            var mappings = new TreeMap<Path, String>();
             var payloadPaths = deposit.getPayloadFiles().stream().map(DepositFile::getPath).collect(Collectors.toSet());
 
-            for (var entry : new TreeMap<>(checksums).entrySet()) {
-                if (payloadPaths.contains(entry.getKey()) || entry.getKey().startsWith("tagmanifest-")) {
+            for (var entry : checksums.entrySet()) {
+               if (payloadPaths.contains(entry.getKey()) || entry.getKey().startsWith("tagmanifest-")) {
                     continue;
                 }
 
                 var path = entry.getKey();
                 var checksum = entry.getValue().get(algorithm);
 
-                outputString.append(String.format("%s  %s\n", checksum, path));
+                mappings.put(path, checksum);
             }
 
+            var outputString = manifestConverter.convert(deposit.getBagDir(), mappings);
             var outputFile = String.format("tagmanifest-%s.txt", algorithm.getBagitName());
-            outputWriter.writeBagItem(new ByteArrayInputStream(outputString.toString().getBytes()), Path.of(outputFile));
+            outputWriter.writeBagItem(new ByteArrayInputStream(outputString.getBytes()), basePath.resolve(outputFile));
         }
 
     }
@@ -175,16 +180,20 @@ public class RdaBagWriter {
         for (var algorithm : algorithms) {
             var outputFile = String.format("manifest-%s.txt", algorithm.getBagitName());
             log.debug("Writing {} ", outputFile);
-            var outputString = new StringBuilder();
 
-            for (var file : deposit.getPayloadFiles()) {
-                var checksum = checksumMap.get(file.getPath()).get(algorithm);
-                outputString.append(String.format("%s  %s\n", checksum, file.getPath()));
+            var checksumsForAlgorithm = new TreeMap<Path, String>();
+
+            for (var entry : checksumMap.entrySet()) {
+                var path = entry.getKey();
+                var checksum = entry.getValue().get(algorithm);
+
+                checksumsForAlgorithm.put(path, checksum);
             }
 
-            var content = outputString.toString();
+            var content = manifestConverter.convert(deposit.getBagDir(), checksumsForAlgorithm);
+
             log.trace("Contents for {}: \n{}", outputFile, content);
-            checksummedWriteToOutput(content, Path.of(outputFile), outputWriter);
+            checksummedWriteToOutput(content, basePath.resolve(outputFile), outputWriter);
         }
     }
 
@@ -192,7 +201,7 @@ public class RdaBagWriter {
         var resource = dataciteConverter.convert(deposit);
         var dataciteXml = dataciteSerializer.serialize(resource);
 
-        checksummedWriteToOutput(dataciteXml, Path.of("metadata/datacite.xml"), outputWriter);
+        checksummedWriteToOutput(dataciteXml, basePath.resolve("metadata/datacite.xml"), outputWriter);
     }
 
     private void writeOaiOre(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
@@ -201,8 +210,8 @@ public class RdaBagWriter {
         var rdf = oaiOreSerializer.serializeAsRdf(oaiOre);
         var jsonld = oaiOreSerializer.serializeAsJsonLd(oaiOre);
 
-        checksummedWriteToOutput(rdf, Path.of("metadata/oai-ore.rdf"), outputWriter);
-        checksummedWriteToOutput(jsonld, Path.of("metadata/oai-ore.jsonld"), outputWriter);
+        checksummedWriteToOutput(rdf, basePath.resolve("metadata/oai-ore.rdf"), outputWriter);
+        checksummedWriteToOutput(jsonld, basePath.resolve("metadata/oai-ore.jsonld"), outputWriter);
     }
 
     private void writeMetadataFile(Deposit deposit, Path metadataFile, BagOutputWriter outputWriter) throws IOException {
@@ -217,13 +226,13 @@ public class RdaBagWriter {
 
         checksummedWriteToOutput(
             pidMappingsSerialized,
-            Path.of("metadata/pid-mapping.txt"),
+            basePath.resolve("metadata/pid-mapping.txt"),
             outputWriter
         );
     }
 
     private void writeBagitFile(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
-        var bagitPath = Path.of("bagit.txt");
+        var bagitPath = basePath.resolve("bagit.txt");
 
         try (var input = deposit.inputStreamForMetadataFile(bagitPath)) {
             checksummedWriteToOutput(input, bagitPath, outputWriter);
@@ -231,7 +240,7 @@ public class RdaBagWriter {
     }
 
     private void writeBagInfo(Deposit deposit, BagOutputWriter outputWriter) throws IOException {
-        var baginfoPath = Path.of("bag-info.txt");
+        var baginfoPath = basePath.resolve("bag-info.txt");
 
         try (var input = deposit.inputStreamForMetadataFile(baginfoPath)) {
             checksummedWriteToOutput(input, baginfoPath, outputWriter);

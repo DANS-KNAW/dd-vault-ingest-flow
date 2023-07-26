@@ -22,6 +22,7 @@ import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriterFactory;
 import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
+import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.validator.BagValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogRepository;
@@ -115,7 +116,6 @@ public class DepositToBagProcess {
         catch (Exception e) {
             throw new IllegalStateException("Error writing bag: " + e.getMessage(), e);
         }
-
     }
 
     void handleFailedDeposit(Path path, Outbox outbox, Deposit.State state, Throwable error) {

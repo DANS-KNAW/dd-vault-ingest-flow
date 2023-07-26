@@ -16,11 +16,13 @@
 package nl.knaw.dans.vaultingest.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 import nl.knaw.dans.vaultingest.core.rdabag.DefaultRdaBagWriterFactory;
 import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
+import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.utilities.CountryResolverFactory;
 import nl.knaw.dans.vaultingest.core.utilities.InMemoryOutputWriter;
 import nl.knaw.dans.vaultingest.core.utilities.LanguageResolverFactory;
@@ -34,7 +36,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -257,6 +261,44 @@ class DepositToBagProcessTest {
 
         assertThatThrownBy(() -> depositToBagProcess.processDeposit(deposit))
             .isInstanceOf(InvalidDepositException.class);
+    }
+
+    @Test
+    void process_should_write_sha1_if_only_md5_is_present() throws Exception {
+        var rdaBagWriter = getWriter();
+        var output = new InMemoryOutputWriter();
+        var vaultCatalogService = Mockito.mock(VaultCatalogRepository.class);
+        var depositValidator = Mockito.mock(BagValidator.class);
+
+        Mockito.when(vaultCatalogService.registerDeposit(Mockito.any()))
+            .thenReturn(VaultCatalogDeposit.builder().objectVersion(1L).build());
+
+        var deposit = Mockito.spy(getBasicDeposit());
+        var depositManager = TestDepositManager.ofDeposit(deposit);
+
+        Mockito.doReturn(Set.of(StandardSupportedAlgorithms.MD5))
+            .when(deposit).getPayloadManifestAlgorithms();
+
+        var depositToBagProcess = new DepositToBagProcess(
+            () -> rdaBagWriter,
+            value -> output,
+            vaultCatalogService,
+            depositValidator,
+            new IdMinter(),
+            depositManager);
+
+        var outbox = Mockito.mock(Outbox.class);
+
+        depositToBagProcess.process(Path.of("input/path/"), outbox);
+
+        assertThat(output.getData().entrySet())
+            .extracting(Map.Entry::getKey)
+            .contains(
+                Path.of("manifest-md5.txt"),
+                Path.of("manifest-sha1.txt"),
+                Path.of("tagmanifest-md5.txt"),
+                Path.of("tagmanifest-sha1.txt")
+            );
     }
 
     private Deposit getBasicDeposit() {
