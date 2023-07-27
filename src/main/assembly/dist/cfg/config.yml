@@ -48,6 +48,14 @@ vaultCatalog:
   url: https://vault.dans.knaw.nl/catalog
   httpClient:
     userAgent: dd-vault-ingest-flow
+    connectionTimeout: 1min
+    cookiesEnabled: false
+    keepAlive: 0ms
+    maxConnections: 128
+    maxConnectionsPerRoute: 128
+    retries: 0
+    timeToLive: 1h
+    timeout: 30s
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
