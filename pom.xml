@@ -170,7 +170,7 @@
                 </executions>
                 <configuration>
                     <sources>
-                        <source>src/main/resources/datacite-xsd</source>
+                        <source>${project.basedir}/src/main/resources/datacite-xsd</source>
                     </sources>
                     <packageName>nl.knaw.dans.vaultingest.domain</packageName>
                 </configuration>
