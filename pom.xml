@@ -34,6 +34,8 @@
 
     <properties>
         <main-class>nl.knaw.dans.vaultingest.DdVaultIngestFlowApplication</main-class>
+        <dans-schema-lib.version>0.12.1-SNAPSHOT</dans-schema-lib.version>
+        <dd-vault-catalog-api.version>0.0.1-SNAPSHOT</dd-vault-catalog-api.version>
     </properties>
 
     <scm>
@@ -154,8 +156,32 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dd-vault-catalog-api</artifactId>
+                                    <version>${dd-vault-catalog-api.version}</version>
+                                    <outputDirectory>${project.build.directory}/openapi</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>nl.knaw.dans</groupId>
+                                    <artifactId>dans-schema-lib</artifactId>
+                                    <version>${dans-schema-lib.version}</version>
+                                    <outputDirectory>${project.build.directory}/dans-schema/</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -170,7 +196,7 @@
                 </executions>
                 <configuration>
                     <sources>
-                        <source>${project.basedir}/src/main/resources/datacite-xsd</source>
+                        <source>${project.build.directory}/dans-schema/extern/datacite/v4.4</source>
                     </sources>
                     <packageName>nl.knaw.dans.vaultingest.domain</packageName>
                 </configuration>
@@ -186,7 +212,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/src/main/resources/dd-vault-catalog.yml</inputSpec>
+                            <inputSpec>${project.build.directory}/openapi/dd-vault-catalog-api.yml</inputSpec>
                             <generatorName>java</generatorName>
                             <generateModelTests>false</generateModelTests>
                             <generateApiTests>false</generateApiTests>
