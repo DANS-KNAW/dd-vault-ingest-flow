@@ -59,6 +59,7 @@ public class VaultCatalogClient implements VaultCatalogRepository {
 
             log.debug("Registered deposit, response: {}", response);
 
+
             return VaultCatalogDeposit.builder()
                 .objectVersion(newVersion)
                 .bagId(bagId)

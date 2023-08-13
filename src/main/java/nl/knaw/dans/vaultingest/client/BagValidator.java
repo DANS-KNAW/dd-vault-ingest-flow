@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.client;
 
-import nl.knaw.dans.validatedansbag.api.ValidateCommandDto;
+import nl.knaw.dans.validatedansbag.client.api.ValidateCommandDto;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;

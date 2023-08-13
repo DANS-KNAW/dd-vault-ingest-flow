@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.client;
 
-import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
-import nl.knaw.dans.validatedansbag.api.ValidateOkRuleViolationsInnerDto;
+import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
+import nl.knaw.dans.validatedansbag.client.api.ValidateOkRuleViolationsInnerDto;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
