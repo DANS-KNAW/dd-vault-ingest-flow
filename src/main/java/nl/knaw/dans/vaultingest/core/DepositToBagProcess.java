@@ -31,6 +31,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Slf4j
 public class DepositToBagProcess {
@@ -57,7 +58,7 @@ public class DepositToBagProcess {
         this.depositManager = depositManager;
     }
 
-    public void process(Path path, Outbox outbox) {
+    public void process(Path path, Outbox outbox, Map<String, String> dataSupplierMap) {
         try {
             var bagDir = getBagDir(path);
 
@@ -65,7 +66,8 @@ public class DepositToBagProcess {
             bagValidator.validate(bagDir);
 
             log.info("Loading deposit on path {}", path);
-            var deposit = depositManager.loadDeposit(path);
+            var deposit = depositManager.loadDeposit(path, dataSupplierMap);
+            deposit.setDataSupplier(dataSupplierMap.get(deposit.getDepositorId()));
             processDeposit(deposit);
 
             log.info("Deposit {} processed successfully", deposit.getId());

@@ -20,6 +20,7 @@ import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 public class TestDepositManager extends DepositManager {
     private Deposit deposit;
@@ -49,7 +50,7 @@ public class TestDepositManager extends DepositManager {
     }
 
     @Override
-    public Deposit loadDeposit(Path path) {
+    public Deposit loadDeposit(Path path, Map<String, String> dataSupplierMap) {
         if (this.deposit != null) {
             return this.deposit;
         }
@@ -57,7 +58,7 @@ public class TestDepositManager extends DepositManager {
         var resource = getClass().getResource(path.toString());
         assert resource != null;
         var resourcePath = Path.of(resource.getPath());
-        return super.loadDeposit(resourcePath);
+        return super.loadDeposit(resourcePath, dataSupplierMap);
     }
 
     @Override

@@ -28,6 +28,8 @@ ingestFlow:
     inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
   migration:
+    dataSuppliers:
+      USER001: The Organization Name
     inbox: /var/opt/dans.knaw.nl/tmp/migration/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/migration/outbox
   languages:

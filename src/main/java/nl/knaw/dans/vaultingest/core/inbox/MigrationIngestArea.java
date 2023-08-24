@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -33,17 +34,18 @@ public class MigrationIngestArea {
     private final DepositToBagProcess depositToBagProcess;
     private final Path inboxPath;
     private final Outbox outbox;
+    private final Map<String, String> dataSupplierMap;
 
     public MigrationIngestArea(
         ExecutorService executorService,
         DepositToBagProcess depositToBagProcess,
         Path inboxPath,
-        Outbox outbox
-    ) {
+        Outbox outbox, Map<String, String> dataSupplierMap) {
         this.executorService = executorService;
         this.depositToBagProcess = depositToBagProcess;
         this.inboxPath = inboxPath.toAbsolutePath();
         this.outbox = outbox;
+        this.dataSupplierMap = dataSupplierMap;
     }
 
     public void ingest(Path inputPath, boolean isBatch, boolean continuePrevious) {
@@ -69,7 +71,7 @@ public class MigrationIngestArea {
             output.init(!isBatch || continuePrevious);
 
             for (var in : input) {
-                executorService.execute(() -> depositToBagProcess.process(in, output));
+                executorService.execute(() -> depositToBagProcess.process(in, output, dataSupplierMap));
             }
         }
         catch (IOException e) {

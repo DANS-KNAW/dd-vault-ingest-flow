@@ -132,7 +132,8 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             taskQueue,
             migrationDepositToBagProcess,
             configuration.getIngestFlow().getMigration().getInbox(),
-            new DepositOutbox(configuration.getIngestFlow().getMigration().getOutbox())
+            new DepositOutbox(configuration.getIngestFlow().getMigration().getOutbox()),
+            configuration.getIngestFlow().getMigration().getDataSuppliers()
         );
 
         inboxListener.start();
