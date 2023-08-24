@@ -143,7 +143,7 @@ class DepositOutboxTest {
         private final Deposit.State state;
 
         DepositWithPathAndState(Path path, State state) {
-            super("random_id", null, null, null, path, null, null, false, null, null);
+            super("random_id", null, null, null, path, null, null, false, null, null, null);
             this.state = state;
         }
 

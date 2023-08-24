@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +34,7 @@ class CommonDepositManagerIntegrationTest {
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
         assert s != null;
 
-        var deposit = manager.loadDeposit(Path.of(s.getPath()));
+        var deposit = manager.loadDeposit(Path.of(s.getPath()), Map.of("user001","Name of user"));
         assertThat(deposit.getId()).isEqualTo("0b9bb5ee-3187-4387-bb39-2c09536c79f7");
     }
 
@@ -48,7 +49,7 @@ class CommonDepositManagerIntegrationTest {
         // first verify there is actually an original-filepaths.txt file
         assertThat(Files.exists(path.resolve("audiences/original-filepaths.txt"))).isTrue();
 
-        var deposit = manager.loadDeposit(path);
+        var deposit = manager.loadDeposit(path, Map.of("user001","Name of user"));
         var files = deposit.getPayloadFiles();
 
         // check that the file paths are the original ones, not the renamed ones

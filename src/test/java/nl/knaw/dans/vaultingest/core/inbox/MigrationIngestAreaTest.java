@@ -23,6 +23,7 @@ import org.mockito.Mockito;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ class MigrationIngestAreaTest {
         var executor = Mockito.mock(ExecutorService.class);
         var process = Mockito.mock(DepositToBagProcess.class);
         var outbox = new TestOutbox(Path.of("/outbox/path/"));
-        var area = new MigrationIngestArea(executor, process, Path.of("/input/path/"), outbox);
+        var area = new MigrationIngestArea(executor, process, Path.of("/input/path/"), outbox, Map.of());
 
         var result = area.getAbsolutePath(Path.of("batch1"));
         assertThat(result).isEqualTo(Path.of("/input/path/batch1"));
@@ -47,7 +48,7 @@ class MigrationIngestAreaTest {
         var executor = Mockito.mock(ExecutorService.class);
         var process = Mockito.mock(DepositToBagProcess.class);
         var outbox = new TestOutbox(Path.of("/outbox/path/"));
-        var area = new MigrationIngestArea(executor, process, Path.of("/input/path/"), outbox);
+        var area = new MigrationIngestArea(executor, process, Path.of("/input/path/"), outbox, Map.of());
 
         var result = area.getAbsolutePath(Path.of("/this/is/absolute"));
         assertThat(result).isEqualTo(Path.of("/this/is/absolute"));
@@ -60,7 +61,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
             var path = fs.getPath("/input/path/batch1/deposit1");
             Files.createDirectories(path);
             Files.write(path.resolve("deposit.properties"), "state=FAILED".getBytes());
@@ -76,7 +77,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
             var path = fs.getPath("/input/path/batch1/deposit1");
             Files.createDirectories(path);
 
@@ -93,7 +94,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
 
             var path = fs.getPath("/input/path/batch1/");
             Files.createDirectories(path.resolve("deposit1"));
@@ -112,7 +113,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
 
             var path = fs.getPath("/input/path/batch1/");
             Files.createDirectories(path.resolve("deposit1"));
@@ -133,7 +134,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
 
             var path = fs.getPath("/input/path/batch1");
             Files.createDirectories(path.getParent());
@@ -152,7 +153,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
 
             var path = fs.getPath("/input/path/batch1/");
             Files.createDirectories(path.resolve("deposit1"));
@@ -173,7 +174,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
 
             var path = fs.getPath("/random/other/deposit1");
             Files.createDirectories(path);
@@ -193,7 +194,7 @@ class MigrationIngestAreaTest {
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
-            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox);
+            var area = new MigrationIngestArea(executor, process, fs.getPath("/input/path/"), outbox, Map.of());
 
             var path = fs.getPath("/input/path/deposit1");
             Files.createDirectories(path);

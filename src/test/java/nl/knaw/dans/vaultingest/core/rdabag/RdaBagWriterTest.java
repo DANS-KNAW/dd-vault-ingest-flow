@@ -29,6 +29,7 @@ import nl.knaw.dans.vaultingest.core.utilities.TestDepositManager;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +47,7 @@ class RdaBagWriterTest {
         );
 
         var manager = new TestDepositManager();
-        var deposit = manager.loadDeposit(Path.of("/input/bag-md5/c169676f-5315-4d86-bde0-a62dbc915228"));
+        var deposit = manager.loadDeposit(Path.of("/input/bag-md5/c169676f-5315-4d86-bde0-a62dbc915228"), Map.of("user001","Name of user"));
         var output = new InMemoryOutputWriter();
         writer.write(deposit, output);
 
@@ -70,7 +71,7 @@ class RdaBagWriterTest {
         );
 
         var manager = new TestDepositManager();
-        var deposit = manager.loadDeposit(Path.of("/input/bag-sha1/c169676f-5315-4d86-bde0-a62dbc915228"));
+        var deposit = manager.loadDeposit(Path.of("/input/bag-sha1/c169676f-5315-4d86-bde0-a62dbc915228"),Map.of("user001","Name of user"));
         var output = new InMemoryOutputWriter();
         writer.write(deposit, output);
 
