@@ -289,7 +289,7 @@ class DepositToBagProcessTest {
 
         var outbox = Mockito.mock(Outbox.class);
 
-        depositToBagProcess.process(Path.of("input/path/"), outbox);
+        depositToBagProcess.process(Path.of("input/path/"), outbox, Map.of("user001","Name of user"));
 
         assertThat(output.getData().entrySet())
             .extracting(Map.Entry::getKey)

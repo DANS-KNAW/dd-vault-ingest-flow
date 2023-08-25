@@ -25,6 +25,8 @@ health:
 ingestFlow:
   rdaBagOutputDir: data/rda-bag
   autoIngest:
+    dataSuppliers:
+      USER001: The Organization Name
     # todo: how to check if an update is authorized?
     inbox: data/inbox
     outbox: data/outbox

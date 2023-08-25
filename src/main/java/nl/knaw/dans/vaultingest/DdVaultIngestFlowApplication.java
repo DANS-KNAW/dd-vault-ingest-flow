@@ -113,8 +113,8 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             taskQueue,
             ingestAreaDirectoryWatcher,
             depositToBagProcess,
-            autoIngestOutbox
-        );
+            autoIngestOutbox,
+            configuration.getIngestFlow().getAutoIngest().getDataSuppliers());
 
         var migrationDepositValidator = new MigrationBagValidator(dansBagValidatorClient, configuration.getValidateDansBag().getValidateUrl());
         var migrationDepositManager = new MigrationDepositManager(xmlReader);

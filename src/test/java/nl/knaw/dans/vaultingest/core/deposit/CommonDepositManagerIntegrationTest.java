@@ -24,6 +24,7 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class CommonDepositManagerIntegrationTest {
 
@@ -36,6 +37,17 @@ class CommonDepositManagerIntegrationTest {
 
         var deposit = manager.loadDeposit(Path.of(s.getPath()), Map.of("user001","Name of user"));
         assertThat(deposit.getId()).isEqualTo("0b9bb5ee-3187-4387-bb39-2c09536c79f7");
+    }
+
+    @Test
+    void loadDeposit_should_complain_about_missing_data_supplier() {
+        var manager = new DepositManager(new XmlReader());
+
+        var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
+        assert s != null;
+
+        assertThatThrownBy(() ->  manager.loadDeposit(Path.of(s.getPath()), Map.of()))
+            .hasMessage("java.lang.Exception: No mapping to Data Supplier found for user id 'user001'.");
     }
 
     @Test

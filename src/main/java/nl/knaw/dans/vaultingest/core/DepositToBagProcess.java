@@ -67,7 +67,6 @@ public class DepositToBagProcess {
 
             log.info("Loading deposit on path {}", path);
             var deposit = depositManager.loadDeposit(path, dataSupplierMap);
-            deposit.setDataSupplier(dataSupplierMap.get(deposit.getDepositorId()));
             processDeposit(deposit);
 
             log.info("Deposit {} processed successfully", deposit.getId());

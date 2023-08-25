@@ -35,8 +35,8 @@ class AutoIngestAreaTest {
             Runnable::run,
             callback -> callback.onItemCreated(Path.of("fake/path")),
             process,
-            outbox
-        );
+            outbox,
+            Map.of());
 
         area.start();
 
