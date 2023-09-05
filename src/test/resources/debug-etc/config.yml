@@ -50,7 +50,7 @@ ingestFlow:
     keepAliveTime: 60 seconds
 
 vaultCatalog:
-  url: https://vault.dans.knaw.nl/catalog
+  url: http://localhost:20305/catalog
   httpClient:
     userAgent: dd-vault-ingest-flow
 
