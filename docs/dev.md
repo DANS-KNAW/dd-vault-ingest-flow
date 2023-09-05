@@ -4,14 +4,18 @@ This page contains information for developers about how to contribute to this pr
 
 Set-up
 ------
-This project can be used in combination with  [dans-dev-tools]{:target=_blank}. Before you can start it as a service
-some dependencies must first be started:
+This project can be used in combination with  [dans-dev-tools]{:target=_blank}. 
+Before you can start it as a service some dependencies must first be started.
+For one dependency you have the choice between a Virtual Machine (VM) `dev_transfer`
+and a local service `dd-vault-catalog`. For the VM you need access to the project [dd-dtap]{:target=_blank},
+the local service requires a local database.
 
 ### Initialize development environment
 
 This is only necessary once per project. If you execute this any existing configuration and data will be reset.
 
-Open a separate terminal tab for `dd-vault-ingest-flow` and one for its dependency `dd-validate-dans-bag` and in each one run:
+Open separate terminal tabs for `dd-vault-ingest-flow` and for its dependency `dd-validate-dans-bag`
+and optionally `dd-vault-catalog`. In each tab run:
 
 ```commandline
 start-env.sh
@@ -29,24 +33,24 @@ You will also have to adjust `dd-vault-ingest-flow/etc/config.yml`:
 
 * vaultCatalog.url: https://dev.transfer.dans-data.nl
 
-Both URLs in the above configuration examples assume you use the virtual machine (VM) `dev_transfer` and not additional local services and databases.
-Keep the URLs as generated when you don't use a VM.
+Both URLs in the above configuration examples assume you use the VM `dev_transfer`, 
+if not, keep the URLs as generated from `src/test/resources/debug-etc`.
 
 ### Start services
 
-When you are granted access to the project `dd-dtap` you can start the VM configured above.
+To start the VM run in the root of `dd-dtap`:
 
 ```commandline
 start-preprovisioned-box.py -s dev_transfer
 ```
 
-Without the VM you will need a local database for the service `dd-vault-catalog`, run in a separate terminal:
+Without the VM you will need a local database for the service `dd-vault-catalog`, run in a separate terminal tab:
 
 ```commandline
 start-hsqldb-server.sh
 ```
 
-Open new terminals for the services `dd-vault-ingest-flow`, `dd-validate-dans-bag`, optionally (without a VM) `dd-vault-catalog` and run:
+Open terminal tabs for the services `dd-vault-ingest-flow`, `dd-validate-dans-bag`, optionally `dd-vault-catalog` and run:
 
 ```commandline
 start-service.sh
