@@ -6,9 +6,10 @@ Set-up
 ------
 This project can be used in combination with  [dans-dev-tools]{:target=_blank}. 
 Before you can start it as a service some dependencies must first be started.
-For one dependency you have the choice between a Virtual Machine (VM) `dev_transfer`
-and a local service `dd-vault-catalog`. For the VM you need access to the project [dd-dtap]{:target=_blank},
-the local service requires a local database.
+One depency is [dd-validate-dans-bag].
+For the other dependency you have the choice between a local service [dd-vault-catalog] and a Virtual Machine (VM) `dev_transfer`.
+The local variant requires a local database. 
+For the VM you need access to the project [dd-dtap]{:target=_blank},
 
 [dans-dev-tools]: https://github.com/DANS-KNAW/dans-dev-tools#readme
 [dd-dtap]: https://github.com/DANS-KNAW/dd-dtap#readme
@@ -19,8 +20,8 @@ the local service requires a local database.
 
 This is only necessary once per project. If you execute this any existing configuration and data will be reset.
 
-Open separate terminal tabs for `dd-vault-ingest-flow`, its dependency [dd-validate-dans-bag]
-and the optional dependency [dd-vault-catalog]. In each tab run:
+Open separate terminal tabs for `dd-vault-ingest-flow`, its dependency `dd-validate-dans-bag`
+and the optional dependency `[dd-vault-catalog`. In each tab run:
 
 ```commandline
 start-env.sh
@@ -43,7 +44,7 @@ if not, keep the URLs as generated from `src/test/resources/debug-etc`.
 
 ### Start services
 
-To start the VM run in the root of `dd-dtap`:
+To start the VM, run in the root of `dd-dtap`:
 
 ```commandline
 start-preprovisioned-box.py -s dev_transfer
@@ -55,7 +56,8 @@ Without the VM you will need a local database for the service `dd-vault-catalog`
 start-hsqldb-server.sh
 ```
 
-Open terminal tabs for the services `dd-vault-ingest-flow`, `dd-validate-dans-bag`, optionally `dd-vault-catalog` and run:
+Pick the appropriate `vaultCatalog.url` in `dd-vault-ingest-flow/etc/config.yml`.
+Open terminal tabs for the services `dd-vault-ingest-flow`, `dd-validate-dans-bag`, optionally `dd-vault-catalog` and run in each:
 
 ```commandline
 start-service.sh
@@ -85,13 +87,21 @@ start-service.sh
     * The `bag-name` should match the copied bag.
     * The `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
     * The `<UUID>` should match the directory name
+* When using the deposit on a VM, create it at `dd-dtap/shared/<UUID>`, on the VM
+
+      cd /vagrant/shared/<UUID> ; chgrp -R deposits . ; chown -R dd-vault-ingest-flow .
+* To test updates you will need different UUIDs for each `example-bags/valid/revision*`
+  and move them in proper order to the inbox, one by one after the previous completed.
 
 ## Start an ingest
 
-To start an ingest, move (not copy, otherwise the processing might start before the copy the completed)
+To start an ingest locally, move (not copy, otherwise the processing might start before the copy the completed)
 a deposit into one of the inboxes configured in:
 
     dd-vault-ingest-flow/etc/config.yml
+
+To start an ingest on the VM, move it to `/var/opt/dans.knaw.nl/tmp/auto-ingest/inbox`
+as configured in `/etc/opt/dans.knaw.nl/dd-vault-ingest-flow/config.yml` 
 
 You can examine details of the result on the VM in `/var/opt/dans.knaw.nl/tmp/ocfl-tar/inbox`
 and the database: 
@@ -101,3 +111,6 @@ and the database:
     select bag_id, data_supplier from ocfl_object_versions;
     \c dd_transfer_to_vault
     select bag_id, data_supplier from transfer_item;
+
+To examine the local database run `start-hsqldb-client.sh`
+and connect with the `database.url` specified in `dd-vault-catalog/etc/config.yml`
