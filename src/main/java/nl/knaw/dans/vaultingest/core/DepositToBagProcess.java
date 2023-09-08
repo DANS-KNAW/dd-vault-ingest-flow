@@ -90,9 +90,9 @@ public class DepositToBagProcess {
                 .orElseThrow(() -> new InvalidDepositException(String.format("Deposit with sword token %s not found in vault catalog", deposit.getSwordToken())));
 
             // compare user id
-            if (!StringUtils.equals(deposit.getDepositorId(), catalogDeposit.getDataSupplier())) {
+            if (!StringUtils.equals(deposit.getDataSupplier(), catalogDeposit.getDataSupplier())) {
                 throw new InvalidDepositException(String.format(
-                    "Depositor id %s does not match the depositor id %s in the vault catalog", deposit.getDepositorId(), catalogDeposit.getDataSupplier()
+                    "Data supplier in deposit  %s does not match the data supplier %s in the vault catalog", deposit.getDataSupplier(), catalogDeposit.getDataSupplier()
                 ));
             }
 
