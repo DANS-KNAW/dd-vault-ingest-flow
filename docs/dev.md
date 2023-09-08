@@ -63,7 +63,7 @@ start-service.sh
 
 ### Create a deposit
 
-* Create a directory with a `<UUID>` as name, for example `b8f7f836-013a-4e32-9070-2efcfab3316b`.
+* Create a directory with a `<UUID>` as name.
 * Copy a valid bag into that directory, for example:
 
         dd-dans-sword2-examples/src/main/resources/example-bags/valid/default-open
@@ -71,17 +71,20 @@ start-service.sh
   Note that `all_mappings` has an invalid prefix for `Has-Organizational-Identifier` in `bag-info.txt`,
   other bags should be valid.
 
-  * Create a file in the same directory named `deposit.properties`, an example for the content
+  * Create a file in the same directory named `deposit.properties`, an example for the content:
 
-        bag-store.bag-id = b8f7f836-013a-4e32-9070-2efcfab3316b
-        dataverse.bag-id = urn:uuid:b8f7f836-013a-4e32-9070-2efcfab3316b
+        bag-store.bag-id = <UUID>
+        dataverse.bag-id = urn:uuid:<UUID>
+        dataverse.sword-token = sword:<UUID>
         creation.timestamp = 2023-08-16T17:40:41.390209+02:00
         deposit.origin = SWORD2
         depositor.userId = user001
         bag-store.bag-name = default-open
-        dataverse.sword-token = sword:b8f7f836-013a-4e32-9070-2efcfab3316b
 
-    Note that the `bag-name` should match the copied bag and the `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
+    Note that 
+    * The `bag-name` should match the copied bag.
+    * The `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
+    * The `<UUID>` should match the directory name
 
 ## Start an ingest
 
@@ -95,3 +98,6 @@ and the database:
 
     sudo su postgres
     psql dd_vault_catalog
+    select bag_id, data_supplier from ocfl_object_versions;
+    \c dd_transfer_to_vault
+    select bag_id, data_supplier from transfer_item;
