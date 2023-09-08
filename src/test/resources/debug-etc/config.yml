@@ -26,7 +26,7 @@ ingestFlow:
   rdaBagOutputDir: data/rda-bag
   autoIngest:
     dataSuppliers:
-      USER001: The Organization Name
+      user001: The Organization Name
     # todo: how to check if an update is authorized?
     inbox: data/inbox
     outbox: data/outbox
@@ -50,9 +50,12 @@ ingestFlow:
     keepAliveTime: 60 seconds
 
 vaultCatalog:
-  url: http://localhost:20305/catalog
+  url: http://localhost:20305/
   httpClient:
     userAgent: dd-vault-ingest-flow
+    timeout: 5min
+    connectionTimeout: 1min
+
 
 #
 # See https://www.dropwizard.io/en/latest/manual/configuration.html#logging
