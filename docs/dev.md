@@ -113,4 +113,5 @@ and the database:
     select bag_id, data_supplier from transfer_item;
 
 To examine the local database run `start-hsqldb-client.sh`
-and connect with the `database.url` specified in `dd-vault-catalog/etc/config.yml`
+and connect with the `database.url` specified in `dd-vault-catalog/etc/config.yml`,
+the zip files can be found in `dd-vault-ingest-flow/data/rda-bags`.
