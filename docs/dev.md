@@ -6,8 +6,8 @@ Set-up
 ------
 This project can be used in combination with  [dans-dev-tools]{:target=_blank}. 
 Before you can start it as a service some dependencies must first be started.
-One depency is [dd-validate-dans-bag].
-For the other dependency you have the choice between a local service [dd-vault-catalog] and a Virtual Machine (VM) `dev_transfer`.
+One depency is [dd-validate-dans-bag]{:target=_blank}.
+For the other dependency you have the choice between a local service [dd-vault-catalog]{:target=_blank} and a Virtual Machine (VM) `dev_transfer`.
 The local variant requires a local database. 
 For the VM you need access to the project [dd-dtap]{:target=_blank},
 
@@ -87,9 +87,6 @@ start-service.sh
     * The `bag-name` should match the copied bag.
     * The `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
     * The `<UUID>` should match the directory name
-* When using the deposit on a VM, create it at `dd-dtap/shared/<UUID>`, on the VM
-
-      cd /vagrant/shared/<UUID> ; chgrp -R deposits . ; chown -R dd-vault-ingest-flow .
 * To test updates you will need different UUIDs for each `example-bags/valid/revision*`
   and move them in proper order to the inbox, one by one after the previous completed.
 
@@ -99,9 +96,6 @@ To start an ingest locally, move (not copy, otherwise the processing might start
 a deposit into one of the inboxes configured in:
 
     dd-vault-ingest-flow/etc/config.yml
-
-To start an ingest on the VM, move it to `/var/opt/dans.knaw.nl/tmp/auto-ingest/inbox`
-as configured in `/etc/opt/dans.knaw.nl/dd-vault-ingest-flow/config.yml` 
 
 You can examine details of the result on the VM in `/var/opt/dans.knaw.nl/tmp/ocfl-tar/inbox`
 and the database: 
@@ -115,3 +109,11 @@ and the database:
 To examine the local database run `start-hsqldb-client.sh`
 and connect with the `database.url` specified in `dd-vault-catalog/etc/config.yml`,
 the zip files can be found in `dd-vault-ingest-flow/data/rda-bags`.
+
+### Test after deploy
+
+The catalog results can be found on the VM `dev_transfer` unless you opted for the local catalog service,
+the service under test (`dd-vault-ingest-flow`) should be deployed on `dev_vaas`.
+
+Move the deposit via `/vagrant/shared` (and `chmod -R 777 <UUID>`) to `/var/opt/dans.knaw.nl/tmp/auto-ingest/inbox`
+as configured in `/etc/opt/dans.knaw.nl/dd-vault-ingest-flow/config.yml`.
