@@ -40,7 +40,8 @@ public class MigrationIngestArea {
         ExecutorService executorService,
         DepositToBagProcess depositToBagProcess,
         Path inboxPath,
-        Outbox outbox, Map<String, String> dataSupplierMap) {
+        Outbox outbox,
+            Map<String, String> dataSupplierMap) {
         this.executorService = executorService;
         this.depositToBagProcess = depositToBagProcess;
         this.inboxPath = inboxPath.toAbsolutePath();

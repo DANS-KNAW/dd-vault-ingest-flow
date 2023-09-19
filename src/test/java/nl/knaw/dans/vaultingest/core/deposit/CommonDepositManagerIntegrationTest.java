@@ -25,6 +25,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class CommonDepositManagerIntegrationTest {
 
@@ -44,7 +45,7 @@ class CommonDepositManagerIntegrationTest {
         var manager = new DepositManager(new XmlReader());
 
         var s = getClass().getResource("/input/0b9bb5ee-3187-4387-bb39-2c09536c79f7");
-        assert s != null;
+        assertNotNull(s);
 
         assertThatThrownBy(() ->  manager.loadDeposit(Path.of(s.getPath()), Map.of()))
             .hasMessage("java.lang.Exception: No mapping to Data Supplier found for user id 'user001'.");

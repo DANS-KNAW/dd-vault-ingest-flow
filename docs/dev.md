@@ -21,7 +21,7 @@ For the VM you need access to the project [dd-dtap]{:target=_blank},
 This is only necessary once per project. If you execute this any existing configuration and data will be reset.
 
 Open separate terminal tabs for `dd-vault-ingest-flow`, its dependency `dd-validate-dans-bag`
-and the optional dependency `[dd-vault-catalog`. In each tab run:
+and the optional dependency (when not using the VM `dev_transfer`) `dd-vault-catalog`. In each tab run:
 
 ```commandline
 start-env.sh
@@ -31,7 +31,6 @@ The service `dd-validate-dans-bag` needs different configurations for `dd-vault-
 So you will have to update the generated `dd-validate-dans-bag/etc/config.yml`,
 perhaps keep copies of the files or comment lines to switch between both situations.
 
-* remove one level from `../../` in the schema locations.
 * `dataverse: null`
 * `vaultCatalog.baseUrl: https://dev.transfer.dans-data.nl/vault-catalog`
 
@@ -65,7 +64,7 @@ start-service.sh
 
 ### Create a deposit
 
-* Create a directory with a `<UUID>` as name.
+* Create a directory `/vagrant/shared/<UUID>`.
 * Copy a valid bag into that directory, for example:
 
         dd-dans-sword2-examples/src/main/resources/example-bags/valid/default-open
@@ -87,17 +86,17 @@ start-service.sh
     * The `bag-name` should match the copied bag.
     * The `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
     * The `<UUID>` should match the directory name
-* To test updates you will need different UUIDs for each `example-bags/valid/revision*`
+* To test updates you will need different UUIDs for each `example-bags/valid/*`
   and move them in proper order to the inbox, one by one after the previous completed.
 
 ## Start an ingest
 
-To start an ingest locally, move (not copy, otherwise the processing might start before the copy the completed)
+To start an ingest locally, move (not copy, otherwise the processing might start before the copy completed)
 a deposit into one of the inboxes configured in:
 
     dd-vault-ingest-flow/etc/config.yml
 
-You can examine details of the result on the VM in `/var/opt/dans.knaw.nl/tmp/ocfl-tar/inbox`
+You can examine details of the result on `dev_transfer` in `/var/opt/dans.knaw.nl/tmp/ocfl-tar/inbox`
 and the database: 
 
     sudo su postgres
@@ -106,14 +105,22 @@ and the database:
     \c dd_transfer_to_vault
     select bag_id, data_supplier from transfer_item;
 
-To examine the local database run `start-hsqldb-client.sh`
-and connect with the `database.url` specified in `dd-vault-catalog/etc/config.yml`,
-the zip files can be found in `dd-vault-ingest-flow/data/rda-bags`.
+Or examine the local transfer results in `dd-vault-ingest-flow/data/rda-bags`
+and with `start-hsqldb-client.sh` executed in `dd-vault-catalog`.
+The start dialog needs `database.url` specified in `dd-vault-catalog/etc/config.yml`.
 
 ### Test after deploy
 
-The catalog results can be found on the VM `dev_transfer` unless you opted for the local catalog service,
-the service under test (`dd-vault-ingest-flow`) should be deployed on `dev_vaas`.
+The catalog results can be found on the VM `dev_transfer`,
+the service under test (`dd-vault-ingest-flow`) should be deployed on `dev_vaas`, both VMs should be running.
 
-Move the deposit via `/vagrant/shared` (and `chmod -R 777 <UUID>`) to `/var/opt/dans.knaw.nl/tmp/auto-ingest/inbox`
-as configured in `/etc/opt/dans.knaw.nl/dd-vault-ingest-flow/config.yml`.
+Make the deposits available that were prepared in `/vagrant/shared`:
+
+    cd /var/opt/dans.knaw.nl/tmp/auto-ingest # configured in /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/config.ym
+    cp -r `readlink -m /vagrant/shared/*/revision*/..` .. # or the actually wrapped bag(s)
+    chmod -R 777 ../*7*
+
+Start an ingest:
+
+    mv -v `readlink -m ../*/revision01/..` inbox
+

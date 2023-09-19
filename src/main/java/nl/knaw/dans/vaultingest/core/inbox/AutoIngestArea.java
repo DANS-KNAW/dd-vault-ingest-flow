@@ -35,7 +35,8 @@ public class AutoIngestArea {
         Executor executor,
         IngestAreaWatcher ingestAreaWatcher,
         DepositToBagProcess depositToBagProcess,
-        Outbox outbox, Map<String, String> dataSupplierMap) {
+        Outbox outbox,
+        Map<String, String> dataSupplierMap) {
         this.executor = executor;
         this.ingestAreaWatcher = ingestAreaWatcher;
         this.depositToBagProcess = depositToBagProcess;

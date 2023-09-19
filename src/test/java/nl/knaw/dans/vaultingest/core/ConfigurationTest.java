@@ -65,6 +65,6 @@ public class ConfigurationTest {
         // prevent ConfigurationValidationException ... does not exist but is required
         // TODO why not @FileMustExist for other files and dirs?
         return FileUtils.readFileToString(new File(pathname), StandardCharsets.UTF_8)
-            .replaceAll("(iso639[12]): .*/","$1: src/main/assembly/dist/cfg/");
+            .replaceAll(": /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/",": src/main/assembly/dist/cfg/");
     }
 }
