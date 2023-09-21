@@ -6,7 +6,7 @@ Set-up
 ------
 This project can be used in combination with  [dans-dev-tools]{:target=_blank}. 
 Before you can start it as a service some dependencies must first be started.
-One depency is [dd-validate-dans-bag]{:target=_blank}.
+One dependency is [dd-validate-dans-bag]{:target=_blank}.
 For the other dependency you have the choice between a local service [dd-vault-catalog]{:target=_blank} and a Virtual Machine (VM) `dev_transfer`.
 The local variant requires a local database. 
 For the VM you need access to the project [dd-dtap]{:target=_blank},
@@ -56,7 +56,7 @@ start-hsqldb-server.sh
 ```
 
 Pick the appropriate `vaultCatalog.url` in `dd-vault-ingest-flow/etc/config.yml`.
-Open terminal tabs for the services `dd-vault-ingest-flow`, `dd-validate-dans-bag`, optionally `dd-vault-catalog` and run in each:
+Open terminal tabs for the services `dd-vault-ingest-flow`, `dd-validate-dans-bag`, optionally (when not using the VM `dev_transfer`) `dd-vault-catalog` and run in each:
 
 ```commandline
 start-service.sh
@@ -64,13 +64,12 @@ start-service.sh
 
 ### Create a deposit
 
-* Create a directory `/vagrant/shared/<UUID>`.
+* Create a directory `/vagrant/shared/<UUID>`, this location makes it available on VMs at `/vagrant/shared`.
 * Copy a valid bag into that directory, for example:
 
         dd-dans-sword2-examples/src/main/resources/example-bags/valid/default-open
 
-  Note that `all_mappings` has an invalid prefix for `Has-Organizational-Identifier` in `bag-info.txt`,
-  other bags should be valid.
+  Note that `all_mappings` has an invalid prefix for `Has-Organizational-Identifier` in `bag-info.txt`.
 
   * Create a file in the same directory named `deposit.properties`, an example for the content:
 
@@ -85,11 +84,14 @@ start-service.sh
     Note that 
     * The `bag-name` should match the copied bag.
     * The `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
-    * The `<UUID>` should match the directory name
-* To test updates you will need different UUIDs for each `example-bags/valid/*`
-  and move them in proper order to the inbox, one by one after the previous completed.
-  Note that the `revision02` and `revision03` bags lack a `Is-Version-Of: <UUID>` in `bag-info.txt`.
+    * The `<UUID>` should match the directory name.
+* To test updates you will need different UUIDs for each `example-bags/valid/*` and move them to the inbox.
+  Note that the `revision02` and `revision03` bags lack an `Is-Version-Of: <UUID>` in `bag-info.txt`.
   Adding this property requires an update of the `tagmanifest-sha1.txt`.
+  A validation error message will show the proper value, for example (with a locally running validator):
+
+      cd dd-dans-sword2-examples
+      ./run-validation.sh http://localhost:20330/validate /vagrant/shared/<UUID>/<bag-name>
 
 ## Start an ingest
 
