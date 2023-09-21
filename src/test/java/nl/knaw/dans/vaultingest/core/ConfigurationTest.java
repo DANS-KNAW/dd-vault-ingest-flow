@@ -61,10 +61,10 @@ public class ConfigurationTest {
         assertDoesNotThrow(() -> factory.build(FileInputStream::new, cfgFile.toString()));
     }
 
-    private String rewriteFilePaths(String pathname) throws IOException {
+    private String rewriteFilePaths(String configYmlContent) throws IOException {
         // prevent ConfigurationValidationException ... does not exist but is required
-        // TODO why not @FileMustExist for other files and dirs?
-        return FileUtils.readFileToString(new File(pathname), StandardCharsets.UTF_8)
-            .replaceAll(": /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/",": src/main/assembly/dist/cfg/");
+        // TODO why only @FileMustExist for the language files?
+        return FileUtils.readFileToString(new File(configYmlContent), StandardCharsets.UTF_8)
+            .replaceAll("(iso639[12]): .*/","$1: src/main/assembly/dist/cfg/");
     }
 }

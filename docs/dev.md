@@ -88,6 +88,8 @@ start-service.sh
     * The `<UUID>` should match the directory name
 * To test updates you will need different UUIDs for each `example-bags/valid/*`
   and move them in proper order to the inbox, one by one after the previous completed.
+  Note that the `revision02` and `revision03` bags lack a `Is-Version-Of: <UUID>` in `bag-info.txt`.
+  Adding this property requires an update of the `tagmanifest-sha1.txt`.
 
 ## Start an ingest
 
