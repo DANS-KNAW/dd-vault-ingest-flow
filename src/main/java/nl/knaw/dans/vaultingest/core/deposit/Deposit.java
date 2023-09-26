@@ -44,6 +44,7 @@ public class Deposit {
     private final boolean migration;
     private String nbn;
     private Long objectVersion;
+    private String dataSupplier;
 
     public Path getPath() {
         return path;
@@ -123,6 +124,7 @@ public class Deposit {
     }
 
     public Collection<DepositFile> getPayloadFiles() {
+        // TODO why these inconsistent names, it seems to prevent @Getter
         return depositFiles;
     }
 
@@ -166,6 +168,14 @@ public class Deposit {
 
     public void setObjectVersion(Long objectVersion) {
         this.objectVersion = objectVersion;
+    }
+
+    public void setDataSupplier(String dataSupplier) {
+        this.dataSupplier = dataSupplier;
+    }
+
+    public String getDataSupplier() {
+        return dataSupplier;
     }
 
     public enum State {

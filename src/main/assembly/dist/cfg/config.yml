@@ -24,10 +24,14 @@ health:
 ingestFlow:
   rdaBagOutputDir: /var/opt/dans.knaw.nl/tmp/rda-bag
   autoIngest:
+    dataSuppliers:
+      user001: The Organization Name
     # todo: how to check if an update is authorized?
     inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
   migration:
+    dataSuppliers:
+      user001: The Organization Name
     inbox: /var/opt/dans.knaw.nl/tmp/migration/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/migration/outbox
   languages:
@@ -45,7 +49,8 @@ ingestFlow:
     keepAliveTime: 60 seconds
 
 vaultCatalog:
-  url: https://vault.dans.knaw.nl/catalog
+#  url: https://vault.dans.knaw.nl/catalog
+  url:  https://dev.transfer.dans-data.nl
   httpClient:
     userAgent: dd-vault-ingest-flow
     connectionTimeout: 1min

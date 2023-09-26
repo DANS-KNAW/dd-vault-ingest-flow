@@ -46,7 +46,7 @@ import java.util.stream.Collectors;
 public class DepositManager {
     private final XmlReader xmlReader;
 
-    public Deposit loadDeposit(Path path) {
+    public Deposit loadDeposit(Path path, Map<String, String> dataSupplierMap) {
         try {
             var bagDir = getBagDir(path);
 
@@ -68,6 +68,12 @@ public class DepositManager {
             log.info("Generating payload file list on path {}", path);
             var depositFiles = getDepositFiles(bagDir, bag, ddm, filesXml, originalFilePaths);
 
+            final String depositorId = depositProperties.getDepositorId();
+            log.info("Looking up dataSupplier for depositorId {}", depositorId);
+            if (!dataSupplierMap.containsKey(depositorId))
+                throw new Exception(String.format("No mapping to Data Supplier found for user id '%s'.", depositorId));
+            var dataSupplier = dataSupplierMap.get(depositorId);
+
             var builder = Deposit.builder()
                 .id(path.getFileName().toString())
                 .path(path)
@@ -75,7 +81,8 @@ public class DepositManager {
                 .bag(new DepositBag(bag))
                 .filesXml(filesXml)
                 .depositFiles(depositFiles)
-                .properties(depositProperties);
+                .properties(depositProperties)
+                .dataSupplier(dataSupplier);
 
             builder = customizeDeposit(builder, depositProperties);
 

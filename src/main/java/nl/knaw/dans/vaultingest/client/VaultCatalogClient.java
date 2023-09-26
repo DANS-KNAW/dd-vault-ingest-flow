@@ -51,7 +51,7 @@ public class VaultCatalogClient implements VaultCatalogRepository {
             var parameters = new OcflObjectVersionParametersDto()
                 .skeletonRecord(true)
                 .nbn(deposit.getNbn())
-                .dataSupplier(deposit.getDepositorId())
+                .dataSupplier(deposit.getDataSupplier())
                 .swordToken(deposit.getSwordToken());
 
             var newVersion = highestVersion + 1;

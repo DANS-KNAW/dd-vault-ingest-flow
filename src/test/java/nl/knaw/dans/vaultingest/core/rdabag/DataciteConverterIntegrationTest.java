@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,7 +117,7 @@ class DataciteConverterIntegrationTest {
     // serialize to XML, then convert to Node, so we can use XPath to test the output
     private Document loadResource() throws Exception {
         var manager = new TestDepositManager();
-        var deposit = manager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"));
+        var deposit = manager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"), Map.of("user001","Name of user"));
 
         var resource = new DataciteConverter().convert(deposit);
         var xmlString = new DataciteSerializer().serialize(resource);

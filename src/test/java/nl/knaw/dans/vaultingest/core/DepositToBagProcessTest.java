@@ -68,7 +68,7 @@ class DepositToBagProcessTest {
 
         var outbox = Mockito.mock(Outbox.class);
 
-        depositToBagProcess.process(Path.of("input/path/"), outbox);
+        depositToBagProcess.process(Path.of("input/path/"), outbox, Map.of());
 
         Mockito.verify(outbox).moveDeposit(Mockito.any());
 
@@ -90,7 +90,7 @@ class DepositToBagProcessTest {
             .thenReturn(VaultCatalogDeposit.builder().objectVersion(1L).build());
 
         var depositManager = Mockito.spy(TestDepositManager.ofDeposit(null));
-        Mockito.doThrow(new RuntimeException("error")).when(depositManager).loadDeposit(Mockito.any());
+        Mockito.doThrow(new RuntimeException("error")).when(depositManager).loadDeposit(Mockito.any(), Mockito.any());
 
         var depositToBagProcess = new DepositToBagProcess(
             () -> rdaBagWriter,
@@ -102,7 +102,7 @@ class DepositToBagProcessTest {
 
         var outbox = Mockito.mock(Outbox.class);
 
-        depositToBagProcess.process(Path.of("input/path/"), outbox);
+        depositToBagProcess.process(Path.of("input/path/"), outbox, Map.of());
         Mockito.verify(outbox).move(Path.of("input/path/"), Deposit.State.FAILED);
 
         assertThat(depositManager.getLastState()).isEqualTo(Deposit.State.FAILED);
@@ -134,7 +134,7 @@ class DepositToBagProcessTest {
 
         var outbox = Mockito.mock(Outbox.class);
 
-        depositToBagProcess.process(Path.of("input/path/"), outbox);
+        depositToBagProcess.process(Path.of("input/path/"), outbox, Map.of());
         Mockito.verify(outbox).move(Path.of("input/path/"), Deposit.State.REJECTED);
 
         assertThat(depositManager.getLastState()).isEqualTo(Deposit.State.REJECTED);
@@ -166,7 +166,7 @@ class DepositToBagProcessTest {
 
         var outbox = Mockito.mock(Outbox.class);
 
-        depositToBagProcess.process(Path.of("input/path/"), outbox);
+        depositToBagProcess.process(Path.of("input/path/"), outbox, Map.of());
         Mockito.verify(outbox).move(Path.of("input/path/"), Deposit.State.REJECTED);
 
         assertThat(depositManager.getLastState()).isEqualTo(Deposit.State.REJECTED);
@@ -289,7 +289,7 @@ class DepositToBagProcessTest {
 
         var outbox = Mockito.mock(Outbox.class);
 
-        depositToBagProcess.process(Path.of("input/path/"), outbox);
+        depositToBagProcess.process(Path.of("input/path/"), outbox, Map.of("user001","Name of user"));
 
         assertThat(output.getData().entrySet())
             .extracting(Map.Entry::getKey)
@@ -303,12 +303,12 @@ class DepositToBagProcessTest {
 
     private Deposit getBasicDeposit() {
         var manager = new TestDepositManager();
-        return manager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"));
+        return manager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"), Map.of("user001","Name of user"));
     }
 
     private Deposit getBasicDepositAsUpdate() {
         var manager = new TestDepositManager();
-        var deposit = manager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"));
+        var deposit = manager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"), Map.of("user001","Name of user"));
 
         var spied = Mockito.spy(deposit);
 

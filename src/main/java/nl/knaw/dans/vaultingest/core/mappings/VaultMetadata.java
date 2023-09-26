@@ -15,14 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.core.mappings;
 
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.mappings.vocabulary.DansDVMetadata;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class VaultMetadata extends Base {
 
     public static List<Statement> toRDF(Resource resource, Deposit deposit) {
@@ -45,9 +48,14 @@ public class VaultMetadata extends Base {
             .ifPresent(result::add);
 
         // VLT008
-        toBasicTerm(resource, DansDVMetadata.dansDataSupplier, deposit.getDepositorId())
-            .ifPresent(result::add);
-
+        String dataSupplier = deposit.getDataSupplier();
+        if (StringUtils.isBlank(dataSupplier)) {
+            log.warn("No mapping to Data Supplier found for user id '{}'. The field dansDataSupplier will be left empty", deposit.getDepositorId());
+        }
+        else {
+            toBasicTerm(resource, DansDVMetadata.dansDataSupplier, dataSupplier)
+                .ifPresent(result::add);
+        }
         return result;
     }
 

@@ -20,6 +20,7 @@ import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Slf4j
@@ -28,16 +29,19 @@ public class AutoIngestArea {
     private final IngestAreaWatcher ingestAreaWatcher;
     private final DepositToBagProcess depositToBagProcess;
     private final Outbox outbox;
+    private final Map<String, String> dataSupplierMap;
 
     public AutoIngestArea(
         Executor executor,
         IngestAreaWatcher ingestAreaWatcher,
         DepositToBagProcess depositToBagProcess,
-        Outbox outbox) {
+        Outbox outbox,
+        Map<String, String> dataSupplierMap) {
         this.executor = executor;
         this.ingestAreaWatcher = ingestAreaWatcher;
         this.depositToBagProcess = depositToBagProcess;
         this.outbox = outbox;
+        this.dataSupplierMap = dataSupplierMap;
     }
 
     public void start() {
@@ -47,7 +51,7 @@ public class AutoIngestArea {
             ingestAreaWatcher.start((path) -> {
                 log.info("New item in inbox; path = {}", path);
 
-                executor.execute(() -> depositToBagProcess.process(path, outbox));
+                executor.execute(() -> depositToBagProcess.process(path, outbox, dataSupplierMap));
             });
         }
         catch (IOException e) {

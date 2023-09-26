@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -636,7 +637,7 @@ public class OaiOreConverterIntegrationTest {
 
     private ModelObject loadModel() throws Exception {
         var depositManager = new TestDepositManager();
-        var deposit = depositManager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"));
+        var deposit = depositManager.loadDeposit(Path.of("/input/integration-test-complete-bag/c169676f-5315-4d86-bde0-a62dbc915228/"), Map.of("user001","Name of user"));
         deposit.setNbn("urn:nbn:nl:ui:13-4c-1a2b");
 
         var model = new OaiOreConverter(

@@ -18,9 +18,11 @@ package nl.knaw.dans.vaultingest.config;
 import lombok.Getter;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 @Getter
 public class InboxConfig {
     private Path inbox;
     private Path outbox;
+    private Map<String, String> dataSuppliers;
 }

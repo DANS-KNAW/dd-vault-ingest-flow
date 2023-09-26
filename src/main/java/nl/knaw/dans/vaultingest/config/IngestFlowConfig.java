@@ -21,6 +21,7 @@ import nl.knaw.dans.lib.util.ExecutorServiceFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Getter
 public class IngestFlowConfig {

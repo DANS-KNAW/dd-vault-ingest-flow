@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 class AutoIngestAreaTest {
 
@@ -34,11 +35,11 @@ class AutoIngestAreaTest {
             Runnable::run,
             callback -> callback.onItemCreated(Path.of("fake/path")),
             process,
-            outbox
-        );
+            outbox,
+            Map.of());
 
         area.start();
 
-        Mockito.verify(process).process(Path.of("fake/path"), outbox);
+        Mockito.verify(process).process(Path.of("fake/path"), outbox, Map.of());
     }
 }
