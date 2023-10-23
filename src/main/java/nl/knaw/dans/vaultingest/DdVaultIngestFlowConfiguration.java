@@ -16,7 +16,7 @@
 
 package nl.knaw.dans.vaultingest;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.Getter;
 import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
 import nl.knaw.dans.vaultingest.config.ValidateDansBagConfig;

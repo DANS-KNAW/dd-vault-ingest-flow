@@ -16,10 +16,10 @@
 
 package nl.knaw.dans.vaultingest;
 
-import io.dropwizard.Application;
+import io.dropwizard.core.Application;
 import io.dropwizard.client.JerseyClientBuilder;
-import io.dropwizard.setup.Bootstrap;
-import io.dropwizard.setup.Environment;
+import io.dropwizard.core.setup.Bootstrap;
+import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultcatalog.client.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
