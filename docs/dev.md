@@ -86,7 +86,8 @@ start-service.sh
     * The `userId` should match a value configured as a `dataSupplier` in `dd-vault-ingest-flow/etc/config.yml`.
     * The `<UUID>` should match the directory name.
 * To test updates you will need different UUIDs for each `example-bags/valid/*` and move them to the inbox.
-  Note that the `revision02` and `revision03` bags lack an `Is-Version-Of: <UUID>` in `bag-info.txt`.
+  Note that the `revision02` and `revision03` bags lack an `Is-Version-Of: <UUID>` in `bag-info.txt`,
+  it must be a valid SWORD token in the vault catalog.
   Adding this property requires an update of the `tagmanifest-sha1.txt`.
   A validation error message will show the proper value, for example (with a locally running validator):
 
@@ -128,3 +129,6 @@ Start an ingest:
 
     mv -v `readlink -m ../*/revision01/..` inbox
 
+Or see [dd-dans-sword2-examples]{:target=_blank} with IRI `https://dev.sword2.vaas.datastations.nl/collection/1`
+
+[dd-dans-sword2-examples]: https://dans-knaw.github.io/dd-dans-sword2-examples/#testing-different-scenarios
