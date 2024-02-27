@@ -25,7 +25,7 @@ import nl.knaw.dans.vaultcatalog.client.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
 import nl.knaw.dans.vaultingest.client.BagValidator;
 import nl.knaw.dans.vaultingest.client.MigrationBagValidator;
-import nl.knaw.dans.vaultingest.client.VaultCatalogClient;
+import nl.knaw.dans.vaultingest.client.VaultCatalogClientImpl;
 import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
 import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
@@ -89,7 +89,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         var outputWriterFactory = new ZipBagOutputWriterFactory(configuration.getIngestFlow().getRdaBagOutputDir());
 
         var ocflObjectVersionApi = createOcflObjectVersionApi(configuration, environment);
-        var vaultCatalogRepository = new VaultCatalogClient(ocflObjectVersionApi);
+        var vaultCatalogRepository = new VaultCatalogClientImpl(ocflObjectVersionApi);
         var idMinter = new IdMinter();
 
         var depositToBagProcess = new DepositToBagProcess(

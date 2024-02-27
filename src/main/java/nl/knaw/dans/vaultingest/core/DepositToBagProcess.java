@@ -25,7 +25,7 @@ import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
 import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.validator.BagValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
-import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogRepository;
+import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class DepositToBagProcess {
 
     private final RdaBagWriter rdaBagWriter;
     private final BagOutputWriterFactory bagOutputWriterFactory;
-    private final VaultCatalogRepository vaultCatalogService;
+    private final VaultCatalogClient vaultCatalogService;
     private final BagValidator bagValidator;
     private final IdMinter idMinter;
     private final DepositManager depositManager;
@@ -46,7 +46,7 @@ public class DepositToBagProcess {
     public DepositToBagProcess(
         RdaBagWriterFactory rdaBagWriterFactory,
         BagOutputWriterFactory bagOutputWriterFactory,
-        VaultCatalogRepository vaultCatalogService,
+        VaultCatalogClient vaultCatalogService,
         BagValidator bagValidator,
         IdMinter idMinter,
         DepositManager depositManager) {

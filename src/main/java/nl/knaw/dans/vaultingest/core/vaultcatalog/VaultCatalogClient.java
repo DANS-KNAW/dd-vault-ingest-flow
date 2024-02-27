@@ -20,7 +20,7 @@ import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import java.io.IOException;
 import java.util.Optional;
 
-public interface VaultCatalogRepository {
+public interface VaultCatalogClient {
 
     VaultCatalogDeposit registerDeposit(Deposit deposit) throws IOException;
 

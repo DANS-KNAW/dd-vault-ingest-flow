@@ -22,17 +22,16 @@ import nl.knaw.dans.vaultcatalog.client.ApiException;
 import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogDeposit;
-import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogRepository;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Optional;
 
 @Slf4j
-public class VaultCatalogClient implements VaultCatalogRepository {
+public class VaultCatalogClientImpl implements nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogClient {
     private final OcflObjectVersionApi ocflObjectVersionApi;
 
-    public VaultCatalogClient(OcflObjectVersionApi ocflObjectVersionApi) {
+    public VaultCatalogClientImpl(OcflObjectVersionApi ocflObjectVersionApi) {
         this.ocflObjectVersionApi = ocflObjectVersionApi;
     }
 
