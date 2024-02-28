@@ -23,11 +23,11 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class DepositFileTest {
+class PayloadFileTest {
 
     @Test
     void getDirectoryLabel_should_return_same_path_for_valid_characters() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNode("data/only/valid/characters.txt"))
             .build();
 
@@ -36,7 +36,7 @@ class DepositFileTest {
 
     @Test
     void getFilename_should_return_same_value_for_valid_characters() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNode("data/valid/characters.txt"))
             .build();
 

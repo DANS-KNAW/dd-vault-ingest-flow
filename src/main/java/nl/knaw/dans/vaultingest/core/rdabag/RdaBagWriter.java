@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
-import nl.knaw.dans.vaultingest.core.deposit.DepositFile;
+import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.oaiore.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.oaiore.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingConverter;
@@ -146,7 +146,7 @@ public class RdaBagWriter {
 
         for (var algorithm : algorithms) {
             var mappings = new TreeMap<Path, String>();
-            var payloadPaths = deposit.getPayloadFiles().stream().map(DepositFile::getPath).collect(Collectors.toSet());
+            var payloadPaths = deposit.getPayloadFiles().stream().map(PayloadFile::getPath).collect(Collectors.toSet());
 
             for (var entry : checksums.entrySet()) {
                if (payloadPaths.contains(entry.getKey()) || entry.getKey().startsWith("tagmanifest-")) {
@@ -170,7 +170,7 @@ public class RdaBagWriter {
         var checksumMap = new TreeMap<>(
             deposit.getPayloadFiles()
                 .stream()
-                .map(DepositFile::getPath)
+                .map(PayloadFile::getPath)
                 .map(item -> Map.entry(item, checksums.get(item)))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))
         );

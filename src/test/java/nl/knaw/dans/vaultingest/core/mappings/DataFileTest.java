@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.mappings;
 
-import nl.knaw.dans.vaultingest.core.deposit.DepositFile;
+import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.xml.XmlNamespaces;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.junit.jupiter.api.Test;
@@ -27,7 +27,7 @@ class DataFileTest {
 
     @Test
     void isRestricted_should_return_false_when_no_information_is_available() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNode("data/invalid/characters/here:*?\"<>|;#.txt"))
             .ddmNode(getDdmNodeWithAccessRights(null))
             .build();
@@ -37,7 +37,7 @@ class DataFileTest {
 
     @Test
     void isRestricted_should_return_false_when_getAccessRights_equals_OPEN_ACCESS() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNode("data/invalid/characters/here:*?\"<>|;#.txt"))
             .ddmNode(getDdmNodeWithAccessRights("OPEN_ACCESS"))
             .build();
@@ -47,7 +47,7 @@ class DataFileTest {
 
     @Test
     void isRestricted_should_return_true_when_getAccessRights_equals_RANDOM_VALUE() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNode("data/invalid/characters/here:*?\"<>|;#.txt"))
             .ddmNode(getDdmNodeWithAccessRights("RANDOM_VALUE"))
             .build();
@@ -57,7 +57,7 @@ class DataFileTest {
 
     @Test
     void isRestricted_should_return_true_when_getAccessibleToRights_is_empty() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNodeWithAccessibleToRights(""))
             .ddmNode(getDdmNodeWithAccessRights(null))
             .build();
@@ -67,7 +67,7 @@ class DataFileTest {
 
     @Test
     void isRestricted_should_return_true_when_getAccessibleToRights_equals_ANYTHING() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNodeWithAccessibleToRights("ANYTHING"))
             .ddmNode(getDdmNodeWithAccessRights(null))
             .build();
@@ -77,7 +77,7 @@ class DataFileTest {
 
     @Test
     void isRestricted_should_return_false_when_getAccessibleToRights_equals_ANONYMOUS() throws Exception {
-        var depositFile = DepositFile.builder()
+        var depositFile = PayloadFile.builder()
             .filesXmlNode(getFilesXmlNodeWithAccessibleToRights("ANONYMOUS"))
             .ddmNode(getDdmNodeWithAccessRights(null))
             .build();

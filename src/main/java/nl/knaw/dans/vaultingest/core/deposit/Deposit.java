@@ -17,6 +17,8 @@ package nl.knaw.dans.vaultingest.core.deposit;
 
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlNamespaces;
@@ -29,49 +31,40 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Builder
 @ToString
+@Getter
 public class Deposit {
+    public enum State {
+        PUBLISHED,
+        ACCEPTED,
+        REJECTED,
+        FAILED,
+        DRAFT,
+        FINALIZING,
+        INVALID,
+        SUBMITTED,
+        UPLOADED
+    }
+
     private final String id;
     private final Document ddm;
     private final Document filesXml;
-    private final List<DepositFile> depositFiles;
+    private final List<PayloadFile> payloadFiles;
     private final Path path;
     private final DepositProperties properties;
     private final DepositBag bag;
     private final boolean migration;
+    @Setter
     private String nbn;
+    @Setter
     private Long objectVersion;
+    @Setter
     private String dataSupplier;
-
-    public Path getPath() {
-        return path;
-    }
-
-    public boolean isMigration() {
-        return migration;
-    }
-
-    DepositProperties getProperties() {
-        return properties;
-    }
-
-    public DepositBag getBag() {
-        return bag;
-    }
 
     public Set<SupportedAlgorithm> getPayloadManifestAlgorithms() {
         return getBag().getPayloadManifestAlgorithms();
-    }
-
-    public Document getDdm() {
-        return ddm;
-    }
-
-    public Document getFilesXml() {
-        return filesXml;
     }
 
     public State getState() {
@@ -86,16 +79,8 @@ public class Deposit {
         return bag.getMetadataValue(key);
     }
 
-    public String getNbn() {
-        return nbn;
-    }
-
-    public void setNbn(String nbn) {
-        this.nbn = nbn;
-    }
-
     public boolean isUpdate() {
-        return bag.getMetadataValue("Is-Version-Of").size() > 0;
+        return !bag.getMetadataValue("Is-Version-Of").isEmpty();
     }
 
     public String getIsVersionOf() {
@@ -115,17 +100,8 @@ public class Deposit {
         properties.setStateDescription(message);
     }
 
-    public String getId() {
-        return id;
-    }
-
     public String getBagId() {
         return properties.getBagId();
-    }
-
-    public Collection<DepositFile> getPayloadFiles() {
-        // TODO why these inconsistent names, it seems to prevent @Getter
-        return depositFiles;
     }
 
     public String getDoi() {
@@ -135,7 +111,7 @@ public class Deposit {
             String.format("/ddm:DDM/ddm:dcmiMetadata/dc:identifier[@xsi:type='%s:DOI']", prefix)
         };
 
-        var dois = XPathEvaluator.strings(ddm, expr).collect(Collectors.toList());
+        var dois = XPathEvaluator.strings(ddm, expr).toList();
 
         if (dois.size() != 1) {
             throw new IllegalStateException("There should be exactly one DOI in the DDM, but found " + dois.size() + " DOIs");
@@ -160,33 +136,5 @@ public class Deposit {
 
     public Path getBagDir() {
         return bag.getBagDir();
-    }
-
-    public Long getObjectVersion() {
-        return objectVersion;
-    }
-
-    public void setObjectVersion(Long objectVersion) {
-        this.objectVersion = objectVersion;
-    }
-
-    public void setDataSupplier(String dataSupplier) {
-        this.dataSupplier = dataSupplier;
-    }
-
-    public String getDataSupplier() {
-        return dataSupplier;
-    }
-
-    public enum State {
-        PUBLISHED,
-        ACCEPTED,
-        REJECTED,
-        FAILED,
-        DRAFT,
-        FINALIZING,
-        INVALID,
-        SUBMITTED,
-        UPLOADED
     }
 }

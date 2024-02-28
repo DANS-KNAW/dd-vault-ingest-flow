@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.core.mappings;
 
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
-import nl.knaw.dans.vaultingest.core.deposit.DepositFile;
+import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.mappings.vocabulary.DVCore;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.apache.jena.rdf.model.Resource;
@@ -47,7 +47,7 @@ public class Terms extends Base {
     }
 
     // false = no, true = yes
-    static boolean isRequestAccess(Document ddm, Collection<DepositFile> files) {
+    static boolean isRequestAccess(Document ddm, Collection<PayloadFile> files) {
         // TRM002
         var containsNone = false;
 
@@ -72,7 +72,7 @@ public class Terms extends Base {
         // TRM004
     }
 
-    static String getTermsOfAccess(Document ddm, Collection<DepositFile> files) {
+    static String getTermsOfAccess(Document ddm, Collection<PayloadFile> files) {
         // TRM005
         var containsNone = false;
 

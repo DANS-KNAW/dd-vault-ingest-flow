@@ -22,12 +22,12 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>0.26.0</version>
+        <version>1.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>dd-vault-ingest-flow</artifactId>
     <version>0.10.1-SNAPSHOT</version>
 
-    <name>Dd Vault Ingest Flow</name>
+    <name>DD Vault Ingest Flow</name>
     <url>https://github.com/DANS-KNAW/dd-vault-ingest-flow</url>
     <description>Vault Service Ingest Flow</description>
     <inceptionYear>2023</inceptionYear>
@@ -95,28 +95,28 @@
             <artifactId>joda-time</artifactId>
         </dependency>
 
-        <!-- this is actually the generated server code, so disable until we have fixed DD-1379 -->
-        <!--        <dependency>-->
-        <!--            <groupId>nl.knaw.dans</groupId>-->
-        <!--            <artifactId>dd-validate-dans-bag-api</artifactId>-->
-        <!--        </dependency>-->
-
         <!-- https://mvnrepository.com/artifact/org.apache.jena/apache-jena-libs -->
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
-            <version>4.7.0</version>
             <type>pom</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
+            <version>2.9.0</version>
         </dependency>
 
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
