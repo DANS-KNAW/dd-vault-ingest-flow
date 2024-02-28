@@ -48,6 +48,7 @@ class DansBagToRdaBagEnricherTest extends AbstractTestWithTestDir {
         FileUtils.copyDirectory(inputDeposit.toFile(), testDeposit.toFile());
         var deposit = manager.loadDeposit(testDeposit, Map.of("user001", "Name of user"));
         assertThat(isBagValid(deposit.getBagDir())).isTrue(); // Valid before enriching
+        var rdaBag = testDir.resolve("rda-bag.zip");
 
         var enricher = new DansBagToRdaBagEnricher(
             deposit,
@@ -59,7 +60,7 @@ class DansBagToRdaBagEnricherTest extends AbstractTestWithTestDir {
             new OaiOreConverter(LanguageResolverFactory.getInstance(), CountryResolverFactory.getInstance())
         );
 
-        enricher.write();
+        enricher.write(rdaBag);
         // check that the following files are present in the bag
         assertThat(deposit.getBagDir().resolve("metadata/datacite.xml")).exists();
         assertThat(deposit.getBagDir().resolve("metadata/pid-mapping.txt")).exists();

@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -48,8 +49,6 @@ import java.util.Set;
 public class DansBagToRdaBagEnricher {
     @NonNull
     private final Deposit deposit;
-
-    @
 
     @NonNull
     private final DataciteSerializer dataciteSerializer;
@@ -72,7 +71,7 @@ public class DansBagToRdaBagEnricher {
     private final Map<Path, Map<SupportedAlgorithm, String>> changedChecksums = new HashMap<>();
     private Set<SupportedAlgorithm> tagManifestAlgorithms;
 
-    public void write() throws IOException {
+    public void write(Path rdaBag) throws IOException {
         this.tagManifestAlgorithms = deposit.getBag().getTagManifestAlgorithms();
 
         log.debug("Adding metadata/datacite.xml");
@@ -99,9 +98,9 @@ public class DansBagToRdaBagEnricher {
         modifyTagManifests(); // Add checksums for new metadata files
 
         log.debug("Creating ZIP file");
-        ZipUtil.zipDirectory(deposit.getBagDir(), , true);
-
-
+        var tempZipFile = deposit.getPath().resolve("temp-rda-bag.zip");
+        ZipUtil.zipDirectory(deposit.getBagDir(), tempZipFile, true);
+        Files.move(tempZipFile, rdaBag);
     }
 
     private void modifyTagManifests() throws IOException {

@@ -27,7 +27,6 @@ import nl.knaw.dans.vaultingest.core.oaiore.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingConverter;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingSerializer;
 
-@AllArgsConstructor
 public class DefaultRdaBagWriterFactory {
 
     private final DataciteSerializer dataciteSerializer;

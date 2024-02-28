@@ -16,8 +16,8 @@
 
 package nl.knaw.dans.vaultingest;
 
-import io.dropwizard.core.Application;
 import io.dropwizard.client.JerseyClientBuilder;
+import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,6 @@ import nl.knaw.dans.vaultingest.client.BagValidator;
 import nl.knaw.dans.vaultingest.client.MigrationBagValidator;
 import nl.knaw.dans.vaultingest.client.VaultCatalogClientImpl;
 import nl.knaw.dans.vaultingest.core.ConvertToRdaBagTask;
-import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.deposit.DepositOutbox;
@@ -37,6 +36,7 @@ import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
 import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
 import nl.knaw.dans.vaultingest.core.inbox.MigrationIngestArea;
 import nl.knaw.dans.vaultingest.core.rdabag.DefaultRdaBagWriterFactory;
+import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import nl.knaw.dans.vaultingest.health.DansBagValidatorHealthCheck;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -52,7 +52,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
 
     @Override
     public String getName() {
-        return "Dd Vault Ingest Flow";
+        return "DD Vault Ingest Flow";
     }
 
     @Override
@@ -94,7 +94,8 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             vaultCatalogRepository,
             depositValidator,
             idMinter,
-            depositManager
+            depositManager,
+            configuration.getIngestFlow().getRdaBagOutputDir()
         );
 
         var taskQueue = configuration.getIngestFlow().getTaskQueue().build(environment);
@@ -120,7 +121,8 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             vaultCatalogRepository,
             migrationDepositValidator,
             idMinter,
-            migrationDepositManager
+            migrationDepositManager,
+            configuration.getIngestFlow().getRdaBagOutputDir()
         );
 
         var migrationIngestArea = new MigrationIngestArea(

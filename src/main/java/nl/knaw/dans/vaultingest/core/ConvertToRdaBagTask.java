@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.Objects;
 
 @Slf4j
 @AllArgsConstructor
@@ -41,6 +42,7 @@ public class ConvertToRdaBagTask {
     private final BagValidator bagValidator;
     private final IdMinter idMinter;
     private final DepositManager depositManager;
+    private final Path dveOutbox;
 
     public void process(Path path, Outbox outbox, Map<String, String> dataSupplierMap) {
         try {
@@ -92,12 +94,22 @@ public class ConvertToRdaBagTask {
 
         // send rda bag to vault
         try {
-            rdaBagWriterFactory.createRdaBagWriter(deposit).write();
+            rdaBagWriterFactory.createRdaBagWriter(deposit).write(dveOutbox.resolve(outputFilename(deposit.getBagId(), deposit.getObjectVersion())));
             deposit.setState(Deposit.State.ACCEPTED, "Deposit accepted");
         }
         catch (Exception e) {
             throw new IllegalStateException("Error writing bag: " + e.getMessage(), e);
         }
+    }
+
+    private String outputFilename(String bagId, Long objectVersion) {
+        Objects.requireNonNull(bagId);
+        Objects.requireNonNull(objectVersion);
+
+        // strip anything before all colons (if present), and also the colon itself
+        bagId = bagId.toLowerCase().replaceAll(".*:", "");
+
+        return String.format("vaas-%s-v%s.zip", bagId, objectVersion);
     }
 
     void handleFailedDeposit(Path path, Outbox outbox, Deposit.State state, Throwable error) {
