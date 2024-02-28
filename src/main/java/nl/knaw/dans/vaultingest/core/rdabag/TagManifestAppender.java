@@ -15,14 +15,14 @@
  */
 package nl.knaw.dans.vaultingest.core.rdabag;
 
-import nl.knaw.dans.vaultingest.core.util.FilepathConverter;
+import nl.knaw.dans.vaultingest.core.util.BagItFilePathEncoding;
 
 import java.nio.file.Path;
 import java.util.Map;
 
-public class ManifestConverter {
+public class TagManifestAppender {
 
-    public String convert(Path rootDir, Map<Path, String> checksums) {
+    public String appendNewEntries(Path rootDir, Map<Path, String> checksums) {
         var outputString = new StringBuilder();
 
         for (var entry : checksums.entrySet()) {
@@ -36,7 +36,7 @@ public class ManifestConverter {
             }
 
             var relativePath = rootDir.relativize(path);
-            var safeFilename = FilepathConverter.convertFilepath(relativePath);
+            var safeFilename = BagItFilePathEncoding.encodeFilePath(relativePath);
 
             outputString.append(String.format("%s  %s\n", entry.getValue(), safeFilename));
         }

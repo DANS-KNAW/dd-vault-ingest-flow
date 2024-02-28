@@ -26,7 +26,7 @@ import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
 import nl.knaw.dans.vaultingest.client.BagValidator;
 import nl.knaw.dans.vaultingest.client.MigrationBagValidator;
 import nl.knaw.dans.vaultingest.client.VaultCatalogClientImpl;
-import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
+import nl.knaw.dans.vaultingest.core.ConvertToRdaBagTask;
 import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
@@ -37,7 +37,6 @@ import nl.knaw.dans.vaultingest.core.inbox.AutoIngestArea;
 import nl.knaw.dans.vaultingest.core.inbox.IngestAreaDirectoryWatcher;
 import nl.knaw.dans.vaultingest.core.inbox.MigrationIngestArea;
 import nl.knaw.dans.vaultingest.core.rdabag.DefaultRdaBagWriterFactory;
-import nl.knaw.dans.vaultingest.core.rdabag.output.ZipBagOutputWriterFactory;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import nl.knaw.dans.vaultingest.health.DansBagValidatorHealthCheck;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -86,15 +85,12 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             countryResolver
         );
 
-        var outputWriterFactory = new ZipBagOutputWriterFactory(configuration.getIngestFlow().getRdaBagOutputDir());
-
         var ocflObjectVersionApi = createOcflObjectVersionApi(configuration, environment);
         var vaultCatalogRepository = new VaultCatalogClientImpl(ocflObjectVersionApi);
         var idMinter = new IdMinter();
 
-        var depositToBagProcess = new DepositToBagProcess(
+        var depositToBagProcess = new ConvertToRdaBagTask(
             rdaBagWriterFactory,
-            outputWriterFactory,
             vaultCatalogRepository,
             depositValidator,
             idMinter,
@@ -119,9 +115,8 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         var migrationDepositValidator = new MigrationBagValidator(dansBagValidatorClient, configuration.getValidateDansBag().getValidateUrl());
         var migrationDepositManager = new MigrationDepositManager(xmlReader);
 
-        var migrationDepositToBagProcess = new DepositToBagProcess(
+        var migrationDepositToBagProcess = new ConvertToRdaBagTask(
             rdaBagWriterFactory,
-            outputWriterFactory,
             vaultCatalogRepository,
             migrationDepositValidator,
             idMinter,

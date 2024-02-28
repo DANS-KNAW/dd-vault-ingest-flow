@@ -16,16 +16,19 @@
 package nl.knaw.dans.vaultingest.core.rdabag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.deposit.CountryResolver;
+import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.deposit.LanguageResolver;
 import nl.knaw.dans.vaultingest.core.oaiore.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.oaiore.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingConverter;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingSerializer;
 
-public class DefaultRdaBagWriterFactory implements RdaBagWriterFactory {
+@AllArgsConstructor
+public class DefaultRdaBagWriterFactory {
 
     private final DataciteSerializer dataciteSerializer;
     private final PidMappingSerializer pidMappingSerializer;
@@ -44,9 +47,9 @@ public class DefaultRdaBagWriterFactory implements RdaBagWriterFactory {
         this.oaiOreConverter = new OaiOreConverter(languageResolver, countryResolver);
     }
 
-    @Override
-    public RdaBagWriter createRdaBagWriter() {
-        return new RdaBagWriter(
+    public DansBagToRdaBagEnricher createRdaBagWriter(Deposit deposit) {
+        return new DansBagToRdaBagEnricher(
+            deposit,
             dataciteSerializer,
             pidMappingSerializer,
             oaiOreSerializer,

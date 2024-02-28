@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.inbox;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -27,14 +28,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
+@AllArgsConstructor
 public class IngestAreaDirectoryWatcher implements IngestAreaWatcher {
     private final long pollingInterval;
     private final Path directory;
-
-    public IngestAreaDirectoryWatcher(long pollingIntervalMilliseconds, Path directory) {
-        this.pollingInterval = pollingIntervalMilliseconds;
-        this.directory = directory;
-    }
 
     @Override
     public void start(IngestAreaItemCreated callback) {

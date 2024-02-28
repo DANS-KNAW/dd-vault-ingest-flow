@@ -99,7 +99,7 @@ public class DepositManager {
         return builder;
     }
 
-    public void saveDeposit(Deposit deposit) {
+    public void saveDepositProperties(Deposit deposit) {
         var properties = deposit.getProperties();
 
         try {

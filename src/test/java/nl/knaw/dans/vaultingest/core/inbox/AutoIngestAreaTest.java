@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.inbox;
 
-import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
+import nl.knaw.dans.vaultingest.core.ConvertToRdaBagTask;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -27,7 +27,7 @@ class AutoIngestAreaTest {
 
     @Test
     void watcher_should_call_callback() {
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
         var outbox = Mockito.mock(Outbox.class);
 
         var area = new AutoIngestArea(

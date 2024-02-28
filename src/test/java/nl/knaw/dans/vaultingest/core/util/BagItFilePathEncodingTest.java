@@ -22,23 +22,23 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-class FilepathConverterTest {
+class BagItFilePathEncodingTest {
 
     @Test
     void convertFilepath_should_not_change_valid_characters() {
-        assertThat(FilepathConverter.convertFilepath(Path.of("/a/b/c^!@#$&*()")))
+        assertThat(BagItFilePathEncoding.encodeFilePath(Path.of("/a/b/c^!@#$&*()")))
             .isEqualTo("/a/b/c^!@#$&*()");
     }
 
     @Test
     void convertFilepath_should_encode_special_characters() {
-        assertThat(FilepathConverter.convertFilepath(Path.of("/a/name\nwith\r\tnewlines%and%percent")))
+        assertThat(BagItFilePathEncoding.encodeFilePath(Path.of("/a/name\nwith\r\tnewlines%and%percent")))
             .isEqualTo("/a/name%0Awith%0D\tnewlines%25and%25percent");
     }
 
     @Test
     void convertFilepath_should_not_accept_null_paths() {
-        assertThatThrownBy(() -> FilepathConverter.convertFilepath(null))
+        assertThatThrownBy(() -> BagItFilePathEncoding.encodeFilePath(null))
             .isInstanceOf(NullPointerException.class)
             .hasMessageContaining("path cannot be null");
     }

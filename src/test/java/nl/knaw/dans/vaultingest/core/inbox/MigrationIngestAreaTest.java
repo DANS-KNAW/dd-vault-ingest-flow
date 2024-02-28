@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.core.inbox;
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
-import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
+import nl.knaw.dans.vaultingest.core.ConvertToRdaBagTask;
 import nl.knaw.dans.vaultingest.core.utilities.TestOutbox;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -35,7 +35,7 @@ class MigrationIngestAreaTest {
     @Test
     void getAbsolutePath_should_work_with_relativePath() {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
         var outbox = new TestOutbox(Path.of("/outbox/path/"));
         var area = new MigrationIngestArea(executor, process, Path.of("/input/path/"), outbox, Map.of());
 
@@ -46,7 +46,7 @@ class MigrationIngestAreaTest {
     @Test
     void getAbsolutePath_should_work_with_absolutePath() {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
         var outbox = new TestOutbox(Path.of("/outbox/path/"));
         var area = new MigrationIngestArea(executor, process, Path.of("/input/path/"), outbox, Map.of());
 
@@ -57,7 +57,7 @@ class MigrationIngestAreaTest {
     @Test
     void validateDepositDir_should_work() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -73,7 +73,7 @@ class MigrationIngestAreaTest {
     @Test
     void validateDepositDir_should_throw_IllegalArgumentException_if_depositProperties_is_absent() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -90,7 +90,7 @@ class MigrationIngestAreaTest {
     @Test
     void validateBatchDirectory_should_handle_multiple_deposits() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -109,7 +109,7 @@ class MigrationIngestAreaTest {
     @Test
     void validateBatchDirectory_should_throw_IllegalArgumentException_if_one_deposit_is_invalid() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -130,7 +130,7 @@ class MigrationIngestAreaTest {
     @Test
     void validateBatchDirectory_should_throw_IllegalArgumentException_if_inbox_is_not_a_directory() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -149,7 +149,7 @@ class MigrationIngestAreaTest {
     @Test
     void ingest_should_handle_paths_without_issues() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -170,7 +170,7 @@ class MigrationIngestAreaTest {
     @Test
     void ingest_should_reject_paths_outside_inboxDir() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));
@@ -190,7 +190,7 @@ class MigrationIngestAreaTest {
     @Test
     void ingest_should_handle_single_deposit() throws Exception {
         var executor = Mockito.mock(ExecutorService.class);
-        var process = Mockito.mock(DepositToBagProcess.class);
+        var process = Mockito.mock(ConvertToRdaBagTask.class);
 
         try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
             var outbox = new TestOutbox(fs.getPath("/outbox/path/"));

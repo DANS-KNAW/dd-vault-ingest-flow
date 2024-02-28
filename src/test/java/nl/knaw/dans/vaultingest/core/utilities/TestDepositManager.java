@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.utilities;
 
+import lombok.Getter;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
@@ -24,8 +25,14 @@ import java.util.Map;
 
 public class TestDepositManager extends DepositManager {
     private Deposit deposit;
+
+    @Getter
     private boolean saveDepositCalled = false;
+
+    @Getter
     private Deposit.State lastState = null;
+
+    @Getter
     private String lastMessage = null;
 
     public TestDepositManager() {
@@ -41,14 +48,6 @@ public class TestDepositManager extends DepositManager {
         return new TestDepositManager(deposit);
     }
 
-    public Deposit.State getLastState() {
-        return lastState;
-    }
-
-    public String getLastMessage() {
-        return lastMessage;
-    }
-
     @Override
     public Deposit loadDeposit(Path path, Map<String, String> dataSupplierMap) {
         if (this.deposit != null) {
@@ -62,7 +61,7 @@ public class TestDepositManager extends DepositManager {
     }
 
     @Override
-    public void saveDeposit(Deposit deposit) {
+    public void saveDepositProperties(Deposit deposit) {
         saveDepositCalled = true;
     }
 
@@ -70,9 +69,5 @@ public class TestDepositManager extends DepositManager {
     public void updateDepositState(Path path, Deposit.State state, String message) {
         lastState = state;
         lastMessage = message;
-    }
-
-    public boolean isSaveDepositCalled() {
-        return saveDepositCalled;
     }
 }

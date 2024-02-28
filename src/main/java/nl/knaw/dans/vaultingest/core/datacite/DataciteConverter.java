@@ -104,7 +104,7 @@ public class DataciteConverter {
             }
 
             return creator;
-        }).collect(Collectors.toList());
+        }).toList();
 
         creators.getCreator().addAll(results);
 

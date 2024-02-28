@@ -15,13 +15,12 @@
  */
 package nl.knaw.dans.vaultingest.core;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
-import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriter;
-import nl.knaw.dans.vaultingest.core.rdabag.RdaBagWriterFactory;
-import nl.knaw.dans.vaultingest.core.rdabag.output.BagOutputWriterFactory;
+import nl.knaw.dans.vaultingest.core.rdabag.DefaultRdaBagWriterFactory;
 import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.validator.BagValidator;
 import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
@@ -34,45 +33,30 @@ import java.nio.file.Path;
 import java.util.Map;
 
 @Slf4j
-public class DepositToBagProcess {
+@AllArgsConstructor
+public class ConvertToRdaBagTask {
 
-    private final RdaBagWriter rdaBagWriter;
-    private final BagOutputWriterFactory bagOutputWriterFactory;
+    private final DefaultRdaBagWriterFactory rdaBagWriterFactory;
     private final VaultCatalogClient vaultCatalogService;
     private final BagValidator bagValidator;
     private final IdMinter idMinter;
     private final DepositManager depositManager;
 
-    public DepositToBagProcess(
-        RdaBagWriterFactory rdaBagWriterFactory,
-        BagOutputWriterFactory bagOutputWriterFactory,
-        VaultCatalogClient vaultCatalogService,
-        BagValidator bagValidator,
-        IdMinter idMinter,
-        DepositManager depositManager) {
-        this.rdaBagWriter = rdaBagWriterFactory.createRdaBagWriter();
-        this.bagOutputWriterFactory = bagOutputWriterFactory;
-        this.vaultCatalogService = vaultCatalogService;
-        this.bagValidator = bagValidator;
-        this.idMinter = idMinter;
-        this.depositManager = depositManager;
-    }
-
     public void process(Path path, Outbox outbox, Map<String, String> dataSupplierMap) {
         try {
             var bagDir = getBagDir(path);
 
-            log.info("Validating deposit on path {}", bagDir);
+            log.debug("Validating deposit on path {}", bagDir);
             bagValidator.validate(bagDir);
 
-            log.info("Loading deposit on path {}", path);
+            log.debug("Loading deposit on path {}", path);
             var deposit = depositManager.loadDeposit(path, dataSupplierMap);
             processDeposit(deposit);
 
-            log.info("Deposit {} processed successfully", deposit.getId());
-            depositManager.saveDeposit(deposit);
+            log.debug("Deposit {} processed successfully", deposit.getId());
+            depositManager.saveDepositProperties(deposit);
 
-            log.info("Moving deposit to outbox");
+            log.debug("Moving deposit to outbox");
             outbox.moveDeposit(deposit);
         }
         catch (InvalidDepositException e) {
@@ -108,10 +92,7 @@ public class DepositToBagProcess {
 
         // send rda bag to vault
         try {
-            try (var writer = bagOutputWriterFactory.createBagOutputWriter(deposit)) {
-                rdaBagWriter.write(deposit, writer);
-            }
-
+            rdaBagWriterFactory.createRdaBagWriter(deposit).write();
             deposit.setState(Deposit.State.ACCEPTED, "Deposit accepted");
         }
         catch (Exception e) {

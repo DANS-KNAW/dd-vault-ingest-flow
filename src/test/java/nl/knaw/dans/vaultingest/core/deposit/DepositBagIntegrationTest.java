@@ -46,7 +46,7 @@ class DepositBagIntegrationTest {
         var bag = getBag();
         var depositBag = new DepositBag(bag);
 
-        try (var file = depositBag.inputStreamForMetadataFile(Path.of("metadata/dataset.xml"))) {
+        try (var file = depositBag.inputStreamForBagFile(Path.of("metadata/dataset.xml"))) {
             var data = new String(file.readAllBytes());
 
             // check if it read the complete xml file
@@ -63,13 +63,13 @@ class DepositBagIntegrationTest {
         var bag = getBag();
         var depositBag = new DepositBag(bag);
 
-        assertThat(depositBag.getMetadataValue("Payload-Oxum")).containsOnly("3212481.4");
-        assertThat(depositBag.getMetadataValue("Bagging-Date")).containsOnly("2022-10-23");
-        assertThat(depositBag.getMetadataValue("Bag-Size")).containsOnly("3.1 MB");
-        assertThat(depositBag.getMetadataValue("Created")).containsOnly("2016-11-12T23:41:11.000+00:00");
-        assertThat(depositBag.getMetadataValue("Has-Organizational-Identifier")).containsOnly("REPO1:1234");
-        assertThat(depositBag.getMetadataValue("Has-Organizational-Identifier-Version")).containsOnly("1.1");
-        assertThat(depositBag.getMetadataValue("Does-Not-Exist")).isEmpty();
+        assertThat(depositBag.getBagInfoValue("Payload-Oxum")).containsOnly("3212481.4");
+        assertThat(depositBag.getBagInfoValue("Bagging-Date")).containsOnly("2022-10-23");
+        assertThat(depositBag.getBagInfoValue("Bag-Size")).containsOnly("3.1 MB");
+        assertThat(depositBag.getBagInfoValue("Created")).containsOnly("2016-11-12T23:41:11.000+00:00");
+        assertThat(depositBag.getBagInfoValue("Has-Organizational-Identifier")).containsOnly("REPO1:1234");
+        assertThat(depositBag.getBagInfoValue("Has-Organizational-Identifier-Version")).containsOnly("1.1");
+        assertThat(depositBag.getBagInfoValue("Does-Not-Exist")).isEmpty();
     }
 
     Bag getBag() throws Exception {

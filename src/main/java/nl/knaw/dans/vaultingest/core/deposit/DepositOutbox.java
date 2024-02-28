@@ -15,17 +15,27 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
 public class DepositOutbox implements Outbox {
+    @Getter
+    @AllArgsConstructor
+    private enum OutboxPath {
+        PROCESSED("processed"),
+        REJECTED("rejected"),
+        FAILED("failed");
+
+        private final String value;
+    }
     private final Path outboxPath;
     private boolean initialized = false;
 
@@ -51,7 +61,7 @@ public class DepositOutbox implements Outbox {
     @Override
     public void init(boolean allowNonEmpty) throws IOException {
         // create outbox directory if it does not exist
-        log.info("Creating directories in outbox; path = {}", outboxPath);
+        log.debug("Creating directories in outbox; path = {}", outboxPath);
 
         var paths = new Path[] {
             this.outboxPath.resolve(OutboxPath.PROCESSED.getValue()),
@@ -75,9 +85,9 @@ public class DepositOutbox implements Outbox {
                             "Failed to check if outbox %s is empty", path), e);
                     }
                 })
-                .collect(Collectors.toList());
+                .toList();
 
-            if (nonEmptyPaths.size() > 0) {
+            if (!nonEmptyPaths.isEmpty()) {
                 throw new IllegalStateException(String.format(
                     "Outbox %s is not empty; paths containing files/directories are %s", outboxPath, nonEmptyPaths)
                 );
@@ -109,24 +119,6 @@ public class DepositOutbox implements Outbox {
         }
 
         Files.move(path, outboxPath.resolve(outboxMapping.get(state).getValue()).resolve(path.getFileName()));
-    }
-
-    private enum OutboxPath {
-
-        PROCESSED("processed"),
-        REJECTED("rejected"),
-        FAILED("failed"),
-        ;
-
-        private final String value;
-
-        OutboxPath(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
     }
 }
 

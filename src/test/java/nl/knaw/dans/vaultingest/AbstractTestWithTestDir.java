@@ -13,8 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag;
+package nl.knaw.dans.vaultingest;
 
-public interface RdaBagWriterFactory {
-    RdaBagWriter createRdaBagWriter();
+import org.apache.commons.io.FileUtils;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+public class AbstractTestWithTestDir {
+    protected final Path testDir = Path.of("target/test")
+        .resolve(getClass().getSimpleName());
+
+    public void setUp() throws Exception {
+        FileUtils.deleteDirectory(testDir.toFile());
+        Files.createDirectories(testDir);
+    }
 }

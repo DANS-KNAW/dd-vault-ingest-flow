@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public class FilepathConverter {
+public class BagItFilePathEncoding {
     // It is very important that the % character is processed first, as it is also
     // used to encode the other characters.
     private final static String ESCAPE_CHARACTERS = "%\r\n";
@@ -45,7 +45,7 @@ public class FilepathConverter {
      * @param path
      * @return
      */
-    public static String convertFilepath(Path path) {
+    public static String encodeFilePath(Path path) {
         var name = Objects.requireNonNull(path, "path cannot be null").toString();
 
         for (var c : ESCAPE_CHARACTERS.getBytes(StandardCharsets.UTF_8)) {

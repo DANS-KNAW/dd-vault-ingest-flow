@@ -76,15 +76,15 @@ public class Deposit {
     }
 
     public List<String> getMetadataValue(String key) {
-        return bag.getMetadataValue(key);
+        return bag.getBagInfoValue(key);
     }
 
     public boolean isUpdate() {
-        return !bag.getMetadataValue("Is-Version-Of").isEmpty();
+        return !bag.getBagInfoValue("Is-Version-Of").isEmpty();
     }
 
     public String getIsVersionOf() {
-        return bag.getMetadataValue("Is-Version-Of").stream().findFirst().orElse(null);
+        return bag.getBagInfoValue("Is-Version-Of").stream().findFirst().orElse(null);
     }
 
     public String getSwordToken() {
@@ -130,8 +130,8 @@ public class Deposit {
         return bag.getMetadataFiles();
     }
 
-    public InputStream inputStreamForMetadataFile(Path path) {
-        return bag.inputStreamForMetadataFile(path);
+    public InputStream inputStreamForBagFile(Path path) {
+        return bag.inputStreamForBagFile(path);
     }
 
     public Path getBagDir() {

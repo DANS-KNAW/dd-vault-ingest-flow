@@ -15,8 +15,9 @@
  */
 package nl.knaw.dans.vaultingest.core.inbox;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
+import nl.knaw.dans.vaultingest.core.ConvertToRdaBagTask;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 
 import java.io.IOException;
@@ -24,25 +25,13 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 @Slf4j
+@AllArgsConstructor
 public class AutoIngestArea {
     private final Executor executor;
     private final IngestAreaWatcher ingestAreaWatcher;
-    private final DepositToBagProcess depositToBagProcess;
+    private final ConvertToRdaBagTask convertToRdaBagTask;
     private final Outbox outbox;
     private final Map<String, String> dataSupplierMap;
-
-    public AutoIngestArea(
-        Executor executor,
-        IngestAreaWatcher ingestAreaWatcher,
-        DepositToBagProcess depositToBagProcess,
-        Outbox outbox,
-        Map<String, String> dataSupplierMap) {
-        this.executor = executor;
-        this.ingestAreaWatcher = ingestAreaWatcher;
-        this.depositToBagProcess = depositToBagProcess;
-        this.outbox = outbox;
-        this.dataSupplierMap = dataSupplierMap;
-    }
 
     public void start() {
         try {
@@ -51,7 +40,7 @@ public class AutoIngestArea {
             ingestAreaWatcher.start((path) -> {
                 log.info("New item in inbox; path = {}", path);
 
-                executor.execute(() -> depositToBagProcess.process(path, outbox, dataSupplierMap));
+                executor.execute(() -> convertToRdaBagTask.process(path, outbox, dataSupplierMap));
             });
         }
         catch (IOException e) {
