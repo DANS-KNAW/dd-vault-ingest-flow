@@ -19,6 +19,7 @@ import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.util.ZipUtil;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
@@ -47,6 +48,8 @@ import java.util.Set;
 public class DansBagToRdaBagEnricher {
     @NonNull
     private final Deposit deposit;
+
+    @
 
     @NonNull
     private final DataciteSerializer dataciteSerializer;
@@ -91,9 +94,14 @@ public class DansBagToRdaBagEnricher {
 
         // bag-info.txt does not need changing, as no payload files are added or removed
 
-        // must be last, because all other files must have been written to
+        // must be last, because all other files must have been written
         log.debug("Modifying tagmanifest-*.txt files");
-        modifyTagManifests(); // Add checksum for new metadata files
+        modifyTagManifests(); // Add checksums for new metadata files
+
+        log.debug("Creating ZIP file");
+        ZipUtil.zipDirectory(deposit.getBagDir(), , true);
+
+
     }
 
     private void modifyTagManifests() throws IOException {
