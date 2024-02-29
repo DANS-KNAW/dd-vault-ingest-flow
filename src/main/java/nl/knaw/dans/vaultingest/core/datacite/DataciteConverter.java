@@ -18,11 +18,11 @@ package nl.knaw.dans.vaultingest.core.datacite;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.mappings.Datacite;
-import nl.knaw.dans.vaultingest.domain.Affiliation;
-import nl.knaw.dans.vaultingest.domain.DescriptionType;
-import nl.knaw.dans.vaultingest.domain.NameIdentifier;
-import nl.knaw.dans.vaultingest.domain.Resource;
-import nl.knaw.dans.vaultingest.domain.ResourceType;
+import org.datacite.schema.kernel_4.Affiliation;
+import org.datacite.schema.kernel_4.DescriptionType;
+import org.datacite.schema.kernel_4.NameIdentifier;
+import org.datacite.schema.kernel_4.Resource;
+import org.datacite.schema.kernel_4.ResourceType;
 
 import java.time.format.DateTimeFormatter;
 
