@@ -70,7 +70,7 @@ public class PayloadFile {
     }
 
     private Path getFilePath() {
-        return Path.of(getFilePathAttribute());//.substring("data/".length()));
+        return Path.of(getFilePathAttribute());
     }
 
     public Map<SupportedAlgorithm, String> getChecksums() {
