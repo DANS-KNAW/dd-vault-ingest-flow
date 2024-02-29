@@ -21,14 +21,13 @@ import nl.knaw.dans.vaultcatalog.api.OcflObjectVersionParametersDto;
 import nl.knaw.dans.vaultcatalog.client.ApiException;
 import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
-import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogDeposit;
 
 import java.io.IOException;
 import java.util.Comparator;
 import java.util.Optional;
 
 @Slf4j
-public class VaultCatalogClientImpl implements nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogClient {
+public class VaultCatalogClientImpl implements VaultCatalogClient {
     private final OcflObjectVersionApi ocflObjectVersionApi;
 
     public VaultCatalogClientImpl(OcflObjectVersionApi ocflObjectVersionApi) {
@@ -54,10 +53,9 @@ public class VaultCatalogClientImpl implements nl.knaw.dans.vaultingest.core.vau
                 .swordToken(deposit.getSwordToken());
 
             var newVersion = highestVersion + 1;
-            var response = ocflObjectVersionApi.createOcflObjectVersion(bagId, (int)newVersion, parameters);
+            var response = ocflObjectVersionApi.createOcflObjectVersion(bagId, (int) newVersion, parameters);
 
             log.debug("Registered deposit, response: {}", response);
-
 
             return VaultCatalogDeposit.builder()
                 .objectVersion(newVersion)

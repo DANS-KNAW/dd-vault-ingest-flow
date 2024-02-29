@@ -15,7 +15,9 @@
  */
 package nl.knaw.dans.vaultingest.core.inbox;
 
-import lombok.AllArgsConstructor;
+import io.dropwizard.lifecycle.Managed;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
@@ -28,10 +30,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 @Slf4j
-@AllArgsConstructor
-public class IngestAreaDirectoryWatcher implements IngestAreaWatcher {
+@RequiredArgsConstructor
+public class IngestAreaDirectoryWatcher implements IngestAreaWatcher, Managed {
+    @NonNull
     private final long pollingInterval;
+    @NonNull
     private final Path directory;
+
+    private FileAlterationMonitor monitor;
 
     @Override
     public void start(IngestAreaItemCreated callback) {
@@ -43,7 +49,7 @@ public class IngestAreaDirectoryWatcher implements IngestAreaWatcher {
 
         var observer = new FileAlterationObserver(directory.toFile(), filter);
         observer.addListener(new EventHandler(callback));
-        var monitor = new FileAlterationMonitor(pollingInterval);
+        monitor = new FileAlterationMonitor(pollingInterval);
         monitor.addObserver(observer);
 
         log.debug("Processing existing items in {}", directory);
@@ -55,6 +61,17 @@ public class IngestAreaDirectoryWatcher implements IngestAreaWatcher {
         }
         catch (Exception e) {
             throw new IllegalStateException(String.format("Could not start monitoring %s", directory), e);
+        }
+    }
+
+    @Override
+    public void stop() {
+        try {
+            log.debug("Stopping FileAlterationMonitor for directory {}", directory);
+            monitor.stop();
+        }
+        catch (Exception e) {
+            throw new IllegalStateException(String.format("Could not stop monitoring %s", directory), e);
         }
     }
 

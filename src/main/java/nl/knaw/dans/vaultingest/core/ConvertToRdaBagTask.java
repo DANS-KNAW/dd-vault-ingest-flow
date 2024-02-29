@@ -17,14 +17,14 @@ package nl.knaw.dans.vaultingest.core;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.vaultingest.client.BagValidator;
+import nl.knaw.dans.vaultingest.client.InvalidDepositException;
+import nl.knaw.dans.vaultingest.client.VaultCatalogClient;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 import nl.knaw.dans.vaultingest.core.deposit.DepositManager;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 import nl.knaw.dans.vaultingest.core.rdabag.DefaultRdaBagWriterFactory;
 import nl.knaw.dans.vaultingest.core.util.IdMinter;
-import nl.knaw.dans.vaultingest.core.validator.BagValidator;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
-import nl.knaw.dans.vaultingest.core.vaultcatalog.VaultCatalogClient;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -35,16 +35,19 @@ import java.util.Objects;
 
 @Slf4j
 @AllArgsConstructor
-public class ConvertToRdaBagTask {
-
+public class ConvertToRdaBagTask implements Runnable {
+    private final Path path;
+    private final Outbox outbox;
+    private final Map<String, String> dataSupplierMap;
     private final DefaultRdaBagWriterFactory rdaBagWriterFactory;
-    private final VaultCatalogClient vaultCatalogService;
+    private final VaultCatalogClient vaultCatalogClient;
     private final BagValidator bagValidator;
     private final IdMinter idMinter;
     private final DepositManager depositManager;
     private final Path dveOutbox;
 
-    public void process(Path path, Outbox outbox, Map<String, String> dataSupplierMap) {
+    public void run() {
+        log.info("Processing deposit on path {}", path);
         try {
             var bagDir = getBagDir(path);
 
@@ -69,10 +72,10 @@ public class ConvertToRdaBagTask {
         }
     }
 
-    void processDeposit(Deposit deposit) throws InvalidDepositException, IOException {
+    private void processDeposit(Deposit deposit) throws InvalidDepositException, IOException {
         if (deposit.isUpdate()) {
             // check if deposit exists in vault catalog
-            var catalogDeposit = vaultCatalogService.findDeposit(deposit.getIsVersionOf())
+            var catalogDeposit = vaultCatalogClient.findDeposit(deposit.getIsVersionOf())
                 .orElseThrow(() -> new InvalidDepositException(String.format("Deposit with sword token %s not found in vault catalog", deposit.getSwordToken())));
 
             // compare user id
@@ -89,7 +92,7 @@ public class ConvertToRdaBagTask {
             deposit.setNbn(idMinter.mintUrnNbn());
         }
 
-        var registeredDeposit = vaultCatalogService.registerDeposit(deposit);
+        var registeredDeposit = vaultCatalogClient.registerDeposit(deposit);
         deposit.setObjectVersion(registeredDeposit.getObjectVersion());
 
         // send rda bag to vault
@@ -112,7 +115,7 @@ public class ConvertToRdaBagTask {
         return String.format("vaas-%s-v%s.zip", bagId, objectVersion);
     }
 
-    void handleFailedDeposit(Path path, Outbox outbox, Deposit.State state, Throwable error) {
+    private void handleFailedDeposit(Path path, Outbox outbox, Deposit.State state, Throwable error) {
         log.error("Deposit on path {} failed with state {}", path, state, error);
 
         try {

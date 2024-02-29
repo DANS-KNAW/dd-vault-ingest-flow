@@ -25,7 +25,6 @@ import nl.knaw.dans.vaultingest.domain.Resource;
 import nl.knaw.dans.vaultingest.domain.ResourceType;
 
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class DataciteConverter {

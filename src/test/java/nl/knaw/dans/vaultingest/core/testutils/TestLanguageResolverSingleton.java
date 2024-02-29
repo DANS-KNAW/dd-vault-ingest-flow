@@ -13,33 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.utilities;
+package nl.knaw.dans.vaultingest.core.testutils;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.deposit.CountryResolver;
-import nl.knaw.dans.vaultingest.core.deposit.FileCountryResolver;
+import nl.knaw.dans.vaultingest.core.deposit.CsvLanguageResolver;
+import nl.knaw.dans.vaultingest.core.deposit.LanguageResolver;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
-import java.util.Objects;
 
 @Slf4j
-public class CountryResolverFactory {
-    private static CountryResolver instance;
+public class TestLanguageResolverSingleton {
+    private static LanguageResolver instance;
 
-    public static CountryResolver getInstance() throws Exception {
+    public static LanguageResolver getInstance() throws Exception {
         if (instance == null) {
             try {
-                var path = Path.of(
-                    Objects.requireNonNull(
-                        CountryResolverFactory.class
-                            .getResource("/debug-etc/spatial-coverage-country-terms.txt")
-                    ).getPath()
-                );
+                var iso2 = TestLanguageResolverSingleton.class.getResource("/debug-etc/iso639-1-to-dv.csv");
+                var iso3 = TestLanguageResolverSingleton.class.getResource("/debug-etc/iso639-2-to-dv.csv");
+                assert iso2 != null;
+                var path2 = Path.of(iso2.toURI().getPath());
+                assert iso3 != null;
+                var path3 = Path.of(iso3.toURI().getPath());
 
-                instance = new FileCountryResolver(path);
+                instance = new CsvLanguageResolver(path2, path3);
             }
-            catch (IOException e) {
+            catch (URISyntaxException | IOException e) {
                 e.printStackTrace();
                 log.error("Could not load csv", e);
                 throw e;

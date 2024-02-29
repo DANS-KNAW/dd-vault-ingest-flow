@@ -17,8 +17,8 @@ package nl.knaw.dans.vaultingest.core.oaiore;
 
 import nl.knaw.dans.vaultingest.core.deposit.CountryResolver;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
-import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.deposit.LanguageResolver;
+import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.mappings.AlternativeTitles;
 import nl.knaw.dans.vaultingest.core.mappings.Audiences;
 import nl.knaw.dans.vaultingest.core.mappings.Authors;

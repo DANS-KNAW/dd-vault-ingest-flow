@@ -17,6 +17,7 @@ package nl.knaw.dans.vaultingest.core.deposit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
@@ -26,6 +27,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Slf4j
+@ToString
 public class DepositOutbox implements Outbox {
     @Getter
     @AllArgsConstructor
@@ -36,6 +38,7 @@ public class DepositOutbox implements Outbox {
 
         private final String value;
     }
+
     private final Path outboxPath;
     private boolean initialized = false;
 

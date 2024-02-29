@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.utilities;
+package nl.knaw.dans.vaultingest.core.testutils;
 
 import lombok.Getter;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;

@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core.pidmapping;
 
-import nl.knaw.dans.vaultingest.core.util.BagItFilePathEncoding;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
+import nl.knaw.dans.vaultingest.core.util.BagItFilePathEncoding;
 
 public class PidMappingConverter {
 

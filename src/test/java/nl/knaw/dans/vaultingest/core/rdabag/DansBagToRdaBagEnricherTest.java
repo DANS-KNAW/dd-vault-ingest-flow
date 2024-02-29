@@ -27,8 +27,8 @@ import nl.knaw.dans.vaultingest.core.oaiore.OaiOreConverter;
 import nl.knaw.dans.vaultingest.core.oaiore.OaiOreSerializer;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingConverter;
 import nl.knaw.dans.vaultingest.core.pidmapping.PidMappingSerializer;
-import nl.knaw.dans.vaultingest.core.utilities.CountryResolverFactory;
-import nl.knaw.dans.vaultingest.core.utilities.LanguageResolverFactory;
+import nl.knaw.dans.vaultingest.core.testutils.TestCountryResolverSingleton;
+import nl.knaw.dans.vaultingest.core.testutils.TestLanguageResolverSingleton;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -57,7 +57,7 @@ class DansBagToRdaBagEnricherTest extends AbstractTestWithTestDir {
             new OaiOreSerializer(new ObjectMapper()),
             new DataciteConverter(),
             new PidMappingConverter(),
-            new OaiOreConverter(LanguageResolverFactory.getInstance(), CountryResolverFactory.getInstance())
+            new OaiOreConverter(TestLanguageResolverSingleton.getInstance(), TestCountryResolverSingleton.getInstance())
         );
 
         enricher.write(rdaBag);

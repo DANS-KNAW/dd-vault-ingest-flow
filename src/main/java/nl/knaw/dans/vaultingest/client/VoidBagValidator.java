@@ -16,7 +16,6 @@
 package nl.knaw.dans.vaultingest.client;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.validator.BagValidator;
 
 import java.nio.file.Path;
 

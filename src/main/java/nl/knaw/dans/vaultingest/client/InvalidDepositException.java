@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.validator;
+package nl.knaw.dans.vaultingest.client;
 
 public class InvalidDepositException extends Exception {
 

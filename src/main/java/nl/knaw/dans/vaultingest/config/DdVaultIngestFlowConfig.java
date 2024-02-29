@@ -13,16 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.vaultcatalog;
 
-import lombok.Builder;
-import lombok.Value;
+package nl.knaw.dans.vaultingest.config;
 
-@Value
-@Builder
-public class VaultCatalogDeposit {
-    String bagId;
-    Long objectVersion;
-    String dataSupplier;
-    String nbn;
+import io.dropwizard.core.Configuration;
+import lombok.Getter;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
+@Getter
+public class DdVaultIngestFlowConfig extends Configuration {
+    @NotNull
+    @Valid
+    private ValidateDansBagConfig validateDansBag;
+
+    @NotNull
+    @Valid
+    private IngestFlowConfig ingestFlow;
+
+    @NotNull
+    @Valid
+    private VaultCatalogConfig vaultCatalog;
 }

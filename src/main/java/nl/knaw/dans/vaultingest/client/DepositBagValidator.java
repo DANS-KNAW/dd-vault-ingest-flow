@@ -13,29 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package nl.knaw.dans.vaultingest.client;
 
-package nl.knaw.dans.vaultingest;
+import nl.knaw.dans.validatedansbag.client.api.ValidateCommandDto;
 
-import io.dropwizard.core.Configuration;
-import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
-import nl.knaw.dans.vaultingest.config.ValidateDansBagConfig;
-import nl.knaw.dans.vaultingest.config.VaultCatalogConfig;
+import javax.ws.rs.client.Client;
+import java.net.URI;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+public class DepositBagValidator extends AbstractBagValidator {
 
-@Getter
-public class DdVaultIngestFlowConfiguration extends Configuration {
-    @NotNull
-    @Valid
-    private ValidateDansBagConfig validateDansBag;
+    public DepositBagValidator(Client httpClient, URI serviceUri) {
+        super(httpClient, serviceUri);
+    }
 
-    @NotNull
-    @Valid
-    private IngestFlowConfig ingestFlow;
-
-    @NotNull
-    @Valid
-    private VaultCatalogConfig vaultCatalog;
+    @Override
+    protected ValidateCommandDto.PackageTypeEnum getPackageType() {
+        return ValidateCommandDto.PackageTypeEnum.DEPOSIT;
+    }
 }

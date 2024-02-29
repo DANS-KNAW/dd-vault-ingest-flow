@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import io.dropwizard.configuration.YamlConfigurationFactory;
 import io.dropwizard.jackson.Jackson;
 import io.dropwizard.jersey.validation.Validators;
-import nl.knaw.dans.vaultingest.DdVaultIngestFlowConfiguration;
+import nl.knaw.dans.vaultingest.config.DdVaultIngestFlowConfig;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,11 +40,11 @@ public class ConfigurationTest {
     void clear() throws IOException {
         FileUtils.deleteQuietly(testDir.toFile());
     }
-    private final YamlConfigurationFactory<DdVaultIngestFlowConfiguration> factory;
+    private final YamlConfigurationFactory<DdVaultIngestFlowConfig> factory;
 
     {
         final var mapper = Jackson.newObjectMapper().enable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        factory = new YamlConfigurationFactory<>(DdVaultIngestFlowConfiguration.class, Validators.newValidator(), mapper, "dw");
+        factory = new YamlConfigurationFactory<>(DdVaultIngestFlowConfig.class, Validators.newValidator(), mapper, "dw");
     }
 
     @Test

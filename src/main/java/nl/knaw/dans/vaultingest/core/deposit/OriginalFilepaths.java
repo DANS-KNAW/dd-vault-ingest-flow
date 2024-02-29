@@ -16,6 +16,7 @@
 package nl.knaw.dans.vaultingest.core.deposit;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.ToString;
 
 import java.nio.file.Path;
@@ -54,13 +55,10 @@ public class OriginalFilepaths {
 
     @AllArgsConstructor
     @ToString
-    static class Mapping {
+    private static class Mapping {
+        @Getter
         private final Path logicalPath;
         private final Path physicalPath;
-
-        public Path getLogicalPath() {
-            return logicalPath;
-        }
 
         public Path getPhysicalPath() {
             if (physicalPath != null) {

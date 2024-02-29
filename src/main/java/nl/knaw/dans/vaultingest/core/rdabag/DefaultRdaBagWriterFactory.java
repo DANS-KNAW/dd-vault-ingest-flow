@@ -16,7 +16,6 @@
 package nl.knaw.dans.vaultingest.core.rdabag;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.AllArgsConstructor;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteSerializer;
 import nl.knaw.dans.vaultingest.core.deposit.CountryResolver;

@@ -27,9 +27,9 @@ import nl.knaw.dans.vaultingest.core.mappings.vocabulary.DansTS;
 import nl.knaw.dans.vaultingest.core.mappings.vocabulary.Datacite;
 import nl.knaw.dans.vaultingest.core.mappings.vocabulary.PROV;
 import nl.knaw.dans.vaultingest.core.oaiore.OaiOreConverter;
-import nl.knaw.dans.vaultingest.core.utilities.CountryResolverFactory;
-import nl.knaw.dans.vaultingest.core.utilities.LanguageResolverFactory;
-import nl.knaw.dans.vaultingest.core.utilities.TestDepositManager;
+import nl.knaw.dans.vaultingest.core.testutils.TestCountryResolverSingleton;
+import nl.knaw.dans.vaultingest.core.testutils.TestLanguageResolverSingleton;
+import nl.knaw.dans.vaultingest.core.testutils.TestDepositManager;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.RDFNode;
@@ -641,8 +641,8 @@ public class OaiOreConverterIntegrationTest {
         deposit.setNbn("urn:nbn:nl:ui:13-4c-1a2b");
 
         var model = new OaiOreConverter(
-            LanguageResolverFactory.getInstance(),
-            CountryResolverFactory.getInstance()
+            TestLanguageResolverSingleton.getInstance(),
+            TestCountryResolverSingleton.getInstance()
         ).convert(deposit);
 
         return ModelObject.builder()

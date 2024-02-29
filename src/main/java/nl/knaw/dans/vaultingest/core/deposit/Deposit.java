@@ -15,7 +15,6 @@
  */
 package nl.knaw.dans.vaultingest.core.deposit;
 
-import gov.loc.repository.bagit.hash.SupportedAlgorithm;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,12 +24,8 @@ import nl.knaw.dans.vaultingest.core.xml.XmlNamespaces;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Builder
 @ToString
@@ -63,16 +58,8 @@ public class Deposit {
     @Setter
     private String dataSupplier;
 
-    public Set<SupportedAlgorithm> getPayloadManifestAlgorithms() {
-        return getBag().getPayloadManifestAlgorithms();
-    }
-
     public State getState() {
         return State.valueOf(properties.getStateLabel());
-    }
-
-    public String getStateDescription() {
-        return properties.getStateDescription();
     }
 
     public List<String> getMetadataValue(String key) {
@@ -124,14 +111,6 @@ public class Deposit {
         }
 
         return doi;
-    }
-
-    public Collection<Path> getMetadataFiles() throws IOException {
-        return bag.getMetadataFiles();
-    }
-
-    public InputStream inputStreamForBagFile(Path path) {
-        return bag.inputStreamForBagFile(path);
     }
 
     public Path getBagDir() {
