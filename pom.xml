@@ -36,7 +36,7 @@
     <properties>
         <main-class>nl.knaw.dans.vaultingest.DdVaultIngestFlowApplication</main-class>
         <dans-schema-lib.version>0.12.1-SNAPSHOT</dans-schema-lib.version>
-        <dd-vault-catalog-api.version>0.0.1-SNAPSHOT</dd-vault-catalog-api.version>
+        <dd-vault-catalog-api.version>0.3.0-SNAPSHOT</dd-vault-catalog-api.version>
     </properties>
 
     <scm>
