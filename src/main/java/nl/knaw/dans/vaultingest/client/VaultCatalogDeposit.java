@@ -13,13 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag.output;
+package nl.knaw.dans.vaultingest.client;
 
-import nl.knaw.dans.vaultingest.core.deposit.Deposit;
+import lombok.Builder;
+import lombok.Value;
 
-import java.io.IOException;
-
-public interface BagOutputWriterFactory {
-
-    BagOutputWriter createBagOutputWriter(Deposit deposit) throws IOException;
+@Value
+@Builder
+public class VaultCatalogDeposit {
+    String bagId;
+    Long objectVersion;
+    String dataSupplier;
+    String nbn;
 }

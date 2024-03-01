@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-package nl.knaw.dans.vaultingest;
+package nl.knaw.dans.vaultingest.config;
 
 import io.dropwizard.core.Configuration;
 import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.IngestFlowConfig;
-import nl.knaw.dans.vaultingest.config.ValidateDansBagConfig;
-import nl.knaw.dans.vaultingest.config.VaultCatalogConfig;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class DdVaultIngestFlowConfiguration extends Configuration {
+public class DdVaultIngestFlowConfig extends Configuration {
     @NotNull
     @Valid
     private ValidateDansBagConfig validateDansBag;

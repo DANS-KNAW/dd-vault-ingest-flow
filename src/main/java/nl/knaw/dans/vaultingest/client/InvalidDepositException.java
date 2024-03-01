@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.vaultcatalog;
+package nl.knaw.dans.vaultingest.client;
 
-import nl.knaw.dans.vaultingest.core.deposit.Deposit;
+public class InvalidDepositException extends Exception {
 
-import java.io.IOException;
-import java.util.Optional;
+    public InvalidDepositException(String msg) {
+        super(msg);
+    }
 
-public interface VaultCatalogRepository {
-
-    VaultCatalogDeposit registerDeposit(Deposit deposit) throws IOException;
-
-    Optional<VaultCatalogDeposit> findDeposit(String swordToken) throws IOException;
+    public InvalidDepositException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

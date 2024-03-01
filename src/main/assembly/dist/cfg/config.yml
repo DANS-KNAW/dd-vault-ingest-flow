@@ -22,7 +22,7 @@ health:
         checkInterval: 60s
 
 ingestFlow:
-  rdaBagOutputDir: /var/opt/dans.knaw.nl/tmp/rda-bag
+  rdaBagOutputDir: /var/opt/dans.knaw.nl/tmp/dve-outbox
   autoIngest:
     dataSuppliers:
       user001: The Organization Name

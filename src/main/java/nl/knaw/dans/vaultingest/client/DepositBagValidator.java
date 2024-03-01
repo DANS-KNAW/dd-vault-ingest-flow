@@ -13,8 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package nl.knaw.dans.vaultingest.core.rdabag;
+package nl.knaw.dans.vaultingest.client;
 
-public interface RdaBagWriterFactory {
-    RdaBagWriter createRdaBagWriter();
+import nl.knaw.dans.validatedansbag.client.api.ValidateCommandDto;
+
+import javax.ws.rs.client.Client;
+import java.net.URI;
+
+public class DepositBagValidator extends AbstractBagValidator {
+
+    public DepositBagValidator(Client httpClient, URI serviceUri) {
+        super(httpClient, serviceUri);
+    }
+
+    @Override
+    protected ValidateCommandDto.PackageTypeEnum getPackageType() {
+        return ValidateCommandDto.PackageTypeEnum.DEPOSIT;
+    }
 }

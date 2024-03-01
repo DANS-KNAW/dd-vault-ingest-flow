@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.vaultingest.core.mappings;
 
-import nl.knaw.dans.vaultingest.core.deposit.DepositFile;
+import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.mappings.vocabulary.DVCore;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import org.apache.jena.rdf.model.Resource;
@@ -33,15 +33,15 @@ import java.util.Optional;
 public class DataFile extends Base {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    public static List<Statement> toRDF(Resource resource, DepositFile depositFile) {
+    public static List<Statement> toRDF(Resource resource, PayloadFile payloadFile) {
         var result = new ArrayList<Statement>();
 
         // FIL001A
-        toBasicTerm(resource, SchemaDO.name, depositFile.getPath().toString())
+        toBasicTerm(resource, SchemaDO.name, payloadFile.getPath().toString())
             .ifPresent(result::add);
 
         // FIL002A
-        var directoryLabel = Optional.ofNullable(depositFile.getDirectoryLabel())
+        var directoryLabel = Optional.ofNullable(payloadFile.getDirectoryLabel())
             .map(Path::toString)
             .orElse(null);
 
@@ -49,11 +49,11 @@ public class DataFile extends Base {
             .ifPresent(result::add);
 
         // FIL004A
-        toBasicTerm(resource, SchemaDO.description, getDescription(depositFile.getFilesXmlNode()))
+        toBasicTerm(resource, SchemaDO.description, getDescription(payloadFile.getFilesXmlNode()))
             .ifPresent(result::add);
 
         // FIL005, FIL006
-        toBasicTerm(resource, DVCore.restricted, getRestricted(depositFile.getFilesXmlNode(), depositFile.getDdmNode()))
+        toBasicTerm(resource, DVCore.restricted, getRestricted(payloadFile.getFilesXmlNode(), payloadFile.getDdmNode()))
             .ifPresent(result::add);
 
         return result;

@@ -17,7 +17,7 @@ package nl.knaw.dans.vaultingest.core.rdabag;
 
 import nl.knaw.dans.vaultingest.core.datacite.DataciteConverter;
 import nl.knaw.dans.vaultingest.core.datacite.DataciteSerializer;
-import nl.knaw.dans.vaultingest.core.utilities.TestDepositManager;
+import nl.knaw.dans.vaultingest.core.testutils.TestDepositManager;
 import nl.knaw.dans.vaultingest.core.xml.XPathEvaluator;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import org.junit.jupiter.api.Test;

@@ -17,12 +17,10 @@ package nl.knaw.dans.vaultingest.client;
 
 import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
 import nl.knaw.dans.validatedansbag.client.api.ValidateOkRuleViolationsInnerDto;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import javax.ws.rs.client.Client;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
@@ -35,7 +33,7 @@ class AbstractBagValidatorTest {
     @Test
     void validate_should_not_throw_if_validator_returns_yields_correct_output() throws Exception {
         var client = Mockito.mock(Client.class);
-        var validator = Mockito.spy(new BagValidator(client, URI.create("http://localhost/")));
+        var validator = Mockito.spy(new DepositBagValidator(client, URI.create("http://localhost/")));
 
         var result = new ValidateOkDto()
             .isCompliant(true);
@@ -48,7 +46,7 @@ class AbstractBagValidatorTest {
     @Test
     void validate_should_throw_InvalidDepositException_when_bag_contains_errors() throws Exception {
         var client = Mockito.mock(Client.class);
-        var validator = Mockito.spy(new BagValidator(client, URI.create("http://localhost/")));
+        var validator = Mockito.spy(new DepositBagValidator(client, URI.create("http://localhost/")));
 
         Mockito.doReturn(
                 new ValidateOkDto()
@@ -65,7 +63,7 @@ class AbstractBagValidatorTest {
     @Test
     void validate_should_throw_IOException_when_request_has_errors() throws Exception {
         var client = Mockito.mock(Client.class);
-        var validator = Mockito.spy(new BagValidator(client, URI.create("http://localhost/")));
+        var validator = Mockito.spy(new DepositBagValidator(client, URI.create("http://localhost/")));
 
         Mockito.doThrow(new IOException("error 1"))
             .when(validator).validateMultipartObject(Mockito.any());

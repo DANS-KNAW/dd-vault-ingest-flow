@@ -16,18 +16,19 @@
     limitations under the License.
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>0.26.0</version>
+        <version>1.2.0</version>
     </parent>
     <artifactId>dd-vault-ingest-flow</artifactId>
     <version>0.10.1-SNAPSHOT</version>
 
-    <name>Dd Vault Ingest Flow</name>
+    <name>DD Vault Ingest Flow</name>
     <url>https://github.com/DANS-KNAW/dd-vault-ingest-flow</url>
     <description>Vault Service Ingest Flow</description>
     <inceptionYear>2023</inceptionYear>
@@ -60,6 +61,16 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-java-utils</artifactId>
+            <version>0.9.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
         </dependency>
 
         <dependency>
@@ -82,9 +93,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>1.1.1</version>
+            <groupId>com.sun.activation</groupId>
+            <artifactId>jakarta.activation</artifactId>
+            <version>2.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
@@ -95,23 +106,22 @@
             <artifactId>joda-time</artifactId>
         </dependency>
 
-        <!-- this is actually the generated server code, so disable until we have fixed DD-1379 -->
-        <!--        <dependency>-->
-        <!--            <groupId>nl.knaw.dans</groupId>-->
-        <!--            <artifactId>dd-validate-dans-bag-api</artifactId>-->
-        <!--        </dependency>-->
-
         <!-- https://mvnrepository.com/artifact/org.apache.jena/apache-jena-libs -->
         <dependency>
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
-            <version>4.7.0</version>
             <type>pom</type>
         </dependency>
 
         <dependency>
             <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
+            <version>2.9.0</version>
         </dependency>
 
         <dependency>
@@ -200,19 +210,10 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>jaxb2-maven-plugin</artifactId>
-                <version>2.5.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>xjc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
+                <configuration combine.children="append">
                     <sources>
                         <source>${project.build.directory}/dans-schema/extern/datacite/v4.4</source>
                     </sources>
-                    <packageName>nl.knaw.dans.vaultingest.domain</packageName>
                 </configuration>
             </plugin>
             <plugin>

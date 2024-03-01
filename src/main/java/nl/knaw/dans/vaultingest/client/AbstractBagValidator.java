@@ -18,8 +18,6 @@ package nl.knaw.dans.vaultingest.client;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.validatedansbag.client.api.ValidateCommandDto;
 import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
-import nl.knaw.dans.vaultingest.core.validator.BagValidator;
-import nl.knaw.dans.vaultingest.core.validator.InvalidDepositException;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.glassfish.jersey.media.multipart.MultiPart;
 

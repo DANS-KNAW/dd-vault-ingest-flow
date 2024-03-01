@@ -66,7 +66,7 @@ public class DepositManager {
             var depositProperties = getDepositProperties(path);
 
             log.info("Generating payload file list on path {}", path);
-            var depositFiles = getDepositFiles(bagDir, bag, ddm, filesXml, originalFilePaths);
+            var payloadFiles = getPayloadFiles(bagDir, bag, ddm, filesXml, originalFilePaths);
 
             final String depositorId = depositProperties.getDepositorId();
             log.info("Looking up dataSupplier for depositorId {}", depositorId);
@@ -80,7 +80,7 @@ public class DepositManager {
                 .ddm(ddm)
                 .bag(new DepositBag(bag))
                 .filesXml(filesXml)
-                .depositFiles(depositFiles)
+                .payloadFiles(payloadFiles)
                 .properties(depositProperties)
                 .dataSupplier(dataSupplier);
 
@@ -99,7 +99,7 @@ public class DepositManager {
         return builder;
     }
 
-    public void saveDeposit(Deposit deposit) {
+    public void saveDepositProperties(Deposit deposit) {
         var properties = deposit.getProperties();
 
         try {
@@ -185,7 +185,7 @@ public class DepositManager {
         return manifests;
     }
 
-    private List<DepositFile> getDepositFiles(Path bagDir, Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
+    private List<PayloadFile> getPayloadFiles(Path bagDir, Bag bag, Document ddm, Document filesXml, OriginalFilepaths originalFilepaths) {
         var manifests = getPrecomputedChecksums(bagDir, bag);
 
         return XPathEvaluator.nodes(filesXml, "/files:files/files:file")
@@ -194,7 +194,7 @@ public class DepositManager {
                 var physicalPath = bagDir.resolve(originalFilepaths.getPhysicalPath(Path.of(filePath)));
                 var checksums = manifests.get(bagDir.relativize(physicalPath));
 
-                return DepositFile.builder()
+                return PayloadFile.builder()
                     .id(UUID.randomUUID().toString())
                     .physicalPath(physicalPath)
                     .filesXmlNode(node)

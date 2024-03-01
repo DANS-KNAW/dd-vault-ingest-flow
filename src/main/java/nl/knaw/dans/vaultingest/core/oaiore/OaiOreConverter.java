@@ -17,8 +17,8 @@ package nl.knaw.dans.vaultingest.core.oaiore;
 
 import nl.knaw.dans.vaultingest.core.deposit.CountryResolver;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
-import nl.knaw.dans.vaultingest.core.deposit.DepositFile;
 import nl.knaw.dans.vaultingest.core.deposit.LanguageResolver;
+import nl.knaw.dans.vaultingest.core.deposit.PayloadFile;
 import nl.knaw.dans.vaultingest.core.mappings.AlternativeTitles;
 import nl.knaw.dans.vaultingest.core.mappings.Audiences;
 import nl.knaw.dans.vaultingest.core.mappings.Authors;
@@ -153,12 +153,12 @@ public class OaiOreConverter {
         return resourceMap;
     }
 
-    Resource createAggregatedResource(Model model, DepositFile depositFile) {
-        var resource = model.createResource("urn:uuid:" + depositFile.getId());
+    Resource createAggregatedResource(Model model, PayloadFile payloadFile) {
+        var resource = model.createResource("urn:uuid:" + payloadFile.getId());
 
         model.add(model.createStatement(resource, RDF.type, ORE.AggregatedResource));
-        model.add(model.createStatement(resource, SchemaDO.name, depositFile.getPath().toString()));
-        model.add(DataFile.toRDF(resource, depositFile));
+        model.add(model.createStatement(resource, SchemaDO.name, payloadFile.getPath().toString()));
+        model.add(DataFile.toRDF(resource, payloadFile));
 
         return resource;
     }

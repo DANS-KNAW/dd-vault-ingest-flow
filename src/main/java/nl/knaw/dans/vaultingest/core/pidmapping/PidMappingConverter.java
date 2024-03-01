@@ -15,8 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.core.pidmapping;
 
-import nl.knaw.dans.vaultingest.core.util.FilepathConverter;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
+import nl.knaw.dans.vaultingest.core.util.BagItFilePathEncoding;
 
 public class PidMappingConverter {
 
@@ -31,7 +31,7 @@ public class PidMappingConverter {
         }
 
         for (var file : deposit.getPayloadFiles()) {
-            mappings.addMapping("file:///" + file.getId(), FilepathConverter.convertFilepath(file.getPath()));
+            mappings.addMapping("file:///" + file.getId(), BagItFilePathEncoding.encodeFilePath(file.getPath()));
         }
 
         return mappings;

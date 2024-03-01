@@ -15,39 +15,26 @@
  */
 package nl.knaw.dans.vaultingest.core.inbox;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultingest.core.DepositToBagProcess;
+import nl.knaw.dans.vaultingest.core.ConvertToRdaBagTaskFactory;
 import nl.knaw.dans.vaultingest.core.deposit.Outbox;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Slf4j
+@AllArgsConstructor
 public class MigrationIngestArea {
     private final ExecutorService executorService;
-    private final DepositToBagProcess depositToBagProcess;
+    private final ConvertToRdaBagTaskFactory convertToRdaBagTaskFactory;
     private final Path inboxPath;
     private final Outbox outbox;
-    private final Map<String, String> dataSupplierMap;
-
-    public MigrationIngestArea(
-        ExecutorService executorService,
-        DepositToBagProcess depositToBagProcess,
-        Path inboxPath,
-        Outbox outbox,
-            Map<String, String> dataSupplierMap) {
-        this.executorService = executorService;
-        this.depositToBagProcess = depositToBagProcess;
-        this.inboxPath = inboxPath.toAbsolutePath();
-        this.outbox = outbox;
-        this.dataSupplierMap = dataSupplierMap;
-    }
 
     public void ingest(Path inputPath, boolean isBatch, boolean continuePrevious) {
         var path = getAbsolutePath(inputPath);
@@ -72,7 +59,7 @@ public class MigrationIngestArea {
             output.init(!isBatch || continuePrevious);
 
             for (var in : input) {
-                executorService.execute(() -> depositToBagProcess.process(in, output, dataSupplierMap));
+                executorService.execute(convertToRdaBagTaskFactory.create(in, output));
             }
         }
         catch (IOException e) {
@@ -113,7 +100,7 @@ public class MigrationIngestArea {
     void validateBatchDirectory(Path input) {
         if (Files.isDirectory(input)) {
             try (Stream<Path> subPaths = Files.list(input)) {
-                List<Path> paths = subPaths.collect(Collectors.toList());
+                List<Path> paths = subPaths.toList();
                 for (Path f : paths) {
                     validateDepositDirectory(f);
                 }

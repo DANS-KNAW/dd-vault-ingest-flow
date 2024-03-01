@@ -39,11 +39,6 @@ public class DepositProperties {
         this.builder = builder;
     }
 
-    public List<String> getProperty(String value) {
-        // obviously not correct
-        return List.of(value);
-    }
-
     public String getStateLabel() {
         return configuration.getString(STATE_LABEL);
     }

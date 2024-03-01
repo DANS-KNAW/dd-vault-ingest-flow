@@ -18,12 +18,14 @@ package nl.knaw.dans.vaultingest.core.deposit;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.hash.SupportedAlgorithm;
-import lombok.RequiredArgsConstructor;
+import gov.loc.repository.bagit.writer.ManifestWriter;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -32,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class DepositBag {
     private final Bag bag;
 
@@ -51,7 +53,7 @@ public class DepositBag {
             .collect(Collectors.toSet());
     }
 
-    public InputStream inputStreamForMetadataFile(Path path) {
+    public InputStream inputStreamForBagFile(Path path) {
         try {
             var target = bag.getRootDir().resolve(path);
             return new BufferedInputStream(Files.newInputStream(target));
@@ -61,12 +63,29 @@ public class DepositBag {
         }
     }
 
-    public List<String> getMetadataValue(String key) {
+    public Manifest getTagManifest(SupportedAlgorithm algorithm) {
+        return bag.getTagManifests().stream()
+            .filter(manifest -> manifest.getAlgorithm().equals(algorithm))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No tag manifest found for algorithm " + algorithm));
+    }
+
+    public Set<SupportedAlgorithm> getTagManifestAlgorithms() {
+        return bag.getTagManifests().stream()
+            .map(Manifest::getAlgorithm)
+            .collect(Collectors.toSet());
+    }
+
+    public List<String> getBagInfoValue(String key) {
         var value = bag.getMetadata().get(key);
         return value != null ? value : List.of();
     }
 
     public Path getBagDir() {
         return bag.getRootDir();
+    }
+
+    public void writeTagManifests() throws IOException {
+        ManifestWriter.writeTagManifests(bag.getTagManifests(), bag.getRootDir(), bag.getRootDir(), StandardCharsets.UTF_8);
     }
 }
