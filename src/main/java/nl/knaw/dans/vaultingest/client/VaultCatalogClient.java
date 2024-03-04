@@ -15,6 +15,8 @@
  */
 package nl.knaw.dans.vaultingest.client;
 
+import nl.knaw.dans.vaultcatalog.api.DatasetDto;
+import nl.knaw.dans.vaultcatalog.api.VersionExportDto;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 
 import java.io.IOException;
@@ -22,7 +24,9 @@ import java.util.Optional;
 
 public interface VaultCatalogClient {
 
-    VaultCatalogDeposit registerDeposit(Deposit deposit) throws IOException;
+    DatasetDto createDatasetFor(Deposit deposit) throws IOException;
 
-    Optional<VaultCatalogDeposit> findDeposit(String swordToken) throws IOException;
+    VersionExportDto addDatasetVersionFor(Deposit deposit) throws IOException;
+
+    Optional<DatasetDto> findDataset(String swordToken) throws IOException;
 }

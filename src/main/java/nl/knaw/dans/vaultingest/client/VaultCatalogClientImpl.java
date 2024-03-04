@@ -15,112 +15,67 @@
  */
 package nl.knaw.dans.vaultingest.client;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.vaultcatalog.api.OcflObjectVersionDto;
-import nl.knaw.dans.vaultcatalog.api.OcflObjectVersionParametersDto;
+import nl.knaw.dans.vaultcatalog.api.DatasetDto;
+import nl.knaw.dans.vaultcatalog.api.VersionExportDto;
 import nl.knaw.dans.vaultcatalog.client.ApiException;
-import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
+import nl.knaw.dans.vaultcatalog.client.DefaultApi;
 import nl.knaw.dans.vaultingest.core.deposit.Deposit;
 
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.Optional;
 
 @Slf4j
+@AllArgsConstructor
 public class VaultCatalogClientImpl implements VaultCatalogClient {
-    private final OcflObjectVersionApi ocflObjectVersionApi;
-
-    public VaultCatalogClientImpl(OcflObjectVersionApi ocflObjectVersionApi) {
-        this.ocflObjectVersionApi = ocflObjectVersionApi;
-    }
+    private final DefaultApi vaultCatalogApi;
 
     @Override
-    public VaultCatalogDeposit registerDeposit(Deposit deposit) throws IOException {
-        var bagId = deposit.getBagId();
+    public DatasetDto createDatasetFor(Deposit deposit) throws IOException {
+        var versionExportDto = new VersionExportDto()
+            .bagId(deposit.getBagId())
+            .datasetNbn(deposit.getNbn())
+            .createdTimestamp(deposit.getCreationTimestamp())
+            .skeletonRecord(true);
 
-        // find latest version
+        var datasetDto = new DatasetDto()
+            .nbn(deposit.getNbn())
+            .datastation("VaaS") // TODO: get from configuration or set in dd-transfer-to-vault (but in that case it must not be a required field)
+            .addVersionExportsItem(versionExportDto);
+
         try {
-            // find highest version
-            // note that in the vault ingest flow, currently there should never be an existing version
-            // so the highestVersion variable should always be 0
-            var highestVersion = findHighestVersion(bagId);
-
-            // register with n+1
-            var parameters = new OcflObjectVersionParametersDto()
-                .skeletonRecord(true)
-                .nbn(deposit.getNbn())
-                .dataSupplier(deposit.getDataSupplier())
-                .swordToken(deposit.getSwordToken());
-
-            var newVersion = highestVersion + 1;
-            var response = ocflObjectVersionApi.createOcflObjectVersion(bagId, (int) newVersion, parameters);
-
-            log.debug("Registered deposit, response: {}", response);
-
-            return VaultCatalogDeposit.builder()
-                .objectVersion(newVersion)
-                .bagId(bagId)
-                .nbn(response.getNbn())
-                .dataSupplier(response.getDataSupplier())
-                .build();
+            vaultCatalogApi.addDataset(datasetDto.getNbn(), datasetDto);
+            return datasetDto;
         }
         catch (ApiException e) {
-            log.error("Error while registering deposit: {}", e.getMessage(), e);
-            throw new IOException(e.getResponseBody(), e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
-    public Optional<VaultCatalogDeposit> findDeposit(String swordToken) throws IOException {
-        if (swordToken == null) {
-            return Optional.empty();
-        }
+    public VersionExportDto addDatasetVersionFor(Deposit deposit) throws IOException {
+        var versionExportDto = new VersionExportDto()
+            .bagId(deposit.getBagId())
+            .createdTimestamp(deposit.getCreationTimestamp())
+            .skeletonRecord(true);
 
         try {
-            var latestVersion = ocflObjectVersionApi.getOcflObjectsBySwordToken(swordToken)
-                .stream()
-                .max(Comparator.comparingInt(OcflObjectVersionDto::getObjectVersion));
-
-            return latestVersion
-                .map(item -> {
-                    var nbn = item.getNbn();
-                    var dataSupplier = item.getDataSupplier();
-
-                    return VaultCatalogDeposit.builder()
-                        .dataSupplier(dataSupplier)
-                        .nbn(nbn)
-                        .build();
-                });
+            vaultCatalogApi.addVersionExport(deposit.getNbn(), versionExportDto.getBagId(), versionExportDto);
+            return versionExportDto;
         }
         catch (ApiException e) {
-            if (e.getCode() == 404) {
-                return Optional.empty();
-            }
-
-            log.error("Error while registering deposit: {}", e.getMessage(), e);
-            throw new IOException(e.getResponseBody(), e);
+            throw new RuntimeException(e);
         }
     }
 
-    long findHighestVersion(String bagId) {
+    @Override
+    public Optional<DatasetDto> findDataset(String swordToken) throws IOException {
         try {
-            var versions = ocflObjectVersionApi.getOcflObjectsByBagId(bagId);
-
-            // find the highest version
-            // note that in the vault ingest flow, currently there should never be an existing version
-            // so the highestVersion variable should always be 0
-            return versions.stream()
-                .mapToInt(OcflObjectVersionDto::getObjectVersion)
-                .max()
-                .orElse(0);
+            return Optional.ofNullable(vaultCatalogApi.getDatasetBySwordToken(swordToken));
         }
         catch (ApiException e) {
-            if (e.getCode() == 404) {
-                return 0;
-            }
-
-            log.error("Error while reading vault catalog: {}", e.getResponseBody(), e);
-            throw new RuntimeException(e.getResponseBody(), e);
+            throw new RuntimeException(e);
         }
     }
 }

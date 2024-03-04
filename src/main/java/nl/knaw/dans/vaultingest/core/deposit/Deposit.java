@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 
 import java.nio.file.Path;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @Builder
@@ -54,7 +55,8 @@ public class Deposit {
     @Setter
     private String nbn;
     @Setter
-    private Long objectVersion;
+    @Builder.Default
+    private Long objectVersion = 1L;
     @Setter
     private String dataSupplier;
 
@@ -80,6 +82,11 @@ public class Deposit {
 
     public String getDepositorId() {
         return properties.getDepositorId();
+    }
+
+    public OffsetDateTime getCreationTimestamp() {
+        var createdString = bag.getBagInfoValue("Created").stream().findFirst().orElseThrow(() -> new IllegalArgumentException("No creation timestamp found in bag-info.txt"));
+        return OffsetDateTime.parse(createdString);
     }
 
     public void setState(State state, String message) {

@@ -23,7 +23,7 @@ import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ManagedExecutorService;
 import nl.knaw.dans.vaultcatalog.client.ApiClient;
-import nl.knaw.dans.vaultcatalog.client.OcflObjectVersionApi;
+import nl.knaw.dans.vaultcatalog.client.DefaultApi;
 import nl.knaw.dans.vaultingest.client.DepositBagValidator;
 import nl.knaw.dans.vaultingest.client.MigrationBagValidator;
 import nl.knaw.dans.vaultingest.client.VaultCatalogClientImpl;
@@ -87,7 +87,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             countryResolver
         );
 
-        var ocflObjectVersionApi = createOcflObjectVersionApi(configuration, environment);
+        var ocflObjectVersionApi = createCatalogClient(configuration, environment);
         var vaultCatalogRepository = new VaultCatalogClientImpl(ocflObjectVersionApi);
         var idMinter = new IdMinter();
 
@@ -145,7 +145,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         );
     }
 
-    OcflObjectVersionApi createOcflObjectVersionApi(DdVaultIngestFlowConfig configuration, Environment environment) {
+    DefaultApi createCatalogClient(DdVaultIngestFlowConfig configuration, Environment environment) {
         var client = new JerseyClientBuilder(environment)
             .using(configuration.getVaultCatalog().getHttpClient())
             .build("vault-catalog");
@@ -154,6 +154,6 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         apiClient.setHttpClient(client);
         apiClient.setBasePath(configuration.getVaultCatalog().getUrl().toString());
 
-        return new OcflObjectVersionApi(apiClient);
+        return new DefaultApi(apiClient);
     }
 }
