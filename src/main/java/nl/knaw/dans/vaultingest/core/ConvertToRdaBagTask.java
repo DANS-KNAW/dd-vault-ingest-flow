@@ -128,7 +128,7 @@ public class ConvertToRdaBagTask implements Runnable {
         }
     }
 
-    private long getNextOcflVersionNumber(DatasetDto dataset) {
+    private int getNextOcflVersionNumber(DatasetDto dataset) {
         var numbers = dataset.getVersionExports().stream()
             .map(VersionExportDto::getOcflObjectVersionNumber)
             .sorted().toList();
@@ -151,7 +151,7 @@ public class ConvertToRdaBagTask implements Runnable {
         }
     }
 
-    private String outputFilename(String bagId, Long objectVersion) {
+    private String outputFilename(String bagId, Integer objectVersion) {
         Objects.requireNonNull(bagId);
         Objects.requireNonNull(objectVersion);
 

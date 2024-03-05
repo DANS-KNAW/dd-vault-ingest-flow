@@ -56,7 +56,7 @@ public class Deposit {
     private String nbn;
     @Setter
     @Builder.Default
-    private Long objectVersion = 1L;
+    private Integer objectVersion = 1;
     @Setter
     private String dataSupplier;
 

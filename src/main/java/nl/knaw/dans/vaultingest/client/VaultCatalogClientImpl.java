@@ -36,6 +36,7 @@ public class VaultCatalogClientImpl implements VaultCatalogClient {
         var versionExportDto = new VersionExportDto()
             .bagId(deposit.getBagId())
             .datasetNbn(deposit.getNbn())
+            .ocflObjectVersionNumber(deposit.getObjectVersion())
             .createdTimestamp(deposit.getCreationTimestamp())
             .skeletonRecord(true);
 
@@ -57,11 +58,12 @@ public class VaultCatalogClientImpl implements VaultCatalogClient {
     public VersionExportDto addDatasetVersionFor(Deposit deposit) throws IOException {
         var versionExportDto = new VersionExportDto()
             .bagId(deposit.getBagId())
+            .ocflObjectVersionNumber(deposit.getObjectVersion())
             .createdTimestamp(deposit.getCreationTimestamp())
             .skeletonRecord(true);
 
         try {
-            vaultCatalogApi.addVersionExport(deposit.getNbn(), versionExportDto.getBagId(), versionExportDto);
+            vaultCatalogApi.setVersionExport(deposit.getNbn(), versionExportDto.getOcflObjectVersionNumber(), versionExportDto);
             return versionExportDto;
         }
         catch (ApiException e) {
