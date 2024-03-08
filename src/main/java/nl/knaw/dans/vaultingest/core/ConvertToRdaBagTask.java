@@ -113,7 +113,7 @@ public class ConvertToRdaBagTask implements Runnable {
     private void checkDataSupplier(DatasetDto dataset) throws InvalidDepositException {
         if (!StringUtils.equals(deposit.getDataSupplier(), dataset.getDataSupplier())) {
             throw new InvalidDepositException(String.format(
-                "Data supplier in deposit  %s does not match the data supplier %s in the dataset to be updated, as registered in the Vault Catalog", deposit.getDataSupplier(),
+                "Data supplier in deposit '%s' does not match the data supplier '%s' in the dataset to be updated, as registered in the Vault Catalog", deposit.getDataSupplier(),
                 dataset.getDataSupplier()));
         }
     }

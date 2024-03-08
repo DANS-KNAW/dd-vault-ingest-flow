@@ -23,9 +23,8 @@ public class MigrationDepositManager extends DepositManager {
     }
 
     @Override
-    Deposit.DepositBuilder customizeDeposit(Deposit.DepositBuilder builder, DepositProperties depositProperties) {
-        return builder.
-            nbn(depositProperties.getDataverseNbn())
-            .migration(true);
+    Deposit customizeDeposit(Deposit deposit, DepositProperties depositProperties) {
+        deposit.setNbn(depositProperties.getDataverseNbn());
+        return deposit;
     }
 }

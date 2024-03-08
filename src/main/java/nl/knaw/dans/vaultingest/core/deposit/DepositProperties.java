@@ -20,9 +20,8 @@ import org.apache.commons.configuration2.FileBasedConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
-import java.util.List;
-
 public class DepositProperties {
+    private static final String NBN = "identifier.urn";
     private static final String DATAVERSE_BAG_ID = "dataverse.bag-id";
     private static final String DATAVERSE_NBN = "dataverse.nbn";
     private static final String STATE_LABEL = "state.label";
@@ -37,6 +36,14 @@ public class DepositProperties {
     public DepositProperties(FileBasedConfigurationBuilder<FileBasedConfiguration> builder) throws ConfigurationException {
         this.configuration = builder.getConfiguration();
         this.builder = builder;
+    }
+
+    public String getNbn() {
+        return configuration.getString(NBN);
+    }
+
+    public void setNbn(String nbn) {
+        configuration.setProperty(NBN, nbn);
     }
 
     public String getStateLabel() {

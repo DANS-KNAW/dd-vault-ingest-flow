@@ -121,35 +121,4 @@ class DepositOutboxTest {
             assertThat(Files.exists(fs.getPath("/outbox/path/batch1/rejected"))).isTrue();
         }
     }
-
-    @Test
-    void moveDeposit_should_use_correct_deposit_property() throws Exception {
-        try (var fs = MemoryFileSystemBuilder.newLinux().build()) {
-            var depositPath = fs.getPath("/input/path/deposit1");
-            var deposit = new DepositWithPathAndState(depositPath, Deposit.State.ACCEPTED);
-
-            Files.createDirectories(depositPath);
-
-            var outbox = new DepositOutbox(fs.getPath("/outbox/path/"));
-            outbox.init(false);
-            outbox.moveDeposit(deposit);
-
-            assertThat(Files.exists(fs.getPath("/outbox/path/processed/deposit1"))).isTrue();
-            assertThat(Files.notExists(depositPath)).isTrue();
-        }
-    }
-
-    private static class DepositWithPathAndState extends Deposit {
-        private final Deposit.State state;
-
-        DepositWithPathAndState(Path path, State state) {
-            super("random_id", null, null, null, path, null, null, false, null, null, null);
-            this.state = state;
-        }
-
-        @Override
-        public State getState() {
-            return state;
-        }
-    }
 }

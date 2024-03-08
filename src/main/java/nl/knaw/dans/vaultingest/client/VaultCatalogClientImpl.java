@@ -44,6 +44,7 @@ public class VaultCatalogClientImpl implements VaultCatalogClient {
             .nbn(deposit.getNbn())
             .datastation("VaaS") // TODO: get from configuration or set in dd-transfer-to-vault (but in that case it must not be a required field)
             .swordToken(swordTokenToUrnUuid(deposit.getSwordToken()))
+            .dataSupplier(deposit.getDataSupplier())
             .addVersionExportsItem(versionExportDto);
 
         try {
@@ -62,6 +63,7 @@ public class VaultCatalogClientImpl implements VaultCatalogClient {
     @Override
     public VersionExportDto addDatasetVersionFor(Deposit deposit) throws IOException {
         var versionExportDto = new VersionExportDto()
+            .datasetNbn(deposit.getNbn())
             .bagId(deposit.getBagId())
             .ocflObjectVersionNumber(deposit.getObjectVersion())
             .createdTimestamp(deposit.getCreationTimestamp())

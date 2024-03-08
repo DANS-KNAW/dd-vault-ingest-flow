@@ -53,8 +53,6 @@ public class Deposit {
     private final DepositBag bag;
     private final boolean migration;
     @Setter
-    private String nbn;
-    @Setter
     @Builder.Default
     private Integer objectVersion = 1;
     @Setter
@@ -92,6 +90,14 @@ public class Deposit {
     public void setState(State state, String message) {
         properties.setStateLabel(state.name());
         properties.setStateDescription(message);
+    }
+
+    public void setNbn(String nbn) {
+        properties.setNbn(nbn);
+    }
+
+    public String getNbn() {
+        return properties.getNbn();
     }
 
     public String getBagId() {

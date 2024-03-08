@@ -84,10 +84,8 @@ public class DepositManager {
                 .properties(depositProperties)
                 .dataSupplier(dataSupplier);
 
-            builder = customizeDeposit(builder, depositProperties);
-
-            return builder.build();
-
+            var deposit = builder.build();
+            return customizeDeposit(deposit, depositProperties);
         }
         catch (Exception e) {
             log.error("Error loading deposit from disk: path={}", path, e);
@@ -95,8 +93,8 @@ public class DepositManager {
         }
     }
 
-    Deposit.DepositBuilder customizeDeposit(Deposit.DepositBuilder builder, DepositProperties depositProperties) {
-        return builder;
+    Deposit customizeDeposit(Deposit deposit, DepositProperties depositProperties) {
+        return deposit;
     }
 
     public void saveDepositProperties(Deposit deposit) {
