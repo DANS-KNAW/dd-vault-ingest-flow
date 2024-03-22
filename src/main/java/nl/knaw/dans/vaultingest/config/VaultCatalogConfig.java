@@ -20,13 +20,13 @@ import lombok.Getter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.net.URL;
+import java.net.URI;
 
 @Getter
 public class VaultCatalogConfig {
     @Valid
     @NotNull
-    private URL url;
+    private URI url;
 
     @Valid
     @NotNull

@@ -21,6 +21,7 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.lib.util.ManagedExecutorService;
 import nl.knaw.dans.vaultcatalog.client.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.DefaultApi;
@@ -87,14 +88,19 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             countryResolver
         );
 
-        var ocflObjectVersionApi = createCatalogClient(configuration, environment);
-        var vaultCatalogRepository = new VaultCatalogClientImpl(ocflObjectVersionApi);
+        var vaultCatalogProxy = new ClientProxyBuilder<ApiClient, DefaultApi>()
+            .apiClient(new ApiClient())
+            .basePath(configuration.getVaultCatalog().getUrl())
+            .httpClient(configuration.getVaultCatalog().getHttpClient())
+            .defaultApiCtor(DefaultApi::new)
+            .build();
+        var vaultCatalogClient = new VaultCatalogClientImpl(vaultCatalogProxy);
         var idMinter = new IdMinter();
 
         var autoIngestConvertToRdaBagTaskFactory = new ConvertToRdaBagTaskFactory(
             configuration.getIngestFlow().getAutoIngest().getDataSuppliers(),
             rdaBagWriterFactory,
-            vaultCatalogRepository,
+            vaultCatalogClient,
             depositValidator,
             idMinter,
             depositManager,
@@ -122,7 +128,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
         var migrationIngestConvertToRdaBagTaskFactory = new ConvertToRdaBagTaskFactory(
             configuration.getIngestFlow().getMigration().getDataSuppliers(),
             rdaBagWriterFactory,
-            vaultCatalogRepository,
+            vaultCatalogClient,
             migrationDepositValidator,
             idMinter,
             migrationDepositManager,
@@ -143,17 +149,5 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
                 dansBagValidatorClient, configuration.getValidateDansBag().getPingUrl()
             )
         );
-    }
-
-    DefaultApi createCatalogClient(DdVaultIngestFlowConfig configuration, Environment environment) {
-        var client = new JerseyClientBuilder(environment)
-            .using(configuration.getVaultCatalog().getHttpClient())
-            .build("vault-catalog");
-
-        var apiClient = new ApiClient();
-        apiClient.setHttpClient(client);
-        apiClient.setBasePath(configuration.getVaultCatalog().getUrl().toString());
-
-        return new DefaultApi(apiClient);
     }
 }
