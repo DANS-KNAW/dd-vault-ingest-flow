@@ -27,6 +27,7 @@ import org.w3c.dom.Document;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Builder
 @ToString
@@ -83,7 +84,8 @@ public class Deposit {
     }
 
     public OffsetDateTime getCreationTimestamp() {
-        var createdString = bag.getBagInfoValue("Created").stream().findFirst().orElseThrow(() -> new IllegalArgumentException("No creation timestamp found in bag-info.txt"));
+        var createdString = Optional.ofNullable(properties.getCreationTimestamp()).stream().findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No creation timestamp found in deposit.properties"));
         return OffsetDateTime.parse(createdString);
     }
 
