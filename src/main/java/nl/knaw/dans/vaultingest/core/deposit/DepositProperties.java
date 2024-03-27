@@ -30,6 +30,8 @@ public class DepositProperties {
     private static final String DEPOSITOR_ID = "depositor.userId";
     private static final String DATAVERSE_SWORD_TOKEN = "dataverse.sword-token";
 
+    private static final String CREATION_TIMESTAMP = "creation.timestamp";
+
     private final Configuration configuration;
     private final FileBasedConfigurationBuilder<FileBasedConfiguration> builder;
 
@@ -92,5 +94,9 @@ public class DepositProperties {
 
     public String getSwordToken() {
         return configuration.getString(DATAVERSE_SWORD_TOKEN);
+    }
+
+    public String getCreationTimestamp() {
+        return configuration.getString(CREATION_TIMESTAMP);
     }
 }
