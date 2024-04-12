@@ -43,7 +43,7 @@ public class VaultCatalogClientImpl implements VaultCatalogClient {
         var datasetDto = new DatasetDto()
             .nbn(deposit.getNbn())
             .datastation("VaaS") // TODO: get from configuration or set in dd-transfer-to-vault (but in that case it must not be a required field)
-            .swordToken(swordTokenToUrnUuid(deposit.getSwordToken()))
+            .swordToken(deposit.getSwordToken())
             .dataSupplier(deposit.getDataSupplier())
             .addVersionExportsItem(versionExportDto);
 
@@ -54,10 +54,6 @@ public class VaultCatalogClientImpl implements VaultCatalogClient {
         catch (ApiException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String swordTokenToUrnUuid(String swordToken) {
-        return "urn:uuid:" + swordToken.substring(swordToken.lastIndexOf(':') + 1);
     }
 
     @Override
