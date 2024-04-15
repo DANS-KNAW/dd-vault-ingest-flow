@@ -25,7 +25,7 @@
         <version>1.4.0</version>
     </parent>
     <artifactId>dd-vault-ingest-flow</artifactId>
-    <version>0.13.0</version>
+    <version>0.13.1-SNAPSHOT</version>
 
     <name>DD Vault Ingest Flow</name>
     <url>https://github.com/DANS-KNAW/dd-vault-ingest-flow</url>
@@ -38,7 +38,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://github.com/DANS-KNAW/${project.artifactId}</developerConnection>
-        <tag>v0.13.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <dependencies>
