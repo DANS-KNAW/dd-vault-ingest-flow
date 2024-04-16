@@ -98,7 +98,7 @@ public class DansBagToRdaBagEnricher {
         modifyTagManifests(); // Add checksums for new metadata files
 
         log.debug("Creating ZIP file");
-        var tempZipFile = deposit.getPath().resolve("temp-rda-bag.zip");
+        var tempZipFile = rdaBag.resolveSibling(rdaBag.getFileName() + ".tmp");
         ZipUtil.zipDirectory(deposit.getBagDir(), tempZipFile, true);
         Files.move(tempZipFile, rdaBag);
     }
