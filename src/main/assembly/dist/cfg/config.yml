@@ -72,6 +72,8 @@ logging:
       archive: false
       timeZone: system
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-vault-ingest-flow/dd-vault-ingest-flow.log
+  loggers:
+    'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
 
 validateDansBag:
   validateUrl: 'http://localhost:20330/validate'

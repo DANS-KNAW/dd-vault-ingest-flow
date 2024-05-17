@@ -70,7 +70,9 @@ logging:
       currentLogFilename: data/dd-vault-ingest-flow.log
     - type: console
       logFormat: "%-5p [%d{ISO8601}] [%t] %c: %m%n%rEx"
-
+  loggers:
+    'nl.knaw.dans': DEBUG
+    'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
 
 validateDansBag:
   validateUrl: 'http://localhost:20330/validate'
