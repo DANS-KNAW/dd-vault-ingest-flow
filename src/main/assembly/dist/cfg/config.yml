@@ -24,8 +24,7 @@ health:
 ingestFlow:
   rdaBagOutputDir: /var/opt/dans.knaw.nl/tmp/dve-outbox
   autoIngest:
-    dataSuppliers:
-      user001: The Organization Name
+    dataSuppliers: {}
     # todo: how to check if an update is authorized?
     inbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/auto-ingest/outbox
