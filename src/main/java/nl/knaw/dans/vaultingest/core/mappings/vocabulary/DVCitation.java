@@ -49,6 +49,7 @@ public class DVCitation {
     public static final Property distributor = m.createProperty(NS, "distributor");
     public static final Property distributorName = m.createProperty(NS, "distributorName");
     public static final Property distributionDate = m.createProperty(NS, "distributionDate");
+    public static final Property dateOfDeposit = m.createProperty(NS, "Property");
     public static final Property dateOfCollection = m.createProperty(NS, "dateOfCollection");
     public static final Property dateOfCollectionStart = m.createProperty(NS, "dateOfCollectionStart");
     public static final Property dateOfCollectionEnd = m.createProperty(NS, "dateOfCollectionEnd");
