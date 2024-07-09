@@ -32,7 +32,7 @@ public class Titles {
     }
 
     static String getTitle(Document ddm) {
-        return XPathEvaluator.strings(ddm, "/ddm:DDM/ddm:profile/dc:title")
+        return XPathEvaluator.strings(ddm, "/ddm:DDM/ddm:profile/dc:title", "ddm:DDM/ddm:profile/dcterms:title")
             .map(String::trim)
             .findFirst()
             .orElse(null);
