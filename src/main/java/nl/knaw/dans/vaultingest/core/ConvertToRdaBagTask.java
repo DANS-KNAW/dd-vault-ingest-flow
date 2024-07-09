@@ -96,7 +96,7 @@ public class ConvertToRdaBagTask implements Runnable {
 
     private void createSkeletonRecordInVaultCatalog() throws IOException, InvalidDepositException {
         if (deposit.isUpdate()) {
-            var dataset = vaultCatalogClient.findDataset(deposit.getIsVersionOf())
+            var dataset = vaultCatalogClient.findDataset(convertToSwordToken(deposit.getIsVersionOf()))
                 .orElseThrow(() -> new InvalidDepositException(String.format("Dataset with sword token %s not found in vault catalog", deposit.getSwordToken())));
             checkDataSupplier(dataset);
             checkCreatedTimestamp(dataset);
@@ -107,6 +107,18 @@ public class ConvertToRdaBagTask implements Runnable {
         else {
             deposit.setNbn(idMinter.mintUrnNbn());
             vaultCatalogClient.createDatasetFor(deposit);
+        }
+    }
+
+    private String convertToSwordToken(String isVersionOf) {
+        if (isVersionOf.startsWith("sword:")) {
+            return isVersionOf;
+        }
+        else if (isVersionOf.startsWith("urn:uuid:")) {
+            return "sword:" + isVersionOf.substring("urn:uuid:".length());
+        }
+        else {
+            throw new IllegalArgumentException("Is-Version-Of value must start with 'sword:' or 'urn:uuid:'");
         }
     }
 
