@@ -16,13 +16,13 @@
 
 package nl.knaw.dans.vaultingest;
 
-import io.dropwizard.client.JerseyClientBuilder;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.lib.util.ManagedExecutorService;
+import nl.knaw.dans.lib.util.PingHealthCheck;
 import nl.knaw.dans.vaultcatalog.client.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.DefaultApi;
 import nl.knaw.dans.vaultingest.client.DepositBagValidator;
@@ -41,8 +41,6 @@ import nl.knaw.dans.vaultingest.core.inbox.MigrationIngestArea;
 import nl.knaw.dans.vaultingest.core.rdabag.DefaultRdaBagWriterFactory;
 import nl.knaw.dans.vaultingest.core.util.IdMinter;
 import nl.knaw.dans.vaultingest.core.xml.XmlReader;
-import nl.knaw.dans.vaultingest.health.DansBagValidatorHealthCheck;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
 
 import java.io.IOException;
 
@@ -65,11 +63,6 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
 
     @Override
     public void run(final DdVaultIngestFlowConfig configuration, final Environment environment) throws IOException {
-        var dansBagValidatorClient = new JerseyClientBuilder(environment)
-            .withProvider(MultiPartFeature.class)
-            .using(configuration.getValidateDansBag().getHttpClient())
-            .build(getName());
-
         var languageResolver = new CsvLanguageResolver(
             configuration.getIngestFlow().getLanguages().getIso6391(),
             configuration.getIngestFlow().getLanguages().getIso6392()
@@ -79,7 +72,13 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             configuration.getIngestFlow().getSpatialCoverageCountryTermsPath()
         );
         var xmlReader = new XmlReader();
-        var depositValidator = new DepositBagValidator(dansBagValidatorClient, configuration.getValidateDansBag().getValidateUrl());
+        var validateDansBagProxy = new ClientProxyBuilder<nl.knaw.dans.validatedansbag.invoker.ApiClient, nl.knaw.dans.validatedansbag.client.resources.DefaultApi>()
+            .apiClient(new nl.knaw.dans.validatedansbag.invoker.ApiClient())
+            .basePath(configuration.getValidateDansBag().getValidateUrl())
+            .httpClient(configuration.getValidateDansBag().getHttpClient())
+            .defaultApiCtor(nl.knaw.dans.validatedansbag.client.resources.DefaultApi::new)
+            .build();
+        var depositValidator = new DepositBagValidator(validateDansBagProxy);
         var depositManager = new DepositManager(xmlReader);
 
         var rdaBagWriterFactory = new DefaultRdaBagWriterFactory(
@@ -122,7 +121,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
             autoIngestConvertToRdaBagTaskFactory,
             new DepositOutbox(configuration.getIngestFlow().getAutoIngest().getOutbox())));
 
-        var migrationDepositValidator = new MigrationBagValidator(dansBagValidatorClient, configuration.getValidateDansBag().getValidateUrl());
+        var migrationDepositValidator = new MigrationBagValidator(validateDansBagProxy);
         var migrationDepositManager = new MigrationDepositManager(xmlReader);
 
         var migrationIngestConvertToRdaBagTaskFactory = new ConvertToRdaBagTaskFactory(
@@ -145,9 +144,7 @@ public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowC
 
         environment.healthChecks().register(
             "DansBagValidator",
-            new DansBagValidatorHealthCheck(
-                dansBagValidatorClient, configuration.getValidateDansBag().getPingUrl()
-            )
-        );
+            new PingHealthCheck("DansBagValidator", validateDansBagProxy.getApiClient().getHttpClient(), configuration.getValidateDansBag().getPingUrl()));
+
     }
 }

@@ -15,31 +15,21 @@
  */
 package nl.knaw.dans.vaultingest.client;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.validatedansbag.client.api.ValidateCommandDto;
 import nl.knaw.dans.validatedansbag.client.api.ValidateOkDto;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
-import org.glassfish.jersey.media.multipart.MultiPart;
+import nl.knaw.dans.validatedansbag.client.resources.DefaultApi;
+import nl.knaw.dans.validatedansbag.invoker.ApiException;
 
-import javax.ws.rs.ProcessingException;
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
 @Slf4j
+@AllArgsConstructor
 public abstract class AbstractBagValidator implements BagValidator {
-    private final Client httpClient;
-    private final URI serviceUri;
-
-    public AbstractBagValidator(Client httpClient, URI serviceUri) {
-        this.httpClient = httpClient;
-        this.serviceUri = serviceUri;
-    }
+    private final DefaultApi api;
 
     @Override
     public void validate(Path bagDir) throws InvalidDepositException, IOException {
@@ -51,21 +41,18 @@ public abstract class AbstractBagValidator implements BagValidator {
             .bagLocation(bagDir.toString())
             .packageType(getPackageType());
 
-        log.debug("Validating bag {} with command {}", bagDir, command);
-
-        try (var multipart = new FormDataMultiPart()
-            .field("command", command, MediaType.APPLICATION_JSON_TYPE)) {
-
-            var response = validateMultipartObject(multipart);
-
-            if (Boolean.FALSE.equals(response.getIsCompliant())) {
-                throw formatValidationError(response);
+        try {
+            log.debug("Validating bag {} with command {}", bagDir, command);
+            var result = api.validateLocalDirPost(command);
+            if (Boolean.FALSE.equals(result.getIsCompliant())) {
+                throw formatValidationError(result);
             }
+            log.debug("Bag is compliant:");
         }
-        catch (IOException e) {
-            log.error("Unexpected error while communicating with bag validator on url {}", serviceUri, e);
-            throw e;
+        catch (ApiException e) {
+            throw new RuntimeException("Could not validate bag", e);
         }
+
     }
 
     private InvalidDepositException formatValidationError(ValidateOkDto result) {
@@ -83,35 +70,5 @@ public abstract class AbstractBagValidator implements BagValidator {
         );
     }
 
-    ValidateOkDto validateMultipartObject(MultiPart multipart) throws IOException {
-        try (var response = makeRequest(multipart)) {
-            log.debug("Validate bag response: {}", response);
-
-            if (response.getStatus() != 200) {
-                throw new IOException(String.format(
-                    "Unexpected response from bag validator service: %s %s",
-                    response.getStatus(), response.getStatusInfo().getReasonPhrase())
-                );
-            }
-
-            return response.readEntity(ValidateOkDto.class);
-        }
-    }
-
-    Response makeRequest(MultiPart multipart) throws IOException {
-        try {
-            var response = httpClient.target(serviceUri)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()));
-
-            log.debug("Validate bag response: {}", response);
-            return response;
-        }
-        catch (ProcessingException e) {
-            throw new IOException("Unexpected response from bag validator service", e);
-        }
-    }
-
     protected abstract ValidateCommandDto.PackageTypeEnum getPackageType();
-
 }

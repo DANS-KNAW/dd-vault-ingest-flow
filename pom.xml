@@ -34,6 +34,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.vaultingest.DdVaultIngestFlowApplication</main-class>
+        <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
     </properties>
 
     <scm>
@@ -58,6 +59,7 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-java-utils</artifactId>
+            <version>1.5.0</version>
         </dependency>
         <dependency>
             <groupId>nl.knaw.dans</groupId>
