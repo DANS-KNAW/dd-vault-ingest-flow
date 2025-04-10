@@ -15,15 +15,17 @@
  */
 package nl.knaw.dans.vaultingest.client;
 
+import io.dropwizard.client.JerseyClientConfiguration;
 import nl.knaw.dans.validatedansbag.client.api.ValidateCommandDto;
+import nl.knaw.dans.validatedansbag.client.resources.DefaultApi;
 
 import javax.ws.rs.client.Client;
 import java.net.URI;
 
 public class MigrationBagValidator extends AbstractBagValidator {
 
-    public MigrationBagValidator(Client httpClient, URI serviceUri) {
-        super(httpClient, serviceUri);
+    public MigrationBagValidator(DefaultApi api) {
+        super(api);
     }
 
     @Override

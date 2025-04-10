@@ -75,8 +75,8 @@ logging:
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
 
 validateDansBag:
-  validateUrl: 'http://localhost:20330/validate'
-  pingUrl: 'http://localhost:20330'
+  validateUrl: 'http://localhost:20330'
+  pingUrl: 'http://localhost:20331/ping'
   httpClient:
     timeout: 5min
     connectionTimeout: 1min
