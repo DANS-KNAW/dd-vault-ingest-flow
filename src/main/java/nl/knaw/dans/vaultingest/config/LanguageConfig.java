@@ -16,7 +16,7 @@
 package nl.knaw.dans.vaultingest.config;
 
 import lombok.Getter;
-import nl.knaw.dans.vaultingest.config.validator.FileMustExist;
+import nl.knaw.dans.validation.ExistingFile;
 
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
@@ -24,10 +24,10 @@ import java.nio.file.Path;
 @Getter
 public class LanguageConfig {
     @NotNull
-    @FileMustExist
+    @ExistingFile
     private Path iso6391;
 
     @NotNull
-    @FileMustExist
+    @ExistingFile
     private Path iso6392;
 }

@@ -17,12 +17,16 @@ package nl.knaw.dans.vaultingest.config;
 
 import lombok.Getter;
 
+import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 import java.util.Map;
 
 @Getter
 public class InboxConfig {
+    @NotNull
     private Path inbox;
+    @NotNull
     private Path outbox;
+    @NotNull
     private Map<String, String> dataSuppliers;
 }
