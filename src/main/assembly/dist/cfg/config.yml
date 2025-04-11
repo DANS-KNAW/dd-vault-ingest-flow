@@ -1,5 +1,5 @@
 #
-# dd-vault-ingest-flow configuration file
+# dd-vault-ingest configuration file
 #
 server:
   applicationContextPath: /
@@ -34,9 +34,9 @@ ingestFlow:
     inbox: /var/opt/dans.knaw.nl/tmp/migration/inbox
     outbox: /var/opt/dans.knaw.nl/tmp/migration/outbox
   languages:
-    iso6391: /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/iso639-1-to-dv.csv
-    iso6392: /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/iso639-2-to-dv.csv
-  spatialCoverageCountryTermsPath: /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/spatial-coverage-country-terms.txt
+    iso6391: /etc/opt/dans.knaw.nl/dd-vault-ingest/iso639-1-to-dv.csv
+    iso6392: /etc/opt/dans.knaw.nl/dd-vault-ingest/iso639-2-to-dv.csv
+  spatialCoverageCountryTermsPath: /etc/opt/dans.knaw.nl/dd-vault-ingest/spatial-coverage-country-terms.txt
   taskQueue:
     nameFormat: "vault-ingest-worker-%d"
     maxQueueSize: 5000
@@ -51,7 +51,7 @@ vaultCatalog:
 #  url: https://vault.dans.knaw.nl/catalog
   url:  https://dev.transfer.dans-data.nl
   httpClient:
-    userAgent: dd-vault-ingest-flow
+    userAgent: dd-vault-ingest
     connectionTimeout: 1min
     cookiesEnabled: false
     keepAlive: 0ms
@@ -70,7 +70,7 @@ logging:
     - type: file
       archive: false
       timeZone: system
-      currentLogFilename: /var/opt/dans.knaw.nl/log/dd-vault-ingest-flow/dd-vault-ingest-flow.log
+      currentLogFilename: /var/opt/dans.knaw.nl/log/dd-vault-ingest/dd-vault-ingest.log
   loggers:
     'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
 
@@ -88,4 +88,4 @@ validateDansBag:
     maxConnectionsPerRoute: 128
     keepAlive: 0ms
     retries: 0
-    userAgent: dd-vault-ingest-flow
+    userAgent: dd-vault-ingest

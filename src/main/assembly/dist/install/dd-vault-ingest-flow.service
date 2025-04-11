@@ -2,14 +2,14 @@
 Description=Vault Ingest Flow Service
 
 [Service]
-ExecStart=/opt/dans.knaw.nl/dd-vault-ingest-flow/bin/dd-vault-ingest-flow server /etc/opt/dans.knaw.nl/dd-vault-ingest-flow/config.yml
+ExecStart=/opt/dans.knaw.nl/dd-vault-ingest/bin/dd-vault-ingest server /etc/opt/dans.knaw.nl/dd-vault-ingest/config.yml
 # Java returns 143 even if the SIGTERM was handled correctly.
 SuccessExitStatus=143
 Environment="JAVA_OPTS=-Xms64m"
 Environment="LC_ALL=en_US.UTF-8"
 
-User=dd-vault-ingest-flow
-Group=dd-vault-ingest-flow
+User=dd-vault-ingest
+Group=dd-vault-ingest
 
 [Install]
 WantedBy=multi-user.target

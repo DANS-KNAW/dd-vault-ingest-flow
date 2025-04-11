@@ -1,5 +1,5 @@
 #
-# dd-vault-ingest-flow configuration file
+# dd-vault-ingest configuration file
 #
 server:
   applicationContextPath: /
@@ -53,7 +53,7 @@ vaultCatalog:
   url: https://dev.transfer.dans-data.nl/vault-catalog
   # url: http://localhost:20305/
   httpClient:
-    userAgent: dd-vault-ingest-flow
+    userAgent: dd-vault-ingest
     timeout: 5min
     connectionTimeout: 1min
 
@@ -67,7 +67,7 @@ logging:
     - type: file
       archive: false
       timeZone: system
-      currentLogFilename: data/dd-vault-ingest-flow.log
+      currentLogFilename: data/dd-vault-ingest.log
     - type: console
       logFormat: "%-5p [%d{ISO8601}] [%t] %c: %m%n%rEx"
   loggers:
@@ -88,4 +88,4 @@ validateDansBag:
     maxConnectionsPerRoute: 128
     keepAlive: 0ms
     retries: 0
-    userAgent: dd-vault-ingest-flow
+    userAgent: dd-vault-ingest

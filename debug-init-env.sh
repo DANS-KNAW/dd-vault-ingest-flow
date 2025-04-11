@@ -17,7 +17,7 @@
 
 echo -n "Pre-creating log..."
 TEMPDIR=data
-touch $TEMPDIR/dd-vault-ingest-flow.log
+touch $TEMPDIR/dd-vault-ingest.log
 mkdir $TEMPDIR/inbox
 mkdir $TEMPDIR/outbox
 mkdir $TEMPDIR/rda-bag

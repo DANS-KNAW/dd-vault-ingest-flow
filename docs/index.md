@@ -1,4 +1,4 @@
-dd-vault-ingest-flow
+dd-vault-ingest
 ====================
 
 Service that processes deposits converting them to RDA compliant bags and sends them to the vault.
@@ -6,7 +6,7 @@ Service that processes deposits converting them to RDA compliant bags and sends 
 SYNOPSIS
 --------
 
-    dd-vault-ingest-flow { server | check }
+    dd-vault-ingest { server | check }
 
 DESCRIPTION
 -----------
@@ -73,15 +73,15 @@ ARGUMENTS
 INSTALLATION AND CONFIGURATION
 ------------------------------
 Currently, this project is built as an RPM package for RHEL7/CentOS7 and later. The RPM will install the binaries to
-`/opt/dans.knaw.nl/dd-vault-ingest-flow` and the configuration files to `/etc/opt/dans.knaw.nl/dd-vault-ingest-flow`.
+`/opt/dans.knaw.nl/dd-vault-ingest` and the configuration files to `/etc/opt/dans.knaw.nl/dd-vault-ingest`.
 
 For installation on systems that do no support RPM and/or systemd:
 
 1. Build the tarball (see next section).
-2. Extract it to some location on your system, for example `/opt/dans.knaw.nl/dd-vault-ingest-flow`.
+2. Extract it to some location on your system, for example `/opt/dans.knaw.nl/dd-vault-ingest`.
 3. Start the service with the following command
    ```
-   /opt/dans.knaw.nl/dd-vault-ingest-flow/bin/dd-vault-ingest-flow server /opt/dans.knaw.nl/dd-vault-ingest-flow/cfg/config.yml 
+   /opt/dans.knaw.nl/dd-vault-ingest/bin/dd-vault-ingest server /opt/dans.knaw.nl/dd-vault-ingest/cfg/config.yml 
    ```
 
 BUILDING FROM SOURCE
@@ -94,8 +94,8 @@ Prerequisites:
 
 Steps:
 
-    git clone https://github.com/DANS-KNAW/dd-vault-ingest-flow.git
-    cd dd-vault-ingest-flow 
+    git clone https://github.com/DANS-KNAW/dd-vault-ingest.git
+    cd dd-vault-ingest 
     mvn clean install
 
 If the `rpm` executable is found at `/usr/local/bin/rpm`, the build profile that includes the RPM

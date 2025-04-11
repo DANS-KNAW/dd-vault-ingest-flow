@@ -17,7 +17,7 @@
 
 #include <service.sh>
 
-MODULE_NAME=dd-vault-ingest-flow
+MODULE_NAME=dd-vault-ingest
 PHASE="POST-TRANS"
 
 echo "$PHASE: START"

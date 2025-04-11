@@ -14,12 +14,12 @@
 # limitations under the License.
 #
 
-site_name: dd-vault-ingest-flow
+site_name: dd-vault-ingest
 theme:
   name: readthedocs
 
-repo_name: DANS-KNAW/dd-vault-ingest-flow
-repo_url: https://github.com/DANS-KNAW/dd-vault-ingest-flow
+repo_name: DANS-KNAW/dd-vault-ingest
+repo_url: https://github.com/DANS-KNAW/dd-vault-ingest
 
 nav:
   - Manual: index.md

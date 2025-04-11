@@ -28,7 +28,7 @@
     <version>0.17.2-SNAPSHOT</version>
 
     <name>DD Vault Ingest Flow</name>
-    <url>https://github.com/DANS-KNAW/dd-vault-ingest-flow</url>
+    <url>https://github.com/DANS-KNAW/dd-vault-ingest</url>
     <description>Vault Service Ingest Flow</description>
     <inceptionYear>2023</inceptionYear>
 

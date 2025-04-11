@@ -39,7 +39,7 @@
             <directory>${project.basedir}/src/main/assembly/dist/bin</directory>
             <outputDirectory>bin</outputDirectory>
             <includes>
-                <include>dd-vault-ingest-flow</include>
+                <include>dd-vault-ingest</include>
             </includes>
             <fileMode>0755</fileMode>
         </fileSet>
