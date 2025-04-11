@@ -27,13 +27,13 @@
     <artifactId>dd-vault-ingest</artifactId>
     <version>0.17.2-SNAPSHOT</version>
 
-    <name>DD Vault Ingest Flow</name>
+    <name>DD Vault Ingest</name>
     <url>https://github.com/DANS-KNAW/dd-vault-ingest</url>
-    <description>Vault Service Ingest Flow</description>
+    <description>Vault Ingest Service</description>
     <inceptionYear>2023</inceptionYear>
 
     <properties>
-        <main-class>nl.knaw.dans.vaultingest.DdVaultIngestFlowApplication</main-class>
+        <main-class>nl.knaw.dans.vaultingest.DdVaultIngestApplication</main-class>
         <dd-validate-dans-bag-api.version>1.0.0</dd-validate-dans-bag-api.version>
     </properties>
 

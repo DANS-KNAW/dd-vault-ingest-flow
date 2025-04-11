@@ -45,10 +45,10 @@ import nl.knaw.dans.vaultingest.core.xml.XmlReader;
 import java.io.IOException;
 
 @Slf4j
-public class DdVaultIngestFlowApplication extends Application<DdVaultIngestFlowConfig> {
+public class DdVaultIngestApplication extends Application<DdVaultIngestFlowConfig> {
 
     public static void main(final String[] args) throws Exception {
-        new DdVaultIngestFlowApplication().run(args);
+        new DdVaultIngestApplication().run(args);
     }
 
     @Override
